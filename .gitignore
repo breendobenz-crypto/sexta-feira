@@ -34,4 +34,4 @@ __pycache__/
 
 # Arquivos Temporários do Bot
 brain_memory.json
-bot_heartbeat.json
+bot_heartbeat.json*.yaml 
