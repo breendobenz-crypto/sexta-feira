@@ -1,0 +1,18 @@
+credentials:
+  usernames:
+    vip_member_01:
+      email: vip1@email.com
+      name: Membro VIP 01
+      password: $2b$12$... # Gerado com hashlib/pbkdf2 (veja abaixo)
+    vip_member_02:
+      email: vip2@email.com
+      name: Membro VIP 02
+      password: $2b$12$...
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+preauthorized:
+  emails:
+  - vip1@email.com
+  - vip2@email.com
