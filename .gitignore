@@ -1,37 +1,37 @@
+# ️ SENHAS E CHAVES (NUNCA SUBA ISSO)
 .env
-_env
+.env.example
+
+# 🗄️ BANCO DE DADOS (DADOS DOS CLIENTES E TRADES)
 *.db
-*.log
+*.sqlite
+
+# 🔑 CREDENCIAIS GOOGLE (SE FOR USAR SHEETS)
+google_creds.json
+
+# 💻 ARQUIVOS DE SISTEMA E CACHE
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# 📝 LOGS E DADOS TEMPORÁRIOS
+*.log
+watchdog.log
 brain_memory.json
-risk_state.json
-state.json
-market_scan_state.json
-trades_log.json
-trade_log.json
-credentials.json
-trade_limiter_state.json
-adaptive_ai_state.json
-performance_state.json
+news_cache.json
 bot_heartbeat.json
-jarvis.lock
+performance_state.json
+adaptive_ai_state.json
+state.json
+processed_vips.txt
 
-# Arquivos de Senhas e Configurações
-.env
-.env.local
+# 📂 PASTAS PESSOAIS (NOTAS DO OBSIDIAN)
+.obsidian/
+Obsidian Vault/
 
-# Banco de Dados (Contém dados dos usuários)
-*.db
-*.sqlite3
-*.db-shm
-*.db-wal
-
-# Logs e Cache
-*.log
-__pycache__/
-*.pyc
-
-# Arquivos Temporários do Bot
-brain_memory.json
-bot_heartbeat.json*.yaml 
+# 🖼️ OUTROS
+index.html

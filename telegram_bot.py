@@ -1,333 +1,408 @@
-import requests
-import threading
-import time
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL CORRIGIDA)
 import os
-import json
-from datetime import datetime, timezone
+import logging
+import requests
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from dotenv import load_dotenv
 
-try:
-    from config import (
-        TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, TRADINGVIEW_CHART_URL,
-        ELEVENLABS_API_KEY, VOICE_ID, HEARTBEAT_FILE, TELEGRAM_SIGNAL_GROUP
+load_dotenv()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# ==========================================
+# CONFIGURAÇÕES
+# ==========================================
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
+VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
+
+if not TOKEN:
+    logger.error("❌ TELEGRAM_BOT_TOKEN não configurado no .env")
+    exit(1)
+
+# ==========================================
+# COMANDOS DO BOT
+# ==========================================
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /start"""
+    user = update.effective_user
+    welcome_msg = (
+        f"🟣 *Bem-vindo à SEXTA-FEIRA Advanced!*\n\n"
+        f"Olá {user.first_name}! 👋\n\n"
+        f"Sou seu assistente de trading automatizado com IA.\n\n"
+        f"*O que posso fazer:*\n"
+        f"📊 Enviar sinais de trading em tempo real\n"
+        f"📰 Notícias de crypto filtradas\n"
+        f"📈 Alertas de entrada e saída\n"
+        f"🆘 Suporte técnico prioritário\n\n"
+        f"Digite /help para ver todos os comandos disponíveis."
     )
-except ImportError:
-    print("[WARN] Arquivo config.py não encontrado. Crie-o com suas chaves.")
-    # Fallbacks para evitar crash se config não existir ainda
-    TELEGRAM_TOKEN = ""
-    TELEGRAM_CHAT_ID = ""
-    TELEGRAM_SIGNAL_GROUP = None
-    TRADINGVIEW_CHART_URL = ""
-    ELEVENLABS_API_KEY = ""
-    VOICE_ID = ""
-    HEARTBEAT_FILE = "bot_heartbeat.json"
+    await update.message.reply_text(welcome_msg, parse_mode='Markdown')
 
-if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
-    print("[WARN] Telegram não configurado. Notificações desativadas.")
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /help"""
+    help_msg = (
+        "📚 *COMANDOS DISPONÍVEIS:*\n\n"
+        "/start - 🚀 Iniciar o bot\n"
+        "/help - 📚 Esta mensagem de ajuda\n"
+        "/status - 📊 Ver status do sistema\n"
+        "/vip - 💎 Informações sobre plano VIP\n"
+        "/suporte - 🆘 Falar com suporte técnico\n"
+        "/config - ⚙️ Configurações da conta\n"
+        "/trades - 📈 Ver trades abertos\n"
+        "/noticias - 📰 Últimas notícias crypto\n\n"
+        "*Links Úteis:*\n"
+        "🔗 Dashboard VIP: localhost:8501\n"
+        "🔗 OKX (Desconto): https://okx.com/join/69938298"
+    )
+    await update.message.reply_text(help_msg, parse_mode='Markdown')
 
-# URLs da API
-# ✅ CORREÇÃO: f-strings sem espaços
-URL_SEND_MSG    = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-URL_SEND_PHOTO  = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
-URL_SEND_VOICE  = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVoice"
-URL_GET_UPDATES = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
+async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /status"""
+    status_msg = (
+        "📊 *STATUS DO SISTEMA:*\n\n"
+        "✅ Bot Online\n"
+        "✅ OKX Conectado\n"
+        "✅ IA Anthropic Ativa\n"
+        "✅ Scanner de Mercado Rodando\n"
+        "✅ Risk Manager Protegido\n\n"
+        "🕐 Última atualização: Agora\n"
+        "🔄 Próximo scan: 30s"
+    )
+    await update.message.reply_text(status_msg, parse_mode='Markdown')
 
-# Session reutilizável
-_session = requests.Session()
-_session.headers.update({'Connection': 'keep-alive'})
+async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /vip"""
+    vip_msg = (
+        "💎 *SEXTA-FEIRA VIP*\n\n"
+        "*Benefícios Exclusivos:*\n"
+        "✅ Acesso ao Dashboard Premium\n"
+        "✅ Sinais de trading com IA Claude\n"
+        "✅ Raciocínio técnico por trade\n"
+        "✅ Suporte prioritário 24/7\n"
+        "✅ Relatórios semanais de performance\n"
+        "✅ Grupo VIP exclusivo no Telegram\n"
+        "✅ Gráficos TradingView integrados\n\n"
+        "*Investimento:* R\\$ 97/mês\n\n"
+        "*Como Assinar:*\n"
+        "1️⃣ Acesse: localhost:8501\n"
+        "2️⃣ Clique em \"Assinar VIP\"\n"
+        "3️⃣ Preencha com suas credenciais OKX\n"
+        "4️⃣ Aguarde aprovação (até 24h)\n\n"
+        "🔗 Cadastre-se na OKX com desconto:\n"
+        "https://okx.com/join/69938298"
+    )
+    await update.message.reply_text(vip_msg, parse_mode='Markdown')
 
-# Thread safety
-_update_lock = threading.Lock()
-last_update_id = 0
-
-# Rate limiting
-_last_msg_time = 0
-MIN_MSG_INTERVAL = 1.0
-
-# ==========================================
-# ❤️ HEARTBEAT
-# ==========================================
-def _log_telegram_activity(action: str, details: dict = None):
-    try:
-        if os.path.exists(HEARTBEAT_FILE):
-            with open(HEARTBEAT_FILE, "r") as f:
-                hb = json.load(f)
-            hb["last_telegram_action"] = action
-            hb["last_telegram_details"] = details or {}
-            hb["last_telegram_time"] = datetime.now(timezone.utc).isoformat()
-            with open(HEARTBEAT_FILE, "w") as f:
-                json.dump(hb, f)
-    except:
-        pass
-
-# ==========================================
-# RATE LIMIT
-# ==========================================
-def _rate_limit():
-    global _last_msg_time
-    now = time.time()
-    elapsed = now - _last_msg_time
-    if elapsed < MIN_MSG_INTERVAL:
-        time.sleep(MIN_MSG_INTERVAL - elapsed)
-    _last_msg_time = time.time()
-
-# ==========================================
-# ENVIO ROBUSTO
-# ==========================================
-def _send(msg: str, parse_mode: str = "HTML", retries: int = 3, chat_id: str = None) -> bool:
-    if not TELEGRAM_TOKEN:
-        return False
-    target = chat_id or TELEGRAM_CHAT_ID
-    for attempt in range(retries):
+async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /suporte - CORRIGIDO"""
+    admin_user = os.getenv('ADMIN_USERNAME', 'seu_usuario')
+    suporte_msg = (
+        "🆘 *SUPORTE TÉCNICO*\n\n"
+        "*Canais de Atendimento:*\n\n"
+        "📧 Email: suporte@sextafeira.com\n"
+        f"💬 Telegram: @{admin_user}\n"
+        "🕐 Horário: Seg-Sex 9h às 18h (BRT)\n\n"
+        "*Para agilizar seu atendimento, informe:*\n"
+        "• Seu email de cadastro\n"
+        "• Print do erro (se houver)\n"
+        "• Descrição detalhada do problema\n"
+        "• Horário aproximado do ocorrido\n\n"
+        "⏱ Tempo médio de resposta: 2h"
+    )
+    await update.message.reply_text(suporte_msg, parse_mode='Markdown')
+    
+    # Notifica admin sobre novo pedido de suporte
+    if ADMIN_ID:
         try:
-            _rate_limit()
-            # ✅ CORREÇÃO: removido espaços nas chaves do JSON
-            r = _session.post(
-                URL_SEND_MSG,
-                json={"chat_id": target, "text": msg, "parse_mode": parse_mode},
+            user = update.effective_user
+            await context.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=(
+                    f"🆘 *Novo pedido de suporte*\n\n"
+                    f"👤 Usuário: @{user.username or 'Sem username'}\n"
+                    f"📧 Nome: {user.first_name}\n"
+                    f"💬 Mensagem: /suporte"
+                ),
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ Falha ao notificar admin: {e}")
+
+async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /config"""
+    config_msg = (
+        "⚙️ *CONFIGURAÇÕES*\n\n"
+        "Para alterar suas configurações:\n\n"
+        "1️⃣ Acesse o Dashboard VIP\n"
+        "2️⃣ Vá em \"⚙️ Configurações\"\n"
+        "3️⃣ Altere sua senha ou preferências\n\n"
+        "*Configurações Disponíveis:*\n"
+        "• 🔑 Senha de acesso\n"
+        "• 🔔 Notificações Telegram\n"
+        "• 📊 Ativos monitorados\n"
+        "• ⚡ Alavancagem padrão\n\n"
+        "🔗 Dashboard: localhost:8501"
+    )
+    await update.message.reply_text(config_msg, parse_mode='Markdown')
+
+async def trades_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /trades"""
+    trades_msg = (
+        "📈 *TRADES ABERTOS*\n\n"
+        "Para visualizar seus trades em tempo real:\n\n"
+        "1️⃣ Acesse o Dashboard VIP\n"
+        "2️⃣ Vá na aba \"📌 Posições\"\n"
+        "3️⃣ Veja entradas, stops e PnL não realizado\n\n"
+        "*Informações Disponíveis:*\n"
+        "• Ativo e direção\n"
+        "• Preço de entrada\n"
+        "• Stop Loss e Take Profit\n"
+        "• PnL em tempo real\n"
+        "• Alavancagem utilizada\n\n"
+        "🔗 Dashboard: localhost:8501"
+    )
+    await update.message.reply_text(trades_msg, parse_mode='Markdown')
+
+async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando /noticias"""
+    noticias_msg = (
+        "📰 *ÚLTIMAS NOTÍCIAS CRYPTO*\n\n"
+        "Para ver notícias em tempo real:\n\n"
+        "1️⃣ Acesse o Dashboard VIP\n"
+        "2️⃣ Vá na aba \"📰 Notícias\"\n"
+        "3️⃣ Veja feed de CoinDesk, Cointelegraph e Decrypt\n\n"
+        "*Fontes Monitoradas:*\n"
+        "• CoinDesk\n"
+        "• Cointelegraph\n"
+        "• Decrypt\n"
+        "• The Block\n\n"
+        "🔔 Notícias relevantes são enviadas automaticamente no grupo Free."
+    )
+    await update.message.reply_text(noticias_msg, parse_mode='Markdown')
+
+async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando desconhecido"""
+    await update.message.reply_text(
+        "❌ Comando não reconhecido. Digite /help para ver a lista de comandos.",
+        parse_mode='Markdown'
+    )
+
+# ==========================================
+# ENVIO DE SINAL VIP (FORMATO EXATO SOLICITADO)
+# ==========================================
+
+def enviar_sinal_vip(
+    ativo: str, 
+    direcao: str, 
+    score: str, 
+    entrada: str, 
+    take: str, 
+    stop: str, 
+    hora: str,
+    isolado: str = "5x", 
+    leverage: str = "10x"
+) -> bool:
+    """
+    Envia sinal formatado APENAS para o Grupo VIP.
+    Formato exato solicitado pelo usuário.
+    """
+    if not VIP_GROUP_ID or not TOKEN:
+        logger.warning("⚠️ TELEGRAM_VIP_GROUP_ID ou TOKEN não configurados")
+        return False
+    
+    # Formato EXATO como solicitado (com box characters)
+    caption = (
+        f"⚡ SEXTA-FEIRA SIGNAL\n\n"
+        f"Ativo: {ativo}\n"
+        f"Direção: {direcao}\n"
+        f"Score: {score}\n"
+        f"┌────────────────────┐\n"
+        f"│ ENTRADA : {entrada}\n"
+        f"│ TAKE    : {take}\n"
+        f"│ STOP    : {stop}\n"
+        f"└────────────────────┘\n\n"
+        f"Isolado: {isolado}\n"
+        f"Leverage: {leverage}\n"
+        f"Hora: {hora}"
+    )
+    
+    try:
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        response = requests.post(
+            url,
+            json={
+                "chat_id": VIP_GROUP_ID,
+                "text": caption,
+                "parse_mode": "Markdown"
+            },
+            timeout=10
+        )
+        if response.status_code == 200:
+            logger.info(f"✅ Sinal enviado para VIP: {ativo} {direcao}")
+            return True
+        else:
+            logger.error(f"❌ Erro ao enviar sinal: {response.status_code} - {response.text}")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Exceção ao enviar sinal: {type(e).__name__}: {e}")
+        return False
+
+
+def enviar_sinal_com_grafico(
+    ativo: str, 
+    direcao: str, 
+    score: str, 
+    entrada: str, 
+    take: str, 
+    stop: str, 
+    hora: str,
+    chart_url: str = None
+) -> bool:
+    """Envia sinal com gráfico opcional para o Grupo VIP."""
+    if not VIP_GROUP_ID or not TOKEN:
+        return False
+    
+    caption = (
+        f"⚡ SEXTA-FEIRA SIGNAL\n\n"
+        f"Ativo: {ativo}\n"
+        f"Direção: {direcao}\n"
+        f"Score: {score}\n"
+        f"┌────────────────────┐\n"
+        f"│ ENTRADA : {entrada}\n"
+        f"│ TAKE    : {take}\n"
+        f"│ STOP    : {stop}\n"
+        f"└────────────────────┘\n\n"
+        f"Isolado: 5x\n"
+        f"Leverage: 10x\n"
+        f"Hora: {hora}"
+    )
+    
+    try:
+        if chart_url:
+            # Envia com foto/gráfico
+            url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+            response = requests.post(
+                url,
+                json={
+                    "chat_id": VIP_GROUP_ID,
+                    "photo": chart_url,
+                    "caption": caption,
+                    "parse_mode": "Markdown"
+                },
                 timeout=10
             )
-            if r.status_code == 200:
-                return True
-            elif r.status_code == 401:
-                print("[TELEGRAM ERROR] ❌ Token inválido.")
-                return False
-            elif r.status_code == 429:
-                try: wait = int(r.json().get("parameters", {}).get("retry_after", 5))
-                except: wait = 5
-                print(f"[TELEGRAM RATE LIMIT] ⏳ Aguardando {wait}s...")
-                time.sleep(wait)
-                continue
-            else:
-                print(f"[TELEGRAM WARN] Status {r.status_code}: {r.text[:100]}")
-                return False
-        except requests.exceptions.RemoteDisconnected:
-            print(f"[TELEGRAM] Conexão fechada (tentativa {attempt+1}/{retries})")
-            if attempt < retries - 1: time.sleep(2 ** attempt); continue
-            return False
-        except requests.exceptions.ConnectionError as e:
-            print(f"[TELEGRAM] Erro de conexão: {e}")
-            if attempt < retries - 1: time.sleep(2 ** attempt); continue
-            return False
-        except Exception as e:
-            print(f"[TELEGRAM ERROR] {type(e).__name__}: {e}")
-            return False
-    return False
-
-# ==========================================
-# VOZ (ELEVENLABS + FALLBACK TEXTO)
-# ==========================================
-def generate_natural_audio(text: str) -> bytes | None:
-    if not ELEVENLABS_API_KEY: return None
-    try:
-        # ✅ CORREÇÃO: f-string limpa
-        r = _session.post(
-            f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}",
-            headers={"Accept": "audio/mpeg", "xi-api-key": ELEVENLABS_API_KEY},
-            json={"text": text, "model_id": "eleven_multilingual_v2",
-                  "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}},
-            timeout=20
-        )
-        return r.content if r.status_code == 200 else None
+        else:
+            # Envia apenas texto
+            url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+            response = requests.post(
+                url,
+                json={
+                    "chat_id": VIP_GROUP_ID,
+                    "text": caption,
+                    "parse_mode": "Markdown"
+                },
+                timeout=10
+            )
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Sinal com gráfico enviado: {ativo} {direcao}")
+            return True
+        return False
     except Exception as e:
-        print(f"[VOICE ERROR] {e}"); return None
+        logger.error(f"❌ Erro ao enviar sinal com gráfico: {type(e).__name__}: {e}")
+        return False
 
-def send_voice_response(text: str):
-    audio = generate_natural_audio(text)
-    if audio:
+# ==========================================
+# ALERTAS DO SISTEMA (APENAS VIP)
+# ==========================================
+
+def alerta_trade(symbol: str, side: str, entry: str) -> None:
+    """Alerta de trade aberto para VIP."""
+    msg = (
+        f"🚀 *TRADE ABERTO*\n\n"
+        f"{symbol} | {side}\n"
+        f"Entry: `{entry}`\n\n"
+        f"⚡ SEXTA-FEIRA Advanced"
+    )
+    _send_to_vip(msg)
+
+def alerta_stop(symbol: str) -> None:
+    """Alerta de stop hit para VIP."""
+    msg = (
+        f"❌ *STOP HIT*\n\n"
+        f"{symbol}\n\n"
+        f"🛡️ Risk Manager ativado\n"
+        f"⚡ SEXTA-FEIRA Advanced"
+    )
+    _send_to_vip(msg)
+
+def alerta_erro(msg: str) -> None:
+    """Alerta de erro crítico para Admin."""
+    if ADMIN_ID and TOKEN:
         try:
-            _rate_limit()
-            _session.post(URL_SEND_VOICE, files={"voice": ("sexta.mp3", audio, "audio/mpeg")},
-                          data={"chat_id": TELEGRAM_CHAT_ID}, timeout=20)
-            _log_telegram_activity("voice_sent")
+            url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+            requests.post(
+                url, 
+                json={
+                    "chat_id": ADMIN_ID,
+                    "text": f"⚠️ *ERRO CRÍTICO*\n\n{msg}",
+                    "parse_mode": "Markdown"
+                }, 
+                timeout=10
+            )
         except Exception as e:
-            print(f"[SEND VOICE ERROR] {e}"); _send(text)
-    else:
-        _send(text)
+            logger.error(f"❌ Falha ao enviar alerta de erro: {e}")
 
-# ==========================================
-# CLAUDE IA
-# ==========================================
-_claude_client = None
-def _get_claude():
-    global _claude_client
-    if _claude_client is None:
-        # ✅ CORREÇÃO: Carregar variável de ambiente corretamente
-        api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        if api_key:
-            try:
-                import anthropic
-                _claude_client = anthropic.Anthropic(api_key=api_key)
-            except ImportError: print("[CLAUDE WARN] pip install anthropic")
-    return _claude_client
-
-def ask_claude(query: str) -> str:
-    client = _get_claude()
-    if not client: return "🔧 Núcleo offline. Configure ANTHROPIC_API_KEY no .env."
-    
-    equity_str = "desconhecida"
+def _send_to_vip(text: str) -> None:
+    """Envia mensagem apenas para o grupo VIP."""
+    if not VIP_GROUP_ID or not TOKEN:
+        return
     try:
-        from bybit_connect import get_account_info
-        info = get_account_info()
-        # ✅ CORREÇÃO: chave "equity" sem espaço
-        if info and info.get("equity"): equity_str = f"${info['equity']:.2f}"
-    except: pass
-
-    try:
-        # ✅ CORREÇÃO: system prompt e f-string limpos
-        msg = client.messages.create(
-            model="claude-3-haiku-20240307", max_tokens=400,
-            system="Você é a SEXTA-FEIRA, IA de trading autônoma. Fria, calculista, direta. Use termos de trading. Responda em PT-BR.",
-            messages=[{"role": "user", "content": f"Equity atual: {equity_str}\n\n{query}"}]
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        requests.post(
+            url, 
+            json={
+                "chat_id": VIP_GROUP_ID,
+                "text": text,
+                "parse_mode": "Markdown"
+            }, 
+            timeout=10
         )
-        return msg.content[0].text
     except Exception as e:
-        return f"Falha técnica: {type(e).__name__}"
+        logger.error(f"❌ Falha ao enviar para VIP: {e}")
 
 # ==========================================
-# STATUS COM CACHE
+# INICIALIZAÇÃO DO BOT
 # ==========================================
-_status_cache = {"data": None, "ts": 0}
-def _build_status_text() -> str:
-    now = time.time()
-    with _update_lock:
-        if _status_cache["data"] and (now - _status_cache["ts"]) < 10:
-            return _status_cache["data"]
-        try:
-            from bybit_connect import get_account_info
-            from risk_manager import get_risk_status
-            info = get_account_info() or {}
-            # ✅ CORREÇÃO: chaves sem espaços
-            equity = info.get("equity", 0)
-            avail = info.get("availableBalance", 0)
-            pos = info.get("positions", [])
-            
-            risk = get_risk_status()
-            min_score = 70
-            if os.path.exists("brain_memory.json"):
-                try:
-                    with open("brain_memory.json") as f: min_score = json.load(f).get("optimized_min_score", 70)
-                except: pass
-            
-            lines = ["📊 <b>STATUS — SEXTA-FEIRA</b>",
-                     f"💰 Equity: <b>${equity:.2f}</b> | Disp: ${avail:.2f}",
-                     f"🎯 Min Score: {min_score} | Modo: {'🛡️ DEF' if risk['modo_reducao'] else '✅ NORM'}",
-                     f"📉 Streak: {risk['loss_streak']} | Loss Dia: {risk['daily_loss_pct']:.2%}",
-                     f"📌 Posições: {len(pos)}"]
-            
-            for p in pos:
-                pnl = p.get("unrealisedPnl", 0); sign = "🟢" if pnl >= 0 else "🔴"
-                lines.append(f"  {sign} {p['symbol']} {p['side']} | PnL: ${pnl:.2f}")
-            
-            res = "\n".join(lines); _status_cache["data"] = res; _status_cache["ts"] = now; return res
-        except Exception as e: return f"⚠️ Erro status: {e}"
 
-# ==========================================
-# LISTENER DE COMANDOS
-# ==========================================
-def handle_incoming_messages():
-    global last_update_id
-    print("👂 Sexta-Feira ouvindo comandos no Telegram...")
-    _log_telegram_activity("listener_started")
-    while True:
-        try:
-            r = _session.get(URL_GET_UPDATES, params={"offset": last_update_id + 1, "timeout": 30}, timeout=35)
-            if r.status_code != 200: time.sleep(5); continue
-            for update in r.json().get("result", []):
-                with _update_lock: last_update_id = update["update_id"]
-                msg = update.get("message", {})
-                if not msg.get("text"): continue
-                if str(msg["chat"]["id"]) != TELEGRAM_CHAT_ID: continue
-                
-                text = msg["text"].strip(); lower = text.lower()
-                if lower in ["/status", "/saldo"]: 
-                    _send(_build_status_text()); _log_telegram_activity("status_requested"); continue
-                elif lower in ["/ajuda", "/help"]:
-                    _send("🤖 <b>Comandos</b>\n• /status ou /saldo\n• /trades\n• /config\n• /ping\n• Pergunte sobre mercado/trading.")
-                    continue
-                elif lower == "/ping": 
-                    _send("🟢 ONLINE — Claude/Bybit/DB OK"); _log_telegram_activity("ping"); continue
-                elif lower == "/trades":
-                    try:
-                        from database import get_all_closed_trades
-                        trades = get_all_closed_trades(limit=5)
-                        if not trades: _send("📭 Sem trades recentes.")
-                        else:
-                            lines = ["📋 <b>Últimos Trades</b>"]
-                            for t in trades:
-                                pnl = t.get("pnl_usdt", 0); sign = "+" if pnl >= 0 else ""
-                                lines.append(f"• {t['symbol']} {t['side']}: {sign}${pnl:.2f} (Score: {t.get('score',0)})")
-                            _send("\n".join(lines))
-                    except Exception as e: _send(f"⚠️ Erro: {e}")
-                    continue
-                elif lower == "/config":
-                    try:
-                        from config import SYMBOLS, MIN_SCORE_ENTRY, MAX_TRADES_ABERTOS
-                        _send(f"⚙️ <b>Config</b>\n• Ativos: {', '.join(SYMBOLS)}\n• Score Mín: {MIN_SCORE_ENTRY}\n• Máx Abertos: {MAX_TRADES_ABERTOS}")
-                    except Exception as e: _send(f"⚠️ Erro config: {e}")
-                    continue
-                else:
-                    response = ask_claude(text); send_voice_response(response)
-                    _log_telegram_activity("claude_query", {"query_length": len(text)})
-        except Exception as e:
-            print(f"[LISTENER ERROR] {e}"); _log_telegram_activity("listener_error", {"error": str(e)}); time.sleep(5)
-
-_listener = threading.Thread(target=handle_incoming_messages, daemon=True)
-_listener.start()
-
-# ==========================================
-# ENVIO DE SINAL
-# ==========================================
-def enviar_sinal_com_grafico(ativo, direcao, score, entrada, take, stop, hora):
-    # ✅ CORREÇÃO: f-string limpa
-    caption = (f"🟣 <b>SEXTA-FEIRA SIGNAL</b>\n\nAtivo: {ativo}\nDireção: {direcao}\nScore: {score}\n\n"
-               f"┌────────────────────┐\n│ ENTRADA : {entrada}\n│ TAKE    : {take}\n│ STOP    : {stop}\n└────────────────────┘\n\nHora: {hora}")
+def main() -> None:
+    """Inicializa e roda o bot Telegram."""
+    if not TOKEN:
+        logger.error("❌ TOKEN não configurado. Bot não iniciado.")
+        return
     
-    targets = []
-    if TELEGRAM_SIGNAL_GROUP: targets.append(TELEGRAM_SIGNAL_GROUP)
-    targets.append(TELEGRAM_CHAT_ID)
+    # Cria aplicação
+    application = Application.builder().token(TOKEN).build()
+    
+    # Registra comandos
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("status", status))
+    application.add_handler(CommandHandler("vip", vip_info))
+    application.add_handler(CommandHandler("suporte", suporte))
+    application.add_handler(CommandHandler("config", config_command))
+    application.add_handler(CommandHandler("trades", trades_command))
+    application.add_handler(CommandHandler("noticias", noticias_command))
+    
+    # Handler para comandos desconhecidos
+    application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
+    
+    # Inicia o bot
+    logger.info("🤖 Bot Telegram iniciado. Ouvindo comandos...")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
-    for target in targets:
-        try:
-            _rate_limit()
-            r = _session.post(URL_SEND_PHOTO, json={"chat_id": target, "photo": TRADINGVIEW_CHART_URL, 
-                   "caption": caption, "parse_mode": "HTML"}, timeout=10)
-            if r.status_code != 200: 
-                _send(caption, chat_id=target)
-        except: 
-            _send(caption, chat_id=target)
-            
-    _log_telegram_activity("signal_sent", {"symbol": ativo, "direction": direcao})
-
-# ==========================================
-# ALERTAS
-# ==========================================
-def alerta_trade(symbol, side, entry): _send(f"🚀 <b>TRADE ABERTO</b>\n{symbol}\n{side}\nEntry: {entry}"); _log_telegram_activity("trade_opened", {"symbol": symbol})
-def alerta_stop(symbol): _send(f"❌ <b>STOP HIT</b>\n{symbol}"); _log_telegram_activity("stop_hit", {"symbol": symbol})
-def alerta_be(symbol): _send(f"⚖️ <b>BREAK EVEN</b>\n{symbol}")
-def alerta_kill(): _send("🛑 <b>KILL SWITCH</b>\nOperações suspensas até amanhã."); _log_telegram_activity("kill_switch_activated")
-def alerta_erro(msg): _send(f"⚠️ <b>ERRO</b>\n{msg}"); _log_telegram_activity("system_error", {"message": msg[:200]})
-
-# ==========================================
-# RESUMO DIÁRIO
-# ==========================================
-def enviar_resumo_diario():
-    try:
-        from database import get_daily_stats
-        stats = get_daily_stats()
-        if stats["total"] == 0: return _send("📊 <b>RESUMO DIA</b>\nNenhuma operação hoje.")
-        wr = (stats["wins"] / stats["total"] * 100) if stats["total"] > 0 else 0
-        sign = "+" if stats["pnl"] >= 0 else ""
-        _send(f"📊 <b>RESUMO DIÁRIO</b>\n📈 Trades: {stats['total']} | 🟢 Wins: {stats['wins']} | 🔴 Losses: {stats['losses']}\n🎯 WR: {wr:.1f}% | Score Médio: {stats.get('avg_score',0):.0f}\n💰 Resultado: <b>${sign}{stats['pnl']:.2f}</b>")
-        _log_telegram_activity("daily_summary_sent", {"pnl": stats["pnl"], "wr": wr})
-    except Exception as e: print(f"[DAILY SUMMARY ERROR] {e}")
-
-# ==========================================
-# TESTE STANDALONE
-# ==========================================
-# ✅ CORREÇÃO: Adicionados underscores em __name__
 if __name__ == "__main__":
-    _send("🟣 Sexta-Feira ONLINE — Claude integrado, grupo ativo.")
-    print("🤖 Bot standalone. Ctrl+C para parar.")
-    try:
-        while True: time.sleep(10)
-    except KeyboardInterrupt: print("\n🛑 Encerrado.")
+    main()

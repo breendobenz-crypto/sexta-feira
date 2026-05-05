@@ -1,8 +1,4 @@
-# obsidian_agent.py - AGENTE DE ESCRITA AUTOMÁTICA (VERSÃO FINAL BLINDADA)
-# Gera, atualiza e mantém notas do Obsidian sem intervenção manual.
-# Thread-safe, Dataview-ready, YAML válido.
-# FIX: Sintaxe corrigida + construção de strings em partes para evitar conflito """ + ```
-
+# obsidian_agent.py - AGENTE DE ESCRITA AUTOMÁTICA (COM RACIOCÍNIO PÚBLICO)
 import os
 import sqlite3
 from datetime import datetime
@@ -11,7 +7,7 @@ from threading import Lock
 from config import OBSIDIAN_TRADES_PATH, DB_NAME
 
 class ObsidianAgent:
-    def __init__(self, vault_path: str = None, db_name: str = "jarvis_trades.db"):
+    def __init__(self, vault_path: str = None, db_name: str = "jarvis_saas.db"):
         self.vault = Path(vault_path or OBSIDIAN_TRADES_PATH).resolve()
         self.vault.mkdir(parents=True, exist_ok=True)
         self.db_path = self.vault.parent / db_name
@@ -25,13 +21,14 @@ class ObsidianAgent:
         return conn
 
     def log_trade(self, trade_data: dict) -> Path:
+        """Cria nota no Obsidian e retorna raciocínio público para o VIP."""
         symbol = trade_data.get("symbol", "UNKNOWN")
         side = trade_data.get("side", "LONG")
         ts = trade_data.get("open_time", datetime.now())
         filename = "{:%Y-%m-%d_%H-%M}_{}_{}.md".format(ts, symbol, side)
         filepath = self.vault / "trades" / filename
 
-        # YAML em string simples (sem backticks)
+        # YAML em string simples
         yaml = (
             "---\n"
             "tipo: trade\n"
@@ -60,7 +57,7 @@ class ObsidianAgent:
             symbol, side
         )
 
-        # Corpo sem blocos de código (apenas texto)
+        # Corpo da nota
         body = (
             "# 🟣 Trade — {} {}\n\n"
             "> [!INFO] Dados da Operação\n"
@@ -95,7 +92,44 @@ class ObsidianAgent:
                 f.write(content)
         return filepath
 
+    def generate_public_reasoning(self, trade_data: dict) -> str:
+        """Gera explicação simplificada para o VIP (sem expor lógica interna)."""
+        reasons = []
+        
+        # Indicadores técnicos
+        if trade_data.get("rsi") and trade_data["rsi"] < 30:
+            reasons.append("RSI em sobrevenda")
+        elif trade_data.get("rsi") and trade_data["rsi"] > 70:
+            reasons.append("RSI em sobrecompra")
+            
+        if trade_data.get("volume_signal") == "high":
+            reasons.append("Volume acima da média")
+        elif trade_data.get("volume_signal") == "low":
+            reasons.append("Volume abaixo da média")
+            
+        if trade_data.get("trend_1h") == "bullish":
+            reasons.append("Tendência 1H positiva")
+        elif trade_data.get("trend_1h") == "bearish":
+            reasons.append("Tendência 1H negativa")
+            
+        if trade_data.get("support_level"):
+            reasons.append(f"Suporte em ${trade_data['support_level']}")
+        if trade_data.get("resistance_level"):
+            reasons.append(f"Resistência em ${trade_data['resistance_level']}")
+            
+        # Score
+        score = trade_data.get("score", 70)
+        if score >= 85:
+            reasons.append("Confiança alta do setup")
+        elif score >= 70:
+            reasons.append("Setup padrão validado")
+        else:
+            reasons.append("Setup de menor confiança")
+            
+        return " | ".join(reasons) if reasons else "Setup técnico padrão"
+
     def update_trade_close(self, symbol: str, side: str, open_time: str, pnl: float, status: str = "CLOSED"):
+        """Atualiza nota do Obsidian ao fechar posição."""
         ts = open_time.replace(":", "-").replace(" ", "_")
         filename = "{}_{}_{}.md".format(ts, symbol, side)
         filepath = self.vault / "trades" / filename
@@ -121,6 +155,7 @@ class ObsidianAgent:
                 f.writelines(new_lines)
 
     def generate_daily_report(self, date_str: str = None) -> Path:
+        """Gera relatório diário no Obsidian."""
         if not date_str:
             date_str = datetime.now().strftime("%Y-%m-%d")
         filename = "{}_Relatorio_Diario.md".format(date_str)
@@ -139,7 +174,6 @@ class ObsidianAgent:
         wr = (wins / total * 100) if total > 0 else 0
         conn.close()
 
-        # Query Dataview em variável separada para evitar conflito de parsing
         dataview_query = (
             "```dataview\n"
             "TABLE ativo, direcao, entry, pnl_usdt, status\n"
@@ -180,6 +214,7 @@ class ObsidianAgent:
         return filepath
 
     def generate_monthly_performance(self, year_month: str = None) -> Path:
+        """Gera relatório mensal no Obsidian."""
         if not year_month:
             year_month = datetime.now().strftime("%Y-%m")
         filename = "{}_Performance.md".format(year_month)
@@ -215,7 +250,6 @@ class ObsidianAgent:
         ).format(year_month, year_month)
 
         header_part = "# 📊 Performance — {}\n\n".format(year_month)
-
         footer_note = (
             "\n> [!NOTE] Atualização Manual\n"
             "> Preencha `banca_final` no frontmatter no dia 1º do próximo mês.\n"

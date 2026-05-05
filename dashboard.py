@@ -1,4 +1,4 @@
-# dashboard_saas.py - DASHBOARD SAAS FINAL COMPLETO
+        # dashboard_saas.py - DASHBOARD SAAS FINAL (SEM LINK INDICAÇÃO + SEM RECUPERAR SENHA)
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -10,7 +10,7 @@ import requests
 import hashlib
 import csv
 import io
-from datetime import datetime, timedelta
+from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,7 +35,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES
+# CSS — GLASSMORPHISM + ANIMAÇÕES + TERMINAL
 # ==========================================
 st.markdown("""
 <style>
@@ -46,8 +46,9 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%);
 }
-.main { background-color: #050505; }
+.main  { background-color: #050505; }
 
+/* Títulos com Orbitron */
 h1, h2, h3 {
     color: #8A2BE2 !important;
     font-family: 'Orbitron', sans-serif !important;
@@ -56,6 +57,7 @@ h1, h2, h3 {
     text-align: center;
 }
 
+/* Login Glassmorphism com Animação */
 .login-wrap {
     max-width: 420px; 
     margin: 60px auto 0;
@@ -89,9 +91,17 @@ h1, h2, h3 {
     to { text-shadow: 0 0 20px rgba(138,43,226,0.8), 0 0 30px rgba(138,43,226,0.6); }
 }
 
+.login-subtitle {
+    text-align: center; 
+    color: #888; 
+    font-size: 0.9rem; 
+    margin-bottom: 2rem;
+}
+
+/* Pulse Animation */
 @keyframes pulse-purple {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0.7); }
-    70% { transform: scale(1.0); box-shadow: 0 0 0 12px rgba(138,43,226,0); }
+    0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0.7); }
+    70%  { transform: scale(1.0);  box-shadow: 0 0 0 12px rgba(138,43,226,0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0); }
 }
 
@@ -105,6 +115,7 @@ h1, h2, h3 {
     animation: pulse-purple 2s infinite;
 }
 
+/* Métricas Glassmorphism com Glow no Hover */
 [data-testid="stMetric"] {
     background-color: rgba(17, 17, 17, 0.6) !important;
     backdrop-filter: blur(10px) !important;
@@ -141,6 +152,7 @@ h1, h2, h3 {
     font-size: 0.8rem !important; 
 }
 
+/* Status Boxes com Glassmorphism e Animação */
 .status-box {
     padding: 12px; 
     border-radius: 8px; 
@@ -174,39 +186,7 @@ h1, h2, h3 {
     font-family: 'Orbitron', sans-serif; 
 }
 
-.bot-status-online {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid #00ff88;
-    border-radius: 20px;
-    color: #00ff88;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85em;
-    animation: pulse-green 2s infinite;
-}
-
-@keyframes pulse-green {
-    0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-    70% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-}
-
-.bot-status-offline {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid #ff4444;
-    border-radius: 20px;
-    color: #ff4444;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85em;
-}
-
+/* Tabelas Estilizadas */
 th { 
     color: #8A2BE2 !important; 
     background: #050505 !important; 
@@ -226,6 +206,7 @@ td {
     overflow: hidden; 
 }
 
+/* 💻 TERMINAL IA & AI REASONING com Animação */
 .thinking-box {
     background: #020202 !important;
     border: 1px solid #333 !important;
@@ -241,8 +222,14 @@ td {
     animation: fadeIn 0.6s ease-out;
 }
 
-.thinking-box::-webkit-scrollbar { width: 6px; }
-.thinking-box::-webkit-scrollbar-thumb { background: #00ff88; border-radius: 3px; }
+.thinking-box::-webkit-scrollbar { 
+    width: 6px; 
+}
+
+.thinking-box::-webkit-scrollbar-thumb { 
+    background: #00ff88; 
+    border-radius: 3px; 
+}
 
 .reasoning-box {
     background: #080808 !important;
@@ -258,6 +245,7 @@ td {
     animation: slideIn 0.4s ease-out;
 }
 
+/* Botões com Animação */
 .stButton > button {
     border-radius: 8px !important;
     border: 1px solid #8A2BE2 !important;
@@ -274,6 +262,7 @@ td {
     transform: translateY(-1px);
 }
 
+/* TradingView Widget */
 .tradingview-widget-container {
     border: 1px solid rgba(138,43,226,0.3) !important;
     border-radius: 12px !important; 
@@ -288,20 +277,7 @@ td {
     box-shadow: 0 0 30px rgba(138,43,226,0.3) !important;
 }
 
-.config-section {
-    background: rgba(17, 17, 17, 0.6);
-    border: 1px solid rgba(138,43,226,0.3);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    animation: fadeIn 0.6s ease-out;
-}
-
-.config-section:hover {
-    border-color: #8A2BE2;
-    box-shadow: 0 0 15px rgba(138,43,226,0.2);
-}
-
+/* Divider Animado */
 hr {
     border: none;
     height: 1px;
@@ -309,12 +285,29 @@ hr {
     margin: 20px 0;
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #9d4edd; }
+/* Scrollbar Personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
 
-#MainMenu, footer, header { visibility: hidden; }
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8A2BE2;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9d4edd;
+}
+
+/* Ocultar Chrome padrão */
+#MainMenu, footer, header { 
+    visibility: hidden; 
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -323,9 +316,9 @@ hr {
 # ==========================================
 try:
     from saas_db import (
-        get_user_by_email, get_decrypted_credentials, update_last_login,
+        get_user_by_email, get_user_full, set_user_password, verify_password,
+        get_decrypted_credentials, update_last_login,
         get_closed_trades, get_open_trades, get_user_stats, get_equity_curve,
-        set_user_password, verify_password, update_user_credentials,
     )
     _SAAS_DB_OK = True
 except ImportError as e:
@@ -333,7 +326,7 @@ except ImportError as e:
     _SAAS_DB_ERR = str(e)
 
 # ==========================================
-# DADOS DE MERCADO
+# DADOS DE MERCADO (PÚBLICO OKX)
 # ==========================================
 def fetch_market_overview():
     assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "PAXG-USDT-SWAP"]
@@ -363,6 +356,7 @@ def fetch_market_overview():
 # WIDGET TRADINGVIEW
 # ==========================================
 def get_tradingview_widget(symbol="BTCUSDT", height=550):
+    """Retorna o HTML do iframe do TradingView configurado para OKX Futures (Perpetual)."""
     tv_symbol = f"OKX:{symbol}.P"
     return f"""
     <div class="tradingview-widget-container" style="height:{height}px;width:100%">
@@ -373,7 +367,7 @@ def get_tradingview_widget(symbol="BTCUSDT", height=550):
     """
 
 # ==========================================
-# OKX CLIENT
+# OKX CLIENT POR SESSÃO (PRIVADO)
 # ==========================================
 @st.cache_resource(show_spinner=False)
 def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
@@ -482,7 +476,7 @@ def chart_pnl_bars(trades: list):
     return fig
 
 # ==========================================
-# IA TERMINAL
+# PENSAMENTOS DA IA (TERMINAL)
 # ==========================================
 _THOUGHTS = ["Analisando liquidez BTC...", "Calculando EMA9/21/50...", "Verificando filtro HTF 1h...",
     "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
@@ -492,50 +486,7 @@ def pensamento_ia():
     return f"> [{datetime.now().strftime('%H:%M:%S')}] {random.choice(_THOUGHTS)}"
 
 # ==========================================
-# MONITORAMENTO REAL
-# ==========================================
-def get_real_bot_activity(user_id: int, limit: int = 10):
-    activities = []
-    try:
-        trades = get_closed_trades(user_id, limit=5)
-        for trade in trades:
-            pnl = trade.get('pnl_usdt', 0)
-            pnl_str = f"${pnl:+.2f}"
-            icon = "✅" if pnl > 0 else "❌"
-            activities.append({
-                "hora": trade.get('close_time', '')[-8:] if trade.get('close_time') else datetime.now().strftime("%H:%M:%S"),
-                "evento": f"{icon} Trade fechado",
-                "ativo": trade.get('symbol', 'N/A'),
-                "pnl": pnl_str
-            })
-        
-        open_trades = get_open_trades(user_id)
-        for trade in open_trades:
-            activities.append({
-                "hora": trade.get('open_time', '')[-8:] if trade.get('open_time') else datetime.now().strftime("%H:%M:%S"),
-                "evento": "🎯 Entrada executada",
-                "ativo": trade.get('symbol', 'N/A'),
-                "entry": f"${trade.get('entry_price', 0):.2f}"
-            })
-        
-        if os.path.exists("bot_heartbeat.json"):
-            with open("bot_heartbeat.json") as f:
-                hb = json.load(f)
-            last_scan = hb.get("last_scan", "N/A")
-            activities.append({
-                "hora": last_scan[-8:] if last_scan != "N/A" else "N/A",
-                "evento": "🔄 Scan de mercado",
-                "ativo": "BTCUSDT"
-            })
-    except Exception as e:
-        st.error(f"Erro ao buscar atividades: {e}")
-    
-    return activities[:limit] if activities else [
-        {"hora": datetime.now().strftime("%H:%M:%S"), "evento": "⏳ Aguardando operações...", "ativo": "N/A"}
-    ]
-
-# ==========================================
-# LOGIN
+# 🔐 TELAS DE AUTENTICAÇÃO (SEM RECUPERAR SENHA)
 # ==========================================
 def render_login():
     st.markdown("""
@@ -546,15 +497,9 @@ def render_login():
     """, unsafe_allow_html=True)
     
     with st.form("login_form", clear_on_submit=True):
-        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
-        st.markdown('<p class="login-title">🟣 Autenticação</p>', unsafe_allow_html=True)
-        st.markdown('<p class="login-subtitle">Digite seu email e senha para acessar</p>', unsafe_allow_html=True)
-        
         email = st.text_input("📧 Email cadastrado", placeholder="seu@email.com", key="login_email")
         password = st.text_input("🔑 Senha VIP", type="password", placeholder="Digite sua senha", key="login_pass")
-        
         submitted = st.form_submit_button("🚀 Acessar Dashboard", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
         
         if submitted:
             if not email or "@" not in email:
@@ -570,13 +515,20 @@ def render_login():
                     st.error("❌ Email não encontrado.")
                     return
                 
+                # Verificação de senha: individual > global
                 is_valid = False
-                try:
-                    if verify_password(email, password):
-                        is_valid = True
-                    elif password == GLOBAL_PASSWORD:
-                        is_valid = True
-                except:
+                if _SAAS_DB_OK and 'get_user_full' in dir() and 'verify_password' in dir():
+                    try:
+                        full_user = get_user_full(email)
+                        if full_user and full_user.get('password_hash'):
+                            if verify_password(email, password):
+                                is_valid = True
+                        elif password == GLOBAL_PASSWORD:
+                            is_valid = True
+                    except:
+                        if password == GLOBAL_PASSWORD:
+                            is_valid = True
+                else:
                     if password == GLOBAL_PASSWORD:
                         is_valid = True
                 
@@ -594,6 +546,8 @@ def render_login():
                     st.error("❌ Senha incorreta.")
             else:
                 st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
+
+    # ✅ Botão "Esqueci a Senha" REMOVIDO conforme solicitado
 
     st.markdown("""
     <div style="text-align: center; margin-top: 60px; color: #555; font-size: 0.9em;">
@@ -645,7 +599,7 @@ def fetch_news_rss(max_items: int = 10):
     return news if news else [{"source": "Info", "title": "Nenhuma notícia nova no momento.", "link": "#", "date": ""}]
 
 # ==========================================
-# DASHBOARD
+# DASHBOARD PRINCIPAL
 # ==========================================
 def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
@@ -653,7 +607,7 @@ def render_dashboard():
     st.markdown(f"""
     <div style="text-align: center; margin-bottom: 30px; width: 100%;">
         <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
-            <div class="ia-heart"></div>
+            <span style="height: 20px; width: 20px; background-color: #8A2BE2; border-radius: 50%; display: inline-block;"></span>
             SEXTA-FEIRA ADVANCED
             <span style="font-size: 0.55em; color: #888; font-weight: 400; font-family: 'JetBrains Mono', monospace;">— {uname}</span>
         </h1>
@@ -663,7 +617,7 @@ def render_dashboard():
     col_btn = st.columns([1, 1, 1])
     with col_btn[2]:
         if st.button("Sair", use_container_width=True):
-            for k in ["logged_in", "user_id", "user_email", "user_name"]:
+            for k in ["logged_in", "user_id", "user_email", "user_name"]: 
                 st.session_state.pop(k, None)
             st.rerun()
 
@@ -673,6 +627,8 @@ def render_dashboard():
         locals()[f"s{i+1}"].markdown(f"<div class='status-box'><span class='status-label'>{lbl}</span><span class='status-value'>{val}</span></div>", unsafe_allow_html=True)
     st.divider()
 
+    # ✅ Link de Indicação OKX REMOVIDO conforme solicitado
+
     with st.spinner("Carregando dados..."):
         live = fetch_live_account(uid) if _SAAS_DB_OK else {"equity": 0, "available": 0, "positions": [], "error": None}
         stats = get_user_stats(uid) if _SAAS_DB_OK else {"win_rate": 0, "total_pnl": 0, "total_trades": 0, "wins": 0, "losses": 0, "avg_pct": 0, "worst_loss": 0, "best_win": 0}
@@ -681,7 +637,7 @@ def render_dashboard():
         open_pos = get_open_trades(uid) if _SAAS_DB_OK else []
         market_df = fetch_market_overview()
 
-    if live.get("error"):
+    if live.get("error"): 
         st.warning(f"⚠️ OKX: {live['error']}")
 
     equity, available, positions = live.get("equity", 0), live.get("available", 0), live.get("positions", [])
@@ -697,12 +653,9 @@ def render_dashboard():
     st.caption(f"🔄 Última atualização: {datetime.now().strftime('%H:%M:%S')}")
     st.divider()
 
-    # ✅ 7 ABAS COM CONFIGURAÇÕES
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "📈 Mercado", "📊 Performance", "📌 Posições", 
-        "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
-    ])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📈 Mercado", "📊 Performance", "📌 Posições", "📋 Histórico", "🧠 IA Terminal", "📰 Notícias"])
 
+    # ABA 1 - MERCADO + TRADINGVIEW
     with tab1:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -734,6 +687,7 @@ def render_dashboard():
         
         st.markdown(get_tradingview_widget(chart_asset, height=500), unsafe_allow_html=True)
 
+    # ABA 2 - PERFORMANCE
     with tab2:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -744,15 +698,15 @@ def render_dashboard():
         c_chart, c_bars = st.columns([3, 2])
         with c_chart:
             fig_eq = chart_equity(curve, equity - total_pnl)
-            if fig_eq:
+            if fig_eq: 
                 st.plotly_chart(fig_eq, use_container_width=True)
-            else:
+            else: 
                 st.info("Aguardando trades fechados para gerar curva de equity.")
         with c_bars:
             fig_bars = chart_pnl_bars(trades)
-            if fig_bars:
+            if fig_bars: 
                 st.plotly_chart(fig_bars, use_container_width=True)
-            else:
+            else: 
                 st.info("Sem trades suficientes para o gráfico de PnL.")
         st.subheader("Resumo de Performance")
         scol1, scol2, scol3, scol4 = st.columns(4)
@@ -761,6 +715,7 @@ def render_dashboard():
         scol3.metric("Avg PnL %", f"{stats.get('avg_pct', 0):.2f}%")
         scol4.metric("Pior Loss", f"${stats.get('worst_loss', 0):.2f}")
 
+    # ABA 3 - POSIÇÕES
     with tab3:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -769,7 +724,7 @@ def render_dashboard():
                 st.rerun()
         
         st.subheader("Posições Abertas — Tempo Real")
-        if not positions:
+        if not positions: 
             st.info("Nenhuma posição aberta.")
         else:
             rows = [{"Ativo": p["symbol"], "Direção": p["side"], "Tamanho": p["size"],
@@ -783,6 +738,7 @@ def render_dashboard():
             df_open.columns = ["Ativo", "Lado", "Entrada", "Size", "Score", "Aberto em"]
             st.dataframe(df_open, use_container_width=True, hide_index=True)
 
+    # ABA 4 - HISTÓRICO COM EXPORTAÇÃO
     with tab4:
         col_refresh, col_export = st.columns([1, 1])
         with col_refresh:
@@ -801,7 +757,7 @@ def render_dashboard():
                 )
         
         st.subheader("Histórico de Trades")
-        if not trades:
+        if not trades: 
             st.info("Nenhum trade fechado.")
         else:
             df_hist = pd.DataFrame(trades)[["symbol", "side", "entry_price", "exit_price", "pnl_usdt", "pnl_pct", "score", "close_time", "ai_reasoning"]].copy()
@@ -819,25 +775,24 @@ def render_dashboard():
                         st.markdown("<div class='reasoning-box'>⏳ Análise em processamento...</div>", unsafe_allow_html=True)
                     st.caption(f"Fechado em: {row['Fechado em']}")
 
+    # ABA 5 - IA TERMINAL
     with tab5:
         st.subheader("💻 Processamento da IA — Modo Terminal")
         logs = "\n".join([pensamento_ia() for _ in range(10)])
         st.code(logs, language="bash")
         
-        st.markdown('<div style="text-align:center; margin:10px 0;"><span class="ia-heart"></span><span style="color:#00ff88; font-family:\'Orbitron\';">IA Ativa — Processando</span></div>', unsafe_allow_html=True)
-        
         brain_file = "brain_memory.json"
         if os.path.exists(brain_file):
             try:
-                with open(brain_file) as f:
-                    bm = json.load(f)
+                with open(brain_file) as f: bm = json.load(f)
                 bc1, bc2, bc3 = st.columns(3)
                 bc1.metric("Min Score", bm.get("optimized_min_score", "—"))
                 bc2.metric("Risk Level", bm.get("risk_level", "—"))
                 bc3.metric("Win Rate Brain", f"{float(bm.get('win_rate', 0))*100:.1f}%")
-            except:
+            except: 
                 pass
 
+    # ABA 6 - NOTÍCIAS
     with tab6:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -848,127 +803,36 @@ def render_dashboard():
         st.subheader("📡 Feed de Notícias Crypto")
         try:
             if os.path.exists("news_cache.json"):
-                with open("news_cache.json", 'r', encoding='utf-8') as f:
+                with open("news_cache.json", 'r', encoding='utf-8') as f: 
                     cache = json.load(f)
                 if cache:
                     for item in cache:
                         st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
-                else:
+                else: 
                     st.info("🔄 Buscando notícias via RSS...")
                     news_items = fetch_news_rss()
                     for item in news_items:
                         st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
-            else:
+            else: 
                 st.info("⏳ Aguardando bot gerar cache...")
-        except Exception as e:
+        except Exception as e: 
             st.error(f"❌ Erro ao carregar: {e}")
 
-    # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
-    with tab7:
-        st.subheader("⚙️ Configurações da Conta")
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🔑 Senha de Acesso")
-            with st.form("change_pass_form"):
-                current_pass = st.text_input("Senha Atual", type="password")
-                new_pass = st.text_input("Nova Senha", type="password")
-                confirm_pass = st.text_input("Confirmar Nova Senha", type="password")
-                submitted = st.form_submit_button("💾 Atualizar Senha", use_container_width=True)
-                if submitted:
-                    if not verify_password(st.session_state["user_email"], current_pass) and current_pass != GLOBAL_PASSWORD:
-                        st.error("❌ Senha atual incorreta.")
-                    elif new_pass != confirm_pass:
-                        st.error("❌ As novas senhas não coincidem.")
-                    elif len(new_pass) < 6:
-                        st.error("❌ A nova senha deve ter pelo menos 6 caracteres.")
-                    else:
-                        if _SAAS_DB_OK:
-                            set_user_password(st.session_state["user_email"], new_pass)
-                            st.success("✅ Senha alterada com sucesso!")
-                            st.info("ℹ️ Faça login novamente com a nova senha.")
-                            st.session_state["logged_in"] = False
-                            st.rerun()
-                        else:
-                            st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🔑 Chaves API da OKX")
-            st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
-            
-            with st.form("okx_keys_form"):
-                api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da OKX")
-                api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da OKX")
-                passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da OKX")
-                
-                col_test, col_save = st.columns(2)
-                with col_test:
-                    test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
-                with col_save:
-                    save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
-                
-                if test_conn:
-                    if not all([api_key, api_secret, passphrase]):
-                        st.error("❌ Preencha todos os campos para testar.")
-                    else:
-                        with st.spinner("Testando conexão com a OKX..."):
-                            try:
-                                test_client = _build_okx_client(api_key, api_secret, passphrase)
-                                resp = test_client("/api/v5/account/balance", {"ccy": "USDT"})
-                                if resp.get("code") == "0":
-                                    st.success("✅ Conexão OKX validada com sucesso!")
-                                    st.json({"equity": resp["data"][0].get("totalEq")})
-                                else:
-                                    st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
-                            except Exception as e:
-                                st.error(f"❌ Falha ao conectar: {e}")
-                
-                if save_keys:
-                    if not all([api_key, api_secret, passphrase]):
-                        st.error("❌ Preencha todos os campos.")
-                    elif _SAAS_DB_OK:
-                        try:
-                            update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
-                            st.success("✅ Chaves salvas com segurança!")
-                            st.info("ℹ️ O bot começará a operar em até 1 minuto.")
-                        except Exception as e:
-                            st.error(f"❌ Erro ao salvar: {e}")
-                    else:
-                        st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🤖 Robô Sexta-Feira")
-            
-            bot_active = os.path.exists("bot_heartbeat.json")
-            if bot_active:
-                try:
-                    with open("bot_heartbeat.json") as f:
-                        hb = json.load(f)
-                    last_scan = hb.get("last_scan", "N/A")
-                    st.markdown(f'<div class="bot-status-online">🟢 Bot Online • Último scan: {last_scan}</div>', unsafe_allow_html=True)
-                except:
-                    st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="bot-status-offline">🔴 Bot Offline • Aguardando inicialização</div>', unsafe_allow_html=True)
-            
-            st.write("#### 📋 Atividades Recentes (Tempo Real)")
-            activity_log = get_real_bot_activity(uid, limit=5)
-            for log in activity_log:
-                pnl_badge = f" <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
-                entry_badge = f" <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
-                st.markdown(f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
 def main():
-    if "logged_in" not in st.session_state:
+    if "logged_in" not in st.session_state: 
         st.session_state["logged_in"] = False
+    if "page" not in st.session_state: 
+        st.session_state["page"] = "login"
     
+    page = st.session_state.get("page", "login")
+
     if not st.session_state["logged_in"]:
-        render_login()
+        # ✅ render_forgot_password() mantida no código caso precise no futuro, mas sem botão para acessá-la
+        if page == "forgot_password": 
+            st.info("Funcionalidade de recuperação de senha desativada.")
+            st.button("← Voltar para Login", on_click=lambda: st.session_state.update({'page': 'login'}))
+        else: 
+            render_login()
     else:
         render_dashboard()
 

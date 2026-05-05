@@ -1,4 +1,4 @@
-# main_saaS.py - ORQUESTRADOR SAAS (V6 - CORRIGIDO)
+# main_saaS.py - ORQUESTRADOR SAAS (V7 - INTEGRADO COM IA ANTHROPIC)
 import os
 import sys
 import time
@@ -6,7 +6,7 @@ import logging
 import traceback
 from dotenv import load_dotenv
 
-# 1. Carrega variáveis de ambiente
+# Carrega variáveis de ambiente
 load_dotenv()
 
 # Configuração de Logs
@@ -38,12 +38,13 @@ except ImportError:
 
 from indicators import gerar_sinal
 from execution_engine import executar_ordem
+from alert_monitor import log_and_alert, send_telegram_alert  # Sistema de Alertas
 
 # ==========================================
 # CONFIGURAÇÕES
 # ==========================================
 SCAN_INTERVAL = 30  # Segundos entre ciclos
-SYMBOLS_TO_SCAN = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+SYMBOLS_TO_SCAN = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"]
 _shutdown_flag = False
 
 # ==========================================
@@ -52,15 +53,13 @@ _shutdown_flag = False
 def process_vip_user(user_id: str, keys: dict):
     logger.info(f"🔄 [{user_id}] Iniciando ciclo...")
     try:
-        # ✅ CORREÇÃO: O saas_db.py JÁ retorna as chaves descriptografadas.
-        # Removemos a chamada decrypt_key() que estava causando o erro.
+        # Chaves já vêm descriptografadas do saas_db
         creds = {
             "api_key": keys["api_key"],
             "api_secret": keys["api_secret"],
             "passphrase": keys["passphrase"],
         }
 
-        # 2. Cria cliente OKX isolado para este VIP
         if USE_CLASS_CLIENT:
             client = OKXClient(
                 api_key=creds["api_key"],
@@ -70,26 +69,26 @@ def process_vip_user(user_id: str, keys: dict):
             )
             acc = client.get_account_info()
         else:
-            logger.error(f"❌ [{user_id}] Modo Legacy não suportado no SaaS.")
+            log_and_alert("ERROR", f"[{user_id}] Modo Legacy não suportado no SaaS.")
             return
 
         if not acc or acc.get("equity", 0) == 0:
-            logger.warning(f"⚠️ [{user_id}] Falha ao conectar ou equity zero. Pulando.")
+            log_and_alert("WARNING", f"[{user_id}] Falha ao conectar ou equity zero. Pulando.")
             return
 
         logger.info(f"✅ [{user_id}] Conectado | Equity: ${acc['equity']:.4f}")
+        send_telegram_alert(f"✅ [{user_id}] Conectado na OKX. Equity: ${acc['equity']:.4f}", "success")
 
-        # 3. Loop de Varredura de Sinais
         for symbol in SYMBOLS_TO_SCAN:
             try:
-                # Injeta o cliente no módulo de indicadores temporariamente
+                # Injeta o cliente isolado no módulo de indicadores
                 import indicators
                 original_func = indicators.get_klines
                 indicators.get_klines = client.get_klines if hasattr(client, "get_klines") else indicators.get_klines
 
                 signal = gerar_sinal(symbol)
                 
-                # Restaura função original para não vazar para o próximo VIP
+                # Restaura função original para evitar vazamento entre VIPs
                 indicators.get_klines = original_func
 
                 if signal:
@@ -101,27 +100,28 @@ def process_vip_user(user_id: str, keys: dict):
                         "stop": stop, "take": take, "score": score
                     }
                     
-                    # Executa ordem (passa o cliente isolado)
+                    # ✅ CORREÇÃO CRÍTICA: Passando user_id para salvar no banco
                     if USE_CLASS_CLIENT:
-                        executar_ordem(client, symbol, direction, signal_data)
+                        executar_ordem(client, symbol, direction, signal_data, user_id=user_id)
                     else:
-                        executar_ordem(symbol, direction, price, stop, take, 0.01, score=score)
+                        executar_ordem(symbol, direction, price, stop, take, 0.01, score=score, user_id=user_id)
                         
             except Exception as e:
-                logger.error(f"❌ [{user_id}-{symbol}] Erro no scan: {e}")
+                log_and_alert("ERROR", f"[{user_id}-{symbol}] Erro no scan: {e}")
                 logger.debug(traceback.format_exc())
 
     except Exception as e:
-        logger.error(f"💥 [{user_id}] Erro crítico no ciclo:")
+        log_and_alert("CRITICAL", f"[{user_id}] Erro crítico no ciclo: {e}", "killswitch")
         logger.error(traceback.format_exc())
 
 # ==========================================
 # LOOP PRINCIPAL
 # ==========================================
 def main():
-    logger.info("🟣 SEXTA-FEIRA SAAS - ORQUESTRADOR V6 INICIADO")
+    logger.info("🟣 SEXTA-FEIRA SAAS - ORQUESTRADOR V7 INICIADO")
     logger.info(f"🌐 Ambiente: {'Classe SaaS' if USE_CLASS_CLIENT else 'Legacy Global'}")
-    
+    send_telegram_alert("🟢 Orquestrador SaaS v7 (IA Ativa) iniciado com sucesso!", "info")
+
     try:
         while not _shutdown_flag:
             vip_users = get_active_users()
@@ -135,7 +135,7 @@ def main():
                     if keys:
                         process_vip_user(user_id, keys)
                     else:
-                        logger.warning(f"⚠️ [{user_id}] Chaves não encontradas no DB.")
+                        log_and_alert("WARNING", f"[{user_id}] Chaves não encontradas no DB.")
                     time.sleep(2)  # Pausa entre usuários para respeitar Rate Limit
 
             logger.info(f"⏳ Próximo ciclo em {SCAN_INTERVAL}s...")
@@ -143,8 +143,9 @@ def main():
             
     except KeyboardInterrupt:
         logger.info("🛑 Interrompido pelo usuário.")
+        send_telegram_alert("🛑 Orquestrador interrompido manualmente.", "warning")
     except Exception as e:
-        logger.critical(f"💥 Falha fatal no orquestrador:")
+        log_and_alert("CRITICAL", f"Falha fatal no orquestrador: {e}", "crash")
         logger.critical(traceback.format_exc())
 
 if __name__ == "__main__":
