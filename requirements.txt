@@ -1,36 +1,28 @@
+# Core
+streamlit>=1.32.0
 pandas>=2.0.0
 numpy>=1.24.0
-python-dotenv>=1.0.0
-requests>=2.31.0
-pytz>=2024.1
-streamlit>=1.32.0
 plotly>=5.19.0
+
+# Network & API
+requests>=2.31.0
+python-dotenv>=1.0.0
+pytz>=2024.1
+
+# AI & NLP
 anthropic>=0.25.0
-colorama>=0.4.6
-fastapi==0.109.0
-uvicorn==0.27.0
-python-dotenv==1.0.0
-cryptography==42.0.0
-streamlit>=1.28.0
-pandas>=2.0.0
-plotly>=5.18.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-cryptography>=41.0.0
-streamlit>=1.28.0
-pandas>=2.0.0
-plotly>=5.18.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-cryptography>=41.0.0
-feedparser>=6.0.10
-psycopg2-binary>=2.9.9streamlit>=1.28.0
-pandas>=2.0.0
-plotly>=5.18.0
-requests>=2.31.0
-python-dotenv>=1.0.0
-cryptography>=41.0.0
-feedparser>=6.0.10
+
+# Security & Crypto
+cryptography>=42.0.0
+
+# Database
 psycopg2-binary>=2.9.9
-gunicorn>=21.2.0
+
+# Utilities
+feedparser>=6.0.10
+colorama>=0.4.6
+
+# Web Server (para produção)
+fastapi>=0.109.0
+uvicorn>=0.27.0
 gunicorn>=21.2.0
