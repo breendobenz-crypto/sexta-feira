@@ -29,7 +29,6 @@ def init_saas_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # Tabela de Usuários
         cursor.execute('''CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             user_id TEXT UNIQUE,
@@ -42,7 +41,6 @@ def init_saas_db():
             password_hash TEXT
         )''')
 
-        # Tabela de Credenciais
         cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
             user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
             api_key_enc TEXT NOT NULL,
@@ -51,7 +49,6 @@ def init_saas_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )''')
 
-        # Tabela de Trades
         cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -83,7 +80,6 @@ def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret:
         if not enc_key.startswith("gAAAAA"):
             raise ValueError("Falha na criptografia")
         
-        # Upsert para users
         cursor.execute("""
             INSERT INTO users (user_id, email, display_name, status)
             VALUES (%s, %s, %s, 'ACTIVE')
@@ -96,7 +92,6 @@ def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret:
         
         internal_id = cursor.fetchone()['id']
         
-        # Upsert para credenciais
         cursor.execute("""
             INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc)
             VALUES (%s, %s, %s, %s)
@@ -408,5 +403,5 @@ def get_active_users() -> list[str]:
         cursor.close()
         conn.close()
 
-# Inicializa o banco ao importar
+# Inicializa o banco ao importar (cria as tabelas automaticamente)
 init_saas_db()
