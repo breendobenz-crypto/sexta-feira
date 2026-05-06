@@ -1,4 +1,4 @@
-# webhook_whop.py - ENDPOINT FINAL PARA WHOP (V1 API)
+# webhook_whop.py - INTEGRAÇÃO COMPLETA (WHOP + DB + TELEGRAM)
 from fastapi import FastAPI, Request, HTTPException, Header
 import hmac
 import hashlib
@@ -6,9 +6,9 @@ import os
 import sys
 import string
 import random
+import requests
 from dotenv import load_dotenv
 
-# Configurar caminho para garantir que o saas_db seja encontrado
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 load_dotenv()
 
@@ -20,92 +20,135 @@ except ImportError:
 
 app = FastAPI()
 
-# Chave secreta do Webhook do Whop (Já configurada no seu Render!)
+# ==========================================
+# CONFIGURAÇÕES
+# ==========================================
 WHOP_SECRET = os.getenv("WHOP_WEBHOOK_SECRET", "")
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID", "")
+VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID", "")
+BASE_URL = "https://sexta-feira-wm1s.onrender.com"
 
 def verify_signature(payload: bytes, signature: str) -> bool:
-    """Verifica a assinatura HMAC do Whop."""
     if not WHOP_SECRET:
         return False
     expected_signature = hmac.new(
-        WHOP_SECRET.encode(), 
-        payload, 
-        hashlib.sha256
+        WHOP_SECRET.encode(), payload, hashlib.sha256
     ).hexdigest()
     return hmac.compare_digest(expected_signature, signature)
 
-def generate_password(length=12):
-    """Gera uma senha temporária segura."""
-    characters = string.ascii_letters + string.digits + "!@#$%^&*"
+def generate_password(length=10):
+    characters = string.ascii_letters + string.digits + "!@#$"
     return ''.join(random.choices(characters, k=length))
+
+def get_telegram_invite_link():
+    """Gera um link de convite único (expira após 1 uso) para o grupo VIP."""
+    if not BOT_TOKEN or not VIP_GROUP_ID:
+        return "Erro: Configuração do Telegram ausente."
+    
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/createChatInviteLink"
+    payload = {
+        "chat_id": VIP_GROUP_ID,
+        "member_limit": 1,  # Link serve para apenas 1 pessoa
+        "name": "Acesso VIP Whop"
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        data = response.json()
+        if data.get("ok"):
+            return data["result"]["invite_link"]
+        return "Erro ao gerar link"
+    except Exception as e:
+        return f"Erro: {str(e)}"
+
+def notify_admin(message: str):
+    """Envia mensagem para o Admin no Telegram."""
+    if not BOT_TOKEN or not ADMIN_ID:
+        return
+    
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": ADMIN_ID,
+        "text": message,
+        "parse_mode": "HTML"
+    }
+    requests.post(url, json=payload)
 
 @app.post("/whop/webhook")
 async def whop_webhook(request: Request, x_whop_signature: str = Header(None)):
-    """
-    Recebe eventos do Whop (V1 API).
-    URL: https://sexta-feira-wm1s.onrender.com/whop/webhook
-    """
     try:
-        # 1. Validar assinatura de segurança
         body = await request.body()
         
-        # Se não tiver assinatura no header (testes locais), ignora a verificação
+        # Validação de segurança
         if x_whop_signature and not verify_signature(body, x_whop_signature):
             raise HTTPException(status_code=401, detail="Assinatura inválida")
 
         data = await request.json()
-        
-        # Na V1 da Whop, o evento vem em data.event.type ou data.type
         event_type = data.get("event", {}).get("type") or data.get("type")
         
-        # Dados do cliente (pode variar levemente dependendo do payload)
         customer = data.get("customer", {}) or data.get("data", {}).get("customer", {})
         user_id_whop = customer.get("id", "")
         email = customer.get("email", "")
         name = customer.get("name", "VIP User")
         
-        # Tentar pegar ID do usuário da Whop para usar como ID único
         final_user_id = f"whop_{user_id_whop}" if user_id_whop else email
-
         print(f"🔔 Webhook recebido: {event_type} para {email}")
 
         if not email:
-            raise ValueError("Email não encontrado no payload")
+            raise ValueError("Email não encontrado")
 
-        # 2. Lógica por Tipo de Evento (Mapeado para o que você selecionou no Whop)
-        
-        # ✅ QUANDO ALGUÉM COMPRA / ASSINA
+        # ==========================================
+        # 🟢 EVENTO: MEMBRO ATIVADO (COMPRA/RENOVAÇÃO)
+        # ==========================================
         if event_type in ["membership_activated", "order.completed"]:
+            
             temp_pass = generate_password()
             
-            # Registra o VIP (chaves OKX vazias, ele configura depois)
+            # 1. Registra no Banco de Dados (Chaves OKX vazias por enquanto)
             success = register_user(final_user_id, name, email, "", "", "")
             
             if success:
-                # Define a senha para ele poder logar
                 set_user_password(email, temp_pass)
                 
-                print(f"✅ VIP Criado: {email} | Senha Temp: {temp_pass}")
+                # 2. Gera Link do Grupo VIP
+                invite_link = get_telegram_invite_link()
                 
-                return {
-                    "status": "success", 
-                    "user_id": final_user_id,
-                    "message": "Usuário criado com sucesso"
-                }
+                # 3. Monta a mensagem para o Admin
+                msg = f"""
+🚀 <b>NOVA VENDA REALIZADA!</b>
+
+👤 <b>Cliente:</b> {name}
+📧 <b>Email:</b> {email}
+🔑 <b>Senha Temp:</b> {temp_pass}
+
+🔗 <b>Link Dashboard:</b>
+{BASE_URL}
+
+📲 <b>Link Grupo VIP (1 uso):</b>
+{invite_link}
+
+<i>Envie a senha e o link para o cliente iniciar!</i>
+                """
+                
+                # 4. Notifica Você (Admin) no Telegram
+                notify_admin(msg)
+                
+                print(f"✅ VIP {email} criado e Admin notificado.")
+                
+                return {"status": "success", "user_id": final_user_id}
             else:
                 raise ValueError("Falha ao registrar no banco")
 
-        # ❌ QUANDO A ASSINATURA CANCELADA / DESATIVADA
+        # ==========================================
+        # 🔴 EVENTO: CANCELAMENTO
+        # ==========================================
         elif event_type in ["membership_deactivated", "membership_cancelled"]:
             update_user_status(final_user_id, "CANCELLED")
-            print(f"🚫 Acesso cancelado para {email}")
+            print(f"🚫 Acesso de {email} cancelado.")
+            
+            notify_admin(f"🚫 <b>CANCELAMENTO</b>\nUsuário {email} teve o acesso cortado.")
             return {"status": "cancelled"}
-
-        # ⏳ QUANDO RENOVADA
-        elif event_type in ["membership_renewed"]:
-            update_user_status(final_user_id, "ACTIVE")
-            print(f"🔄 Acesso renovado para {email}")
-            return {"status": "renewed"}
 
         return {"status": "ignored"}
 
