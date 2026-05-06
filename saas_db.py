@@ -438,5 +438,27 @@ def get_active_users():
         cursor.close()
         conn.close()
 
+        # --- INÍCIO: CÓDIGO PARA CRIAR ADMIN AUTOMÁTICO ---
+        cursor.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] == 0:
+            print("⚠️ Banco vazio! Criando Admin padrão...")
+            pwd_hash = hash_password("123456")
+            cursor.execute(
+                "INSERT INTO users (user_id, email, display_name, status, password_hash) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                ("admin@sextafeira.com", "admin@sextafeira.com", "Admin", "ACTIVE", pwd_hash)
+            )
+            # Se for Postgres
+            if USE_POSTGRES:
+                uid = cursor.fetchone()['id']
+            else:
+                uid = cursor.fetchone()[0]
+            
+            cursor.execute(
+                "INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc) VALUES (%s, %s, %s, %s)",
+                (uid, 'VAZIO', 'VAZIO', 'VAZIO')
+            )
+            print("✅ Admin criado com sucesso (Email: admin@sextafeira.com / Senha: 123456)")
+        # --- FIM: CÓDIGO PARA CRIAR ADMIN AUTOMÁTICO ---
+
 # Inicializa o banco ao importar
 init_saas_db()
