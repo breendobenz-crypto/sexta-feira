@@ -9,7 +9,7 @@ import psycopg2
 SALT = "sexta-feira-advanced-vip-salt-2026"
 
 # ⚠️ COLE AQUI SUA DATABASE_URL DO RENDER (URL EXTERNA!)
-DATABASE_URL = "postgresql://sextafeira_user:SENHA_AQUI@dpg-d7t1fpugvqtc73a5s0eg-a.db.rendervps.com:5432/sextafeira"
+DATABASE_URL = "postgresql://sextafeira_user:tV57oiV1z4EgCfmP7fbvBKd4joBkvJ7b@dpg-d7t1fpugvqtc73a5s0eg-a.singapore-postgres.render.com/sextafeira"
 
 # Dados do admin (MUDE AQUI!)
 EMAIL = "admin@sextafeira.com"

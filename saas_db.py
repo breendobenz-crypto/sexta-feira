@@ -84,17 +84,16 @@ def init_saas_db():
         conn.close()
 
 def _dictify(row, cursor=None):
-    """Converte linha do banco para dicionário (compatível com SQLite e Postgres)."""
+    """Converte linha do banco para dicionário."""
     if row is None: return None
     if USE_POSTGRES:
         return dict(row) if hasattr(row, 'keys') else row
     else:
-        # SQLite: usa descrição do cursor para mapear colunas
         if cursor and hasattr(cursor, 'description'):
             return {desc[0]: row[i] for i, desc in enumerate(cursor.description)}
         return row
 
-# ========== FUNÇÕES PRINCIPAIS (Adaptadas para ambos os bancos) ==========
+# ========== FUNÇÕES PRINCIPAIS ==========
 
 def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret: str, okx_pass: str) -> bool:
     conn = get_db_connection()
@@ -209,6 +208,7 @@ def update_user_credentials(user_id: int, api_key: str, api_secret: str, passphr
         conn.close()
 
 def get_decrypted_credentials(internal_user_id: int):
+    """Busca credenciais. Se falhar (token inválido), retorna None sem crashar."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -219,9 +219,19 @@ def get_decrypted_credentials(internal_user_id: int):
         row = cursor.fetchone()
         if row:
             d = _dictify(row, cursor)
+            # Verifica se há dados válidos
+            raw_key = d.get('api_key_enc', '')
+            if not raw_key or raw_key in ('VAZIO', 'N/A', 'NONE'):
+                return None
+            
             try:
-                return {"api_key": decrypt_key(d['api_key_enc']), "api_secret": decrypt_key(d['api_secret_enc']), "passphrase": decrypt_key(d['passphrase_enc'])}
-            except InvalidToken:
+                return {
+                    "api_key": decrypt_key(d['api_key_enc']),
+                    "api_secret": decrypt_key(d['api_secret_enc']),
+                    "passphrase": decrypt_key(d['passphrase_enc'])
+                }
+            except Exception:
+                # ⚠️ Token inválido ou erro de criptografia
                 return None
         return None
     finally:
