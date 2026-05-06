@@ -12,6 +12,7 @@ import csv
 import io
 from datetime import datetime, timedelta
 
+# Correção para encontrar o caminho do arquivo corretamente
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # ==========================================
@@ -112,7 +113,6 @@ h1, h2, h3 {
     padding: 20px !important;
     border-radius: 12px !important;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     animation: fadeIn 0.6s ease-out;
 }
 
@@ -367,7 +367,7 @@ def get_tradingview_widget(symbol="BTCUSDT", height=550):
     return f"""
     <div class="tradingview-widget-container" style="height:{height}px;width:100%">
         <iframe scrolling="no" allowtransparency="true" allowfullscreen="true"
-            src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol={tv_symbol}&theme=dark&style=1&locale=br&withdateranges=1&hide_side_toolbar=0&details=1&hotlist=1&calendar=0&studies=RSI%40tv-basicstudies%2CMACD%40tv-basicstudies"
+            src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol={tv_symbol}&theme=dark&style=1&locale=br&withdateranges=1&hide_side_toolbar=0&details=1&hotlist=1&calendar=0&studies=RSI@tv-basicstudies%2CMACD@tv-basicstudies"
             style="width:100%;height:100%;border:none;"></iframe>
     </div>
     """
@@ -379,6 +379,7 @@ def get_tradingview_widget(symbol="BTCUSDT", height=550):
 def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
     import hashlib, hmac, base64
     from datetime import datetime, timezone
+    
     BASE_URL = "https://www.okx.com"
     _sim = os.getenv("OKX_SIMULATED", "false").lower() == "true"
     
@@ -400,6 +401,7 @@ def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
         return h
     
     sess = requests.Session()
+    
     def _get(path, params=None):
         qs = ("?" + "&".join(f"{k}={v}" for k, v in params.items())) if params else ""
         try:
@@ -407,6 +409,7 @@ def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
             return r.json()
         except Exception as e:
             return {"code": "-1", "msg": str(e)}
+    
     return _get
 
 def fetch_live_account(user_id: int) -> dict:
@@ -438,7 +441,7 @@ def fetch_live_account(user_id: int) -> dict:
         for p in resp_pos.get("data", []):
             sz = float(p.get("pos", 0) or 0)
             if abs(sz) == 0: continue
-            sym = SYMBOL_MAP_REV.get(p.get("instId", ""), p.get("instId", ""))
+            sym = SYMBOL_MAP_REV.get(p.get("instId", " "), p.get("instId", " "))
             ct = CT_VAL.get(sym, 0.01)
             positions.append({
                 "symbol": sym, 
@@ -449,6 +452,7 @@ def fetch_live_account(user_id: int) -> dict:
                 "pnl": float(p.get("upl", 0) or 0),  
                 "leverage": int(float(p.get("lever", 1) or 1)),
             })
+    
     return {"equity": equity, "available": available, "positions": positions, "error": None}
 
 # ==========================================
@@ -458,14 +462,17 @@ def chart_equity(curve: list, base_equity: float):
     if not curve: return None
     dates = [r["date"] for r in curve]
     values = [base_equity + r["equity"] for r in curve]
+    
     fig = go.Figure(go.Scatter(x=dates, y=values, mode="lines", name="Equity",
         line=dict(color="#8A2BE2", width=3), fill="tonexty",
         fillcolor=dict(type="linear", y0=0, y1=1, color="rgba(138, 43, 226, 0.1)",
-        stops=[[0, "rgba(138, 43, 226, 0)"], [1, "rgba(138, 43, 226, 0.3)"]])))
+            stops=[[0, "rgba(138, 43, 226, 0)"], [1, "rgba(138, 43, 226, 0.3)"]])))
+    
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white"), title_text="Curva de Equity",
         title_font_color="#8A2BE2", margin=dict(l=0, r=0, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
+    
     return fig
 
 def chart_pnl_bars(trades: list):
@@ -473,12 +480,15 @@ def chart_pnl_bars(trades: list):
     df = pd.DataFrame(trades[-20:]).iloc[::-1]
     colors = ["#00ff88" if v > 0 else "#ff4444" for v in df["pnl_usdt"]]
     labels = [f"{r['symbol']} {r['side']}" for _, r in df.iterrows()]
+    
     fig = go.Figure(go.Bar(x=df["pnl_usdt"], y=labels, orientation="h", marker_color=colors,
         text=[f"${v:+.2f}" for v in df["pnl_usdt"]], textposition="outside", textfont=dict(family="Orbitron", color="white")))
+    
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white", size=10), title_text="PnL Últimos 20",
         title_font_color="#8A2BE2", margin=dict(l=0, r=50, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
+    
     return fig
 
 # ==========================================
@@ -594,7 +604,7 @@ def render_login():
                     st.error("❌ Senha incorreta.")
             else:
                 st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-
+    
     st.markdown("""
     <div style="text-align: center; margin-top: 60px; color: #555; font-size: 0.9em;">
         <p>🟣 SEXTA-FEIRA ADVANCED © 2026</p>
@@ -659,20 +669,21 @@ def render_dashboard():
         </h1>
     </div>
     """, unsafe_allow_html=True)
-
+    
     col_btn = st.columns([1, 1, 1])
     with col_btn[2]:
         if st.button("Sair", use_container_width=True):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-
+    
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
-                                     ("OKX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
+                                    ("OKX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
         locals()[f"s{i+1}"].markdown(f"<div class='status-box'><span class='status-label'>{lbl}</span><span class='status-value'>{val}</span></div>", unsafe_allow_html=True)
+    
     st.divider()
-
+    
     with st.spinner("Carregando dados..."):
         live = fetch_live_account(uid) if _SAAS_DB_OK else {"equity": 0, "available": 0, "positions": [], "error": None}
         stats = get_user_stats(uid) if _SAAS_DB_OK else {"win_rate": 0, "total_pnl": 0, "total_trades": 0, "wins": 0, "losses": 0, "avg_pct": 0, "worst_loss": 0, "best_win": 0}
@@ -680,13 +691,13 @@ def render_dashboard():
         curve = get_equity_curve(uid, days=30) if _SAAS_DB_OK else []
         open_pos = get_open_trades(uid) if _SAAS_DB_OK else []
         market_df = fetch_market_overview()
-
+    
     if live.get("error"):
         st.warning(f"⚠️ OKX: {live['error']}")
-
+    
     equity, available, positions = live.get("equity", 0), live.get("available", 0), live.get("positions", [])
     win_rate, total_pnl, total_tr = stats.get("win_rate", 0) * 100, stats.get("total_pnl", 0), stats.get("total_trades", 0)
-
+    
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Equity", f"${equity:.2f}", delta=f"${available:.2f} livre")
     m2.metric("PnL Total", f"${total_pnl:+.2f}")
@@ -696,13 +707,13 @@ def render_dashboard():
     
     st.caption(f"🔄 Última atualização: {datetime.now().strftime('%H:%M:%S')}")
     st.divider()
-
+    
     # ✅ 7 ABAS COM CONFIGURAÇÕES
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📈 Mercado", "📊 Performance", "📌 Posições", 
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
     ])
-
+    
     with tab1:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -712,11 +723,14 @@ def render_dashboard():
         
         st.subheader("📡 Monitor de Mercado — Tempo Real")
         if not market_df.empty:
-            styled_df = market_df.style.applymap(
-                lambda v: 'color: #00ff88; font-weight: bold' if isinstance(v, str) and v.startswith('+') else 
-                          ('color: #ff4444; font-weight: bold' if isinstance(v, str) and v.startswith('-') else 'color: white'),
-                subset=['Variação 24h']
-            )
+            # ✅ CORREÇÃO DE COMPATIBILIDADE: Funciona no Local (Pandas Antigo) e Render (Pandas Novo)
+            style_func = lambda v: 'color: #00ff88; font-weight: bold' if isinstance(v, str) and v.startswith('+') else ('color: #ff4444; font-weight: bold' if isinstance(v, str) and v.startswith('-') else 'color: white')
+            
+            if hasattr(market_df.style, 'map'):
+                styled_df = market_df.style.map(style_func, subset=['Variação 24h'])
+            else:
+                styled_df = market_df.style.applymap(style_func, subset=['Variação 24h'])
+            
             st.dataframe(styled_df, use_container_width=True, hide_index=True)
         else:
             st.info("Carregando dados de mercado...")
@@ -733,7 +747,7 @@ def render_dashboard():
         )
         
         st.markdown(get_tradingview_widget(chart_asset, height=500), unsafe_allow_html=True)
-
+    
     with tab2:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -754,13 +768,14 @@ def render_dashboard():
                 st.plotly_chart(fig_bars, use_container_width=True)
             else:
                 st.info("Sem trades suficientes para o gráfico de PnL.")
+        
         st.subheader("Resumo de Performance")
         scol1, scol2, scol3, scol4 = st.columns(4)
         scol1.metric("Wins", stats.get("wins", 0))
         scol2.metric("Losses", stats.get("losses", 0))
         scol3.metric("Avg PnL %", f"{stats.get('avg_pct', 0):.2f}%")
         scol4.metric("Pior Loss", f"${stats.get('worst_loss', 0):.2f}")
-
+    
     with tab3:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -773,16 +788,17 @@ def render_dashboard():
             st.info("Nenhuma posição aberta.")
         else:
             rows = [{"Ativo": p["symbol"], "Direção": p["side"], "Tamanho": p["size"],
-                      "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
-                      "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl']>=0 else f"-${abs(p['pnl']):.2f}",
-                      "Alavancagem": f"{p['leverage']}x"} for p in positions]
+                     "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
+                     "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >=0 else f"-${abs(p['pnl']):.2f}",
+                     "Alavancagem": f"{p['leverage']}x"} for p in positions]
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        
         if open_pos:
             st.subheader("Ordens Abertas no DB")
             df_open = pd.DataFrame(open_pos)[["symbol", "side", "entry_price", "size", "score", "open_time"]]
             df_open.columns = ["Ativo", "Lado", "Entrada", "Size", "Score", "Aberto em"]
             st.dataframe(df_open, use_container_width=True, hide_index=True)
-
+    
     with tab4:
         col_refresh, col_export = st.columns([1, 1])
         with col_refresh:
@@ -810,6 +826,7 @@ def render_dashboard():
             df_hist["PnL (%)"] = df_hist["PnL (%)"].apply(lambda x: f"{x:+.2f}%")
             st.dataframe(df_hist[["Ativo", "Lado", "Entrada", "Saída", "PnL ($)", "PnL (%)", "Score", "Fechado em"]], 
                         use_container_width=True, hide_index=True, height=280)
+            
             st.subheader("🧠 Raciocínio da IA por Trade")
             for _, row in df_hist.iterrows():
                 with st.expander(f"{row['Ativo']} {row['Lado']} | {row['PnL ($)']}"):
@@ -818,7 +835,7 @@ def render_dashboard():
                     else:
                         st.markdown("<div class='reasoning-box'>⏳ Análise em processamento...</div>", unsafe_allow_html=True)
                     st.caption(f"Fechado em: {row['Fechado em']}")
-
+    
     with tab5:
         st.subheader("💻 Processamento da IA — Modo Terminal")
         logs = "\n".join([pensamento_ia() for _ in range(10)])
@@ -837,7 +854,7 @@ def render_dashboard():
                 bc3.metric("Win Rate Brain", f"{float(bm.get('win_rate', 0))*100:.1f}%")
             except:
                 pass
-
+    
     with tab6:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -862,7 +879,7 @@ def render_dashboard():
                 st.info("⏳ Aguardando bot gerar cache...")
         except Exception as e:
             st.error(f"❌ Erro ao carregar: {e}")
-
+    
     # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
     with tab7:
         st.subheader("⚙️ Configurações da Conta")
