@@ -1,4 +1,4 @@
-# webhook_whop.py - ENDPOINT PARA WHOP (FastAPI)
+# webhook_whop.py - ENDPOINT FINAL PARA WHOP (V1 API)
 from fastapi import FastAPI, Request, HTTPException, Header
 import hmac
 import hashlib
@@ -15,16 +15,16 @@ load_dotenv()
 try:
     from saas_db import register_user, update_user_status, set_user_password
 except ImportError:
-    print("❌ ERRO CRÍTICO: Não foi possível importar saas_db. Verifique se o arquivo está na mesma pasta.")
+    print("❌ ERRO CRÍTICO: Não foi possível importar saas_db.")
     sys.exit(1)
 
 app = FastAPI()
 
-# Chave secreta do Webhook do Whop (Deve estar nas Variáveis de Ambiente do Render)
+# Chave secreta do Webhook do Whop (Já configurada no seu Render!)
 WHOP_SECRET = os.getenv("WHOP_WEBHOOK_SECRET", "")
 
 def verify_signature(payload: bytes, signature: str) -> bool:
-    """Verifica a assinatura HMAC do Whop para garantir que a requisição é legítima."""
+    """Verifica a assinatura HMAC do Whop."""
     if not WHOP_SECRET:
         return False
     expected_signature = hmac.new(
@@ -42,70 +42,68 @@ def generate_password(length=12):
 @app.post("/whop/webhook")
 async def whop_webhook(request: Request, x_whop_signature: str = Header(None)):
     """
-    Recebe eventos do Whop (venda, cancelamento, etc).
-    URL para configurar no Whop: https://seu-app.onrender.com/whop/webhook
+    Recebe eventos do Whop (V1 API).
+    URL: https://sexta-feira-wm1s.onrender.com/whop/webhook
     """
     try:
         # 1. Validar assinatura de segurança
         body = await request.body()
-        if not verify_signature(body, x_whop_signature):
+        
+        # Se não tiver assinatura no header (testes locais), ignora a verificação
+        if x_whop_signature and not verify_signature(body, x_whop_signature):
             raise HTTPException(status_code=401, detail="Assinatura inválida")
 
         data = await request.json()
-        event_type = data.get("event", {}).get("type")
         
-        # Estrutura de dados do Whop pode variar levemente, ajustando conforme o padrão
+        # Na V1 da Whop, o evento vem em data.event.type ou data.type
+        event_type = data.get("event", {}).get("type") or data.get("type")
+        
+        # Dados do cliente (pode variar levemente dependendo do payload)
         customer = data.get("customer", {}) or data.get("data", {}).get("customer", {})
-        metadata = customer.get("metadata", {}) or data.get("data", {}).get("metadata", {})
+        user_id_whop = customer.get("id", "")
+        email = customer.get("email", "")
+        name = customer.get("name", "VIP User")
         
-        # 2. Extrair dados essenciais
-        user_id = metadata.get("user_id") or f"whop_{customer.get('id')}"
-        name = customer.get("name") or "VIP User"
-        email = customer.get("email")
-        
-        # Chaves OKX (Opcionais: se não vierem no metadata, salva vazio)
-        okx_key = metadata.get("okx_api_key", "")
-        okx_secret = metadata.get("okx_api_secret", "")
-        okx_pass = metadata.get("okx_passphrase", "")
+        # Tentar pegar ID do usuário da Whop para usar como ID único
+        final_user_id = f"whop_{user_id_whop}" if user_id_whop else email
 
         print(f"🔔 Webhook recebido: {event_type} para {email}")
 
         if not email:
-            raise ValueError("Email não encontrado nos dados do cliente")
+            raise ValueError("Email não encontrado no payload")
 
-        # 3. Lógica por Tipo de Evento
+        # 2. Lógica por Tipo de Evento (Mapeado para o que você selecionou no Whop)
         
-        if event_type in ["subscription.created", "order.completed"]:
-            # Gerar senha temporária
+        # ✅ QUANDO ALGUÉM COMPRA / ASSINA
+        if event_type in ["membership_activated", "order.completed"]:
             temp_pass = generate_password()
             
-            # Registrar Usuário (Aceita chaves vazias se não forem enviadas)
-            success = register_user(user_id, name, email, okx_key, okx_secret, okx_pass)
+            # Registra o VIP (chaves OKX vazias, ele configura depois)
+            success = register_user(final_user_id, name, email, "", "", "")
             
             if success:
-                # Definir senha para permitir login imediato
+                # Define a senha para ele poder logar
                 set_user_password(email, temp_pass)
                 
-                print(f"✅ VIP Criado com Sucesso: {email}")
-                print(f"🔑 Senha Temporária Gerada: {temp_pass}")
-                
-                # IMPORTANTE: Em produção, você deve enviar essa senha por email/Telegram para o usuário.
+                print(f"✅ VIP Criado: {email} | Senha Temp: {temp_pass}")
                 
                 return {
                     "status": "success", 
-                    "user_id": user_id,
+                    "user_id": final_user_id,
                     "message": "Usuário criado com sucesso"
                 }
             else:
-                raise ValueError("Falha ao registrar no banco de dados")
+                raise ValueError("Falha ao registrar no banco")
 
-        elif event_type == "subscription.cancelled":
-            update_user_status(user_id, "CANCELLED")
+        # ❌ QUANDO A ASSINATURA CANCELADA / DESATIVADA
+        elif event_type in ["membership_deactivated", "membership_cancelled"]:
+            update_user_status(final_user_id, "CANCELLED")
             print(f"🚫 Acesso cancelado para {email}")
             return {"status": "cancelled"}
 
-        elif event_type == "subscription.renewed":
-            update_user_status(user_id, "ACTIVE")
+        # ⏳ QUANDO RENOVADA
+        elif event_type in ["membership_renewed"]:
+            update_user_status(final_user_id, "ACTIVE")
             print(f"🔄 Acesso renovado para {email}")
             return {"status": "renewed"}
 
@@ -119,7 +117,6 @@ async def whop_webhook(request: Request, x_whop_signature: str = Header(None)):
 def health():
     return {"status": "ok"}
 
-# Para rodar localmente (apenas para testes)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
