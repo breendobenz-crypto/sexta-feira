@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL COM DASHBOARD)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL)
 import os
 import logging
 import requests
@@ -9,12 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
 
 # ==========================================
 # CONFIGURAÇÕES
 # ==========================================
-# NOVO TOKEN ATUALIZADO
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8352588624:AAHoR7Ffb3B-eboY-sKP8qJUpnixZgW3mKw")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
@@ -28,7 +27,6 @@ if not TOKEN:
 # COMANDOS DO BOT
 # ==========================================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /start"""
     user = update.effective_user
     welcome_msg = (
         f"🟣 Bem-vindo à SEXTA-FEIRA Advanced!\n\n"
@@ -44,7 +42,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(welcome_msg, parse_mode='Markdown')
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /help"""
     help_msg = (
         "📚 COMANDOS DISPONÍVEIS:\n\n"
         "/start - 🚀 Iniciar o bot\n"
@@ -63,7 +60,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(help_msg, parse_mode='Markdown')
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /status"""
     status_msg = (
         "📊 STATUS DO SISTEMA:\n\n"
         "✅ Bot Online\n"
@@ -77,7 +73,6 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(status_msg, parse_mode='Markdown')
 
 async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /vip"""
     vip_msg = (
         "💎 SEXTA-FEIRA VIP\n\n"
         "Benefícios Exclusivos:\n"
@@ -100,7 +95,6 @@ async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(vip_msg, parse_mode='Markdown')
 
 async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /suporte"""
     admin_user = os.getenv('ADMIN_USERNAME', 'seu_usuario')
     suporte_msg = (
         "🆘 SUPORTE TÉCNICO\n\n"
@@ -134,7 +128,6 @@ async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             logger.warning(f"⚠️ Falha ao notificar admin: {e}")
 
 async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /config"""
     config_msg = (
         "⚙️ CONFIGURAÇÕES\n\n"
         "Para alterar suas configurações:\n\n"
@@ -151,7 +144,6 @@ async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(config_msg, parse_mode='Markdown')
 
 async def trades_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /trades"""
     trades_msg = (
         "📈 TRADES ABERTOS\n\n"
         "Para visualizar seus trades em tempo real:\n\n"
@@ -169,7 +161,6 @@ async def trades_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(trades_msg, parse_mode='Markdown')
 
 async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /noticias"""
     noticias_msg = (
         "📰 ÚLTIMAS NOTÍCIAS CRYPTO\n\n"
         "Para ver notícias em tempo real:\n\n"
@@ -185,11 +176,7 @@ async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     )
     await update.message.reply_text(noticias_msg, parse_mode='Markdown')
 
-# ==========================================
-# COMANDO /DASHBOARD (NOVO)
-# ==========================================
 async def dashboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /dashboard - Envia botão com link do painel VIP"""
     keyboard = [[InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -201,7 +188,6 @@ async def dashboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     )
 
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando desconhecido"""
     await update.message.reply_text(
         "❌ Comando não reconhecido. Digite /help para ver a lista de comandos.",
         parse_mode='Markdown'
@@ -210,11 +196,7 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ==========================================
 # ENVIO DE SINAL VIP
 # ==========================================
-def enviar_sinal_vip(
-    ativo: str, direcao: str, score: str, entrada: str, take: str, stop: str, hora: str,
-    isolado: str = "5x", leverage: str = "10x"
-) -> bool:
-    """Envia sinal formatado APENAS para o Grupo VIP."""
+def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: str, stop: str, hora: str, isolado: str = "5x", leverage: str = "10x") -> bool:
     if not VIP_GROUP_ID or not TOKEN:
         logger.warning("⚠️ TELEGRAM_VIP_GROUP_ID ou TOKEN não configurados")
         return False
@@ -236,15 +218,7 @@ def enviar_sinal_vip(
     
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        response = requests.post(
-            url,
-            json={
-                "chat_id": VIP_GROUP_ID,
-                "text": caption,
-                "parse_mode": "Markdown"
-            },
-            timeout=10
-        )
+        response = requests.post(url, json={"chat_id": VIP_GROUP_ID, "text": caption, "parse_mode": "Markdown"}, timeout=10)
         if response.status_code == 200:
             logger.info(f"✅ Sinal enviado para VIP: {ativo} {direcao}")
             return True
@@ -253,39 +227,6 @@ def enviar_sinal_vip(
             return False
     except Exception as e:
         logger.error(f"❌ Exceção ao enviar sinal: {type(e).__name__}: {e}")
-        return False
-
-def enviar_sinal_com_grafico(ativo, direcao, score, entrada, take, stop, hora, chart_url=None) -> bool:
-    """Envia sinal com gráfico opcional para o Grupo VIP."""
-    if not VIP_GROUP_ID or not TOKEN:
-        return False
-    
-    caption = (
-        f"⚡ SEXTA-FEIRA SIGNAL\n\n"
-        f"Ativo: {ativo}\n"
-        f"Direção: {direcao}\n"
-        f"Score: {score}\n"
-        f"┌────────────────────┐\n"
-        f"│ ENTRADA: {entrada}\n"
-        f"│ TAKE   : {take}\n"
-        f"│ STOP   : {stop}\n"
-        f"└────────────────────┘\n\n"
-        f"Isolado: 5x\n"
-        f"Leverage: 10x\n"
-        f"Hora: {hora}"
-    )
-    
-    try:
-        if chart_url:
-            url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-            response = requests.post(url, json={"chat_id": VIP_GROUP_ID, "photo": chart_url, "caption": caption, "parse_mode": "Markdown"}, timeout=10)
-        else:
-            url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-            response = requests.post(url, json={"chat_id": VIP_GROUP_ID, "text": caption, "parse_mode": "Markdown"}, timeout=10)
-        
-        return response.status_code == 200
-    except Exception as e:
-        logger.error(f"❌ Erro ao enviar sinal com gráfico: {type(e).__name__}: {e}")
         return False
 
 # ==========================================
@@ -297,9 +238,9 @@ def main() -> None:
         logger.error("❌ TOKEN não configurado. Bot não iniciado.")
         return
     
-    # 🧹 LIMPEZA FORÇADA: Remove qualquer webhook antigo
+    # 🧹 LIMPEZA FORÇADA: Remove webhook antigo para evitar conflito 409
     try:
-        requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook")
+        requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook", timeout=5)
         logger.info("✅ Webhook antigo removido")
     except:
         pass
@@ -307,7 +248,7 @@ def main() -> None:
     # Cria aplicação
     application = Application.builder().token(TOKEN).build()
     
-    # Registra comandos (sem espaços extras!)
+    # Registra comandos (SEM espaços extras!)
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("status", status))
@@ -316,8 +257,6 @@ def main() -> None:
     application.add_handler(CommandHandler("config", config_command))
     application.add_handler(CommandHandler("trades", trades_command))
     application.add_handler(CommandHandler("noticias", noticias_command))
-    
-    # REGISTRA O NOVO COMANDO /DASHBOARD
     application.add_handler(CommandHandler("dashboard", dashboard_command))
     
     # Handler para comandos desconhecidos
@@ -329,8 +268,9 @@ def main() -> None:
     # 🧹 drop_pending_updates=True limpa fila travada e previne conflito 409
     application.run_polling(
         allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=True
+        drop_pending_updates=True  # ← CRÍTICO: limpa mensagens pendentes
     )
 
+# ✅ Corrigido: __name__ com underscores
 if __name__ == "__main__":
     main()
