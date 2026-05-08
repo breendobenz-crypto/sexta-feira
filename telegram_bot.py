@@ -7,6 +7,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 from dotenv import load_dotenv
 
 load_dotenv()
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
-DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com" # URL DO SEU DASHBOARD
+DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"  # URL DO SEU DASHBOARD
 
 if not TOKEN:
     logger.error("❌ TELEGRAM_BOT_TOKEN não configurado no .env")
@@ -29,10 +30,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /start"""
     user = update.effective_user
     welcome_msg = (
-        f"🟣 **Bem-vindo à SEXTA-FEIRA Advanced!**\n\n"
+        f"🟣 Bem-vindo à SEXTA-FEIRA Advanced!\n\n"
         f"Olá {user.first_name}! 👋\n\n"
         f"Sou seu assistente de trading automatizado com IA.\n\n"
-        f"**O que posso fazer:**\n"
+        f"O que posso fazer:\n"
         f"📊 Enviar sinais de trading em tempo real\n"
         f"📰 Notícias de crypto filtradas\n"
         f"📈 Alertas de entrada e saída\n"
@@ -44,7 +45,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /help"""
     help_msg = (
-        "📚 **COMANDOS DISPONÍVEIS:**\n\n"
+        "📚 COMANDOS DISPONÍVEIS:\n\n"
         "/start - 🚀 Iniciar o bot\n"
         "/help - 📚 Esta mensagem de ajuda\n"
         "/status - 📊 Ver status do sistema\n"
@@ -53,8 +54,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/config - ⚙️ Configurações da conta\n"
         "/trades - 📈 Ver trades abertos\n"
         "/noticias - 📰 Últimas notícias crypto\n"
-        "/dashboard - ️ Receber link do painel\n\n"
-        "**Links Úteis:**\n"
+        "/dashboard - 📊 Receber link do painel\n\n"
+        "Links Úteis:\n"
         f"🔗 Dashboard VIP: {DASHBOARD_URL}\n"
         "🔗 OKX (Desconto): https://okx.com/join/69938298"
     )
@@ -63,7 +64,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /status"""
     status_msg = (
-        "📊 **STATUS DO SISTEMA:**\n\n"
+        "📊 STATUS DO SISTEMA:\n\n"
         "✅ Bot Online\n"
         "✅ OKX Conectado\n"
         "✅ IA Anthropic Ativa\n"
@@ -77,8 +78,8 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /vip"""
     vip_msg = (
-        "💎 **SEXTA-FEIRA VIP**\n\n"
-        "**Benefícios Exclusivos:**\n"
+        "💎 SEXTA-FEIRA VIP\n\n"
+        "Benefícios Exclusivos:\n"
         "✅ Acesso ao Dashboard Premium\n"
         "✅ Sinais de trading com IA Claude\n"
         "✅ Raciocínio técnico por trade\n"
@@ -86,8 +87,8 @@ async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "✅ Relatórios semanais de performance\n"
         "✅ Grupo VIP exclusivo no Telegram\n"
         "✅ Gráficos TradingView integrados\n\n"
-        "💰 **Investimento:** R$ 97/mês\n\n"
-        "**Como Assinar:**\n"
+        "💰 Investimento: R$ 97/mês\n\n"
+        "Como Assinar:\n"
         "1️⃣ Acesse o site oficial\n"
         "2️⃣ Clique em 'Assinar VIP'\n"
         "3️⃣ Preencha com suas credenciais OKX\n"
@@ -101,12 +102,12 @@ async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /suporte"""
     admin_user = os.getenv('ADMIN_USERNAME', 'seu_usuario')
     suporte_msg = (
-        "🆘 **SUPORTE TÉCNICO**\n\n"
-        "**Canais de Atendimento:**\n\n"
+        "🆘 SUPORTE TÉCNICO\n\n"
+        "Canais de Atendimento:\n\n"
         "📧 Email: suporte@sextafeira.com\n"
         f"💬 Telegram: @{admin_user}\n"
         "🕐 Horário: Seg-Sex 9h às 18h (BRT)\n\n"
-        "**Para agilizar seu atendimento, informe:**\n"
+        "Para agilizar seu atendimento, informe:\n"
         "• Seu email de cadastro\n"
         "• Print do erro (se houver)\n"
         "• Descrição detalhada do problema\n"
@@ -134,12 +135,12 @@ async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /config"""
     config_msg = (
-        "⚙️ **CONFIGURAÇÕES**\n\n"
+        "⚙️ CONFIGURAÇÕES\n\n"
         "Para alterar suas configurações:\n\n"
         "1️⃣ Acesse o Dashboard VIP\n"
         "2️⃣ Vá em '⚙️ Configurações'\n"
         "3️⃣ Altere sua senha ou preferências\n\n"
-        "**Configurações Disponíveis:**\n"
+        "Configurações Disponíveis:\n"
         "• 🔑 Senha de acesso\n"
         "• 🔔 Notificações Telegram\n"
         "• 📊 Ativos monitorados\n"
@@ -151,12 +152,12 @@ async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def trades_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /trades"""
     trades_msg = (
-        "📈 **TRADES ABERTOS**\n\n"
+        "📈 TRADES ABERTOS\n\n"
         "Para visualizar seus trades em tempo real:\n\n"
         "1️⃣ Acesse o Dashboard VIP\n"
         "2️⃣ Vá na aba '📌 Posições'\n"
         "3️⃣ Veja entradas, stops e PnL não realizado\n\n"
-        "**Informações Disponíveis:**\n"
+        "Informações Disponíveis:\n"
         "• Ativo e direção\n"
         "• Preço de entrada\n"
         "• Stop Loss e Take Profit\n"
@@ -169,12 +170,12 @@ async def trades_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Comando /noticias"""
     noticias_msg = (
-        "📰 **ÚLTIMAS NOTÍCIAS CRYPTO**\n\n"
+        "📰 ÚLTIMAS NOTÍCIAS CRYPTO\n\n"
         "Para ver notícias em tempo real:\n\n"
         "1️⃣ Acesse o Dashboard VIP\n"
         "2️⃣ Vá na aba '📰 Notícias'\n"
         "3️⃣ Veja feed de CoinDesk, Cointelegraph e Decrypt\n\n"
-        "**Fontes Monitoradas:**\n"
+        "Fontes Monitoradas:\n"
         "• CoinDesk\n"
         "• Cointelegraph\n"
         "• Decrypt\n"
@@ -190,8 +191,9 @@ async def dashboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     """Comando /dashboard - Envia botão com link do painel VIP"""
     keyboard = [[InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    
     await update.message.reply_text(
-        "🟣 **Sexta-Feira Advanced**\n\n"
+        "🟣 Sexta-Feira Advanced\n\n"
         "Acesse seu painel de controle, métricas e configurações de API abaixo:",
         reply_markup=reply_markup,
         parse_mode='Markdown'
@@ -215,22 +217,22 @@ def enviar_sinal_vip(
     if not VIP_GROUP_ID or not TOKEN:
         logger.warning("⚠️ TELEGRAM_VIP_GROUP_ID ou TOKEN não configurados")
         return False
-
+    
     caption = (
         f"⚡ SEXTA-FEIRA SIGNAL\n\n"
         f"Ativo: {ativo}\n"
         f"Direção: {direcao}\n"
         f"Score: {score}\n"
         f"┌────────────────────┐\n"
-        f"│ ENTRADA : {entrada}\n"
-        f"│ TAKE    : {take}\n"
-        f"│ STOP    : {stop}\n"
+        f"│ ENTRADA: {entrada}\n"
+        f"│ TAKE   : {take}\n"
+        f"│ STOP   : {stop}\n"
         f"└────────────────────┘\n\n"
         f"Isolado: {isolado}\n"
         f"Leverage: {leverage}\n"
         f"Hora: {hora}"
     )
-
+    
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         response = requests.post(
@@ -263,15 +265,15 @@ def enviar_sinal_com_grafico(ativo, direcao, score, entrada, take, stop, hora, c
         f"Direção: {direcao}\n"
         f"Score: {score}\n"
         f"┌────────────────────┐\n"
-        f"│ ENTRADA : {entrada}\n"
-        f"│ TAKE    : {take}\n"
-        f"│ STOP    : {stop}\n"
+        f"│ ENTRADA: {entrada}\n"
+        f"│ TAKE   : {take}\n"
+        f"│ STOP   : {stop}\n"
         f"└────────────────────┘\n\n"
         f"Isolado: 5x\n"
         f"Leverage: 10x\n"
         f"Hora: {hora}"
     )
-
+    
     try:
         if chart_url:
             url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
@@ -296,7 +298,7 @@ def main() -> None:
     
     # Cria aplicação
     application = Application.builder().token(TOKEN).build()
-
+    
     # Registra comandos
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
@@ -309,10 +311,10 @@ def main() -> None:
     
     # REGISTRA O NOVO COMANDO /DASHBOARD
     application.add_handler(CommandHandler("dashboard", dashboard_command))
-
+    
     # Handler para comandos desconhecidos
     application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
-
+    
     # Inicia o bot
     logger.info("🤖 Bot Telegram iniciado. Ouvindo comandos...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
