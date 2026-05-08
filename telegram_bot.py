@@ -14,13 +14,14 @@ logger = logging.getLogger(__name__)
 # ==========================================
 # CONFIGURAÇÕES
 # ==========================================
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+# NOVO TOKEN ATUALIZADO
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8352588624:AAHoR7Ffb3B-eboY-sKP8qJUpnixZgW3mKw")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
 DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"  # URL DO SEU DASHBOARD
 
 if not TOKEN:
-    logger.error("❌ TELEGRAM_BOT_TOKEN não configurado no .env")
+    logger.error("❌ TELEGRAM_BOT_TOKEN não configurado.")
     exit(1)
 
 # ==========================================
