@@ -23,7 +23,7 @@ psycopg2-binary>=2.9.9
 feedparser>=6.0.10
 colorama>=0.4.6
 
-# Web Server (para produção)
+# Web Server
 fastapi>=0.109.0
 uvicorn>=0.27.0
-gunicorn>=21.2.0python-telegram-bot==20.7 
+gunicorn>=21.2.0
