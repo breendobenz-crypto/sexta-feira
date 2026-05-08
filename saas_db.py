@@ -53,7 +53,7 @@ def init_saas_db():
                 score INTEGER DEFAULT 70, status TEXT DEFAULT 'OPEN',
                 open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, close_time TIMESTAMP, ai_reasoning TEXT
             )''')
-        else:
+        else: 
             # SQLite local
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT UNIQUE, email TEXT UNIQUE NOT NULL,
@@ -93,8 +93,9 @@ def _dictify(row, cursor=None):
             return {desc[0]: row[i] for i, desc in enumerate(cursor.description)}
         return row
 
-# ========== FUNÇÕES PRINCIPAIS ==========
-
+# ==========================================
+# FUNÇÕES PRINCIPAIS
+# ==========================================
 def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret: str, okx_pass: str) -> bool:
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -219,11 +220,9 @@ def get_decrypted_credentials(internal_user_id: int):
         row = cursor.fetchone()
         if row:
             d = _dictify(row, cursor)
-            # Verifica se há dados válidos
             raw_key = d.get('api_key_enc', '')
             if not raw_key or raw_key in ('VAZIO', 'N/A', 'NONE'):
                 return None
-            
             try:
                 return {
                     "api_key": decrypt_key(d['api_key_enc']),
@@ -231,7 +230,6 @@ def get_decrypted_credentials(internal_user_id: int):
                     "passphrase": decrypt_key(d['passphrase_enc'])
                 }
             except Exception:
-                # ⚠️ Token inválido ou erro de criptografia
                 return None
         return None
     finally:
@@ -425,6 +423,7 @@ def get_equity_curve(internal_user_id: int, days: int = 30):
         conn.close()
 
 def get_active_users():
+    """Retorna lista de user_id de usuários ativos."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -438,27 +437,61 @@ def get_active_users():
         cursor.close()
         conn.close()
 
-        # --- INÍCIO: CÓDIGO PARA CRIAR ADMIN AUTOMÁTICO ---
-        cursor.execute("SELECT COUNT(*) FROM users")
-        if cursor.fetchone()[0] == 0:
+# ==========================================
+# INICIALIZAÇÃO: Cria admin se banco estiver vazio
+# ==========================================
+def _create_admin_if_needed():
+    """Cria usuário admin automaticamente se o banco estiver vazio."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Conta usuários existentes
+        if USE_POSTGRES:
+            cursor.execute("SELECT COUNT(*) FROM users")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM users")
+        
+        count = cursor.fetchone()[0]
+        
+        if count == 0:
             print("⚠️ Banco vazio! Criando Admin padrão...")
             pwd_hash = hash_password("123456")
-            cursor.execute(
-                "INSERT INTO users (user_id, email, display_name, status, password_hash) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                ("admin@sextafeira.com", "admin@sextafeira.com", "Admin", "ACTIVE", pwd_hash)
-            )
-            # Se for Postgres
-            if USE_POSTGRES:
-                uid = cursor.fetchone()['id']
-            else:
-                uid = cursor.fetchone()[0]
             
-            cursor.execute(
-                "INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc) VALUES (%s, %s, %s, %s)",
-                (uid, 'VAZIO', 'VAZIO', 'VAZIO')
-            )
-            print("✅ Admin criado com sucesso (Email: admin@sextafeira.com / Senha: 123456)")
-        # --- FIM: CÓDIGO PARA CRIAR ADMIN AUTOMÁTICO ---
+            if USE_POSTGRES:
+                cursor.execute(
+                    "INSERT INTO users (user_id, email, display_name, status, password_hash) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                    ("admin@sextafeira.com", "admin@sextafeira.com", "Admin", "ACTIVE", pwd_hash)
+                )
+                uid = cursor.fetchone()['id']
+                cursor.execute(
+                    "INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc) VALUES (%s, %s, %s, %s)",
+                    (uid, 'VAZIO', 'VAZIO', 'VAZIO')
+                )
+            else:
+                cursor.execute(
+                    "INSERT INTO users (user_id, email, display_name, status, password_hash) VALUES (?, ?, ?, ?, ?)",
+                    ("admin@sextafeira.com", "admin@sextafeira.com", "Admin", "ACTIVE", pwd_hash)
+                )
+                uid = cursor.lastrowid
+                cursor.execute(
+                    "INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc) VALUES (?, ?, ?, ?)",
+                    (uid, 'VAZIO', 'VAZIO', 'VAZIO')
+                )
+            conn.commit()
+            print("✅ Admin criado: admin@sextafeira.com / 123456")
+    except Exception as e:
+        print(f"⚠️ Aviso ao criar admin: {e}")
+        conn.rollback()
+    finally:
+        cursor.close()
+        conn.close()
 
-# Inicializa o banco ao importar
+# ==========================================
+# INICIALIZAÇÃO DO MÓDULO
+# ==========================================
+# Inicializa tabelas ao importar
 init_saas_db()
+
+# Cria admin se necessário (apenas em ambiente local/SQLite)
+if not USE_POSTGRES:
+    _create_admin_if_needed()
