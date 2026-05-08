@@ -7,6 +7,7 @@ plotly>=5.19.0
 # Network & API
 requests>=2.31.0
 python-dotenv>=1.0.0
+python-telegram-bot==20.7  # ← ADICIONE ESTA LINHA!
 pytz>=2024.1
 
 # AI & NLP
@@ -26,6 +27,3 @@ colorama>=0.4.6
 fastapi>=0.109.0
 uvicorn>=0.27.0
 gunicorn>=21.2.0
-
-fastapi>=0.109.0
-uvicorn>=0.27.0
