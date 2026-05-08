@@ -4,7 +4,7 @@ echo "🚀 Iniciando Sexta-Feira Advanced Cloud..."
 # 1. Inicializa o banco
 python -c "from saas_db import init_saas_db; init_saas_db(); print('✅ Banco inicializado')"
 
-# 2. Roda o Bot Telegram em background (apenas uma vez)
+# 2. Roda o Bot Telegram em background
 echo "🤖 Iniciando Bot Telegram..."
 python telegram_bot.py &
 
