@@ -9,12 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
+logger = logging.getLogger(__name__)  # ✅ Corrigido
 
 # ==========================================
 # CONFIGURAÇÕES
 # ==========================================
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8352588624:AAHoR7Ffb3B-eboY-sKP8qJUpnixZgW3mKw")
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
 DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"
@@ -233,22 +233,20 @@ def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: s
 # INICIALIZAÇÃO DO BOT
 # ==========================================
 def main() -> None:
-    """Inicializa e roda o bot Telegram."""
     if not TOKEN:
         logger.error("❌ TOKEN não configurado. Bot não iniciado.")
         return
     
-    # 🧹 LIMPEZA FORÇADA: Remove webhook antigo para evitar conflito 409
+    # 🧹 Limpa webhook antigo para evitar conflito
     try:
         requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook", timeout=5)
         logger.info("✅ Webhook antigo removido")
     except:
         pass
     
-    # Cria aplicação
     application = Application.builder().token(TOKEN).build()
     
-    # Registra comandos (SEM espaços extras!)
+    # ✅ Handlers corrigidos (sem espaços extras)
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("status", status))
@@ -258,19 +256,16 @@ def main() -> None:
     application.add_handler(CommandHandler("trades", trades_command))
     application.add_handler(CommandHandler("noticias", noticias_command))
     application.add_handler(CommandHandler("dashboard", dashboard_command))
-    
-    # Handler para comandos desconhecidos
     application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
     
-    # Inicia o bot
     logger.info("🤖 Bot Telegram iniciado. Ouvindo comandos...")
     
-    # 🧹 drop_pending_updates=True limpa fila travada e previne conflito 409
+    # ✅ drop_pending_updates=True limpa fila travada e evita erro 409
     application.run_polling(
         allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=True  # ← CRÍTICO: limpa mensagens pendentes
+        drop_pending_updates=True
     )
 
-# ✅ Corrigido: __name__ com underscores
+# ✅ Corrigido
 if __name__ == "__main__":
     main()
