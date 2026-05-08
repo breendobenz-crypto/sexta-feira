@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8352588624:AAHoR7Ffb3B-eboY-sKP8qJUpnixZgW3mKw")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
-DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"  # URL DO SEU DASHBOARD
+DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"
 
 if not TOKEN:
     logger.error("❌ TELEGRAM_BOT_TOKEN não configurado.")
@@ -297,10 +297,17 @@ def main() -> None:
         logger.error("❌ TOKEN não configurado. Bot não iniciado.")
         return
     
+    # 🧹 LIMPEZA FORÇADA: Remove qualquer webhook antigo
+    try:
+        requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook")
+        logger.info("✅ Webhook antigo removido")
+    except:
+        pass
+    
     # Cria aplicação
     application = Application.builder().token(TOKEN).build()
     
-    # Registra comandos
+    # Registra comandos (sem espaços extras!)
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("status", status))
@@ -318,7 +325,12 @@ def main() -> None:
     
     # Inicia o bot
     logger.info("🤖 Bot Telegram iniciado. Ouvindo comandos...")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    # 🧹 drop_pending_updates=True limpa fila travada e previne conflito 409
+    application.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=True
+    )
 
 if __name__ == "__main__":
     main()
