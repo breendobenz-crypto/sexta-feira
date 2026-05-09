@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL COM FUNIL)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL COM FUNIL VIP/FREE)
 import os
 import logging
 import requests
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
 
 # ==========================================
 # CONFIGURAÇÕES
@@ -316,5 +316,6 @@ def main() -> None:
         drop_pending_updates=True
     )
 
+# ✅ Corrigido
 if __name__ == "__main__":
     main()
