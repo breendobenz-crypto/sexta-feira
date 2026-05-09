@@ -33,3 +33,17 @@ processed_vips.txt
 .obsidian/
 Obsidian Vault/
 
+
+
+# Logs e Cache
+*.log
+__pycache__/
+*_state.json
+news_cache.json
+bot_heartbeat.json
+state.json
+processed_vips.txt
+
+# Bancos locais (se usar PostgreSQL na nuvem)
+*.db
+!jarvis_saas.db
