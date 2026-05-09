@@ -4,6 +4,7 @@ import sys
 import time
 import logging
 import traceback
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Carrega variáveis de ambiente
@@ -36,9 +37,22 @@ except ImportError:
     USE_CLASS_CLIENT = False
     logger.warning("⚠️ okx_connect.py não encontrado.")
 
-from indicators import gerar_sinal
-from execution_engine import executar_ordem
-from alert_monitor import log_and_alert, send_telegram_alert  # Sistema de Alertas
+try:
+    from indicators import gerar_sinal
+    from execution_engine import executar_ordem
+    from alert_monitor import log_and_alert, send_telegram_alert
+except ImportError as e:
+    logger.error(f"❌ Erro ao importar módulos auxiliares: {e}")
+    sys.exit(1)
+
+# ✅ IMPORTA FUNÇÕES DO BOT TELEGRAM (VIP + FREE)
+try:
+    from telegram_bot import enviar_sinal_vip, enviar_alerta_free
+    logger.info("✅ Módulos de Telegram importados com sucesso.")
+except ImportError:
+    logger.warning("⚠️ Funções de Telegram não importadas.")
+    enviar_sinal_vip = None
+    enviar_alerta_free = None
 
 # ==========================================
 # CONFIGURAÇÕES
@@ -59,7 +73,7 @@ def process_vip_user(user_id: str, keys: dict):
             "api_secret": keys["api_secret"],
             "passphrase": keys["passphrase"],
         }
-
+        
         if USE_CLASS_CLIENT:
             client = OKXClient(
                 api_key=creds["api_key"],
@@ -100,7 +114,21 @@ def process_vip_user(user_id: str, keys: dict):
                         "stop": stop, "take": take, "score": score
                     }
                     
-                    # ✅ CORREÇÃO CRÍTICA: Passando user_id para salvar no banco
+                    # 1️⃣ ENVIA PARA O VIP (SINAL COMPLETO)
+                    if enviar_sinal_vip:
+                        enviar_sinal_vip(
+                            ativo=symbol, direcao=direction, score=score,
+                            entrada=price, take=take, stop=stop,
+                            hora=datetime.now().strftime("%H:%M")
+                        )
+                    
+                    # 2️⃣ ENVIA PARA O FREE (TEASER / FUNIL)
+                    # Só envia se o score for alto (>=80) para gerar valor
+                    if enviar_alerta_free and score >= 80:
+                        enviar_alerta_free(ativo=symbol, direcao=direction, score=score)
+                        logger.info(f"📢 Teaser enviado para Grupo Free: {symbol}")
+
+                    # Executa ordem se estiver conectado
                     if USE_CLASS_CLIENT:
                         executar_ordem(client, symbol, direction, signal_data, user_id=user_id)
                     else:
@@ -121,7 +149,6 @@ def main():
     logger.info("🟣 SEXTA-FEIRA SAAS - ORQUESTRADOR V7 INICIADO")
     logger.info(f"🌐 Ambiente: {'Classe SaaS' if USE_CLASS_CLIENT else 'Legacy Global'}")
     send_telegram_alert("🟢 Orquestrador SaaS v7 (IA Ativa) iniciado com sucesso!", "info")
-
     try:
         while not _shutdown_flag:
             vip_users = get_active_users()

@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL COM FUNIL)
 import os
 import logging
 import requests
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
+logger = logging.getLogger(__name__)
 
 # ==========================================
 # CONFIGURAÇÕES
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
+FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")  # <--- ID DO GRUPO FREE
 DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"
 
 if not TOKEN:
@@ -194,9 +195,10 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     )
 
 # ==========================================
-# ENVIO DE SINAL VIP
+# ENVIO DE SINAL VIP (Completo)
 # ==========================================
 def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: str, stop: str, hora: str, isolado: str = "5x", leverage: str = "10x") -> bool:
+    """Envia sinal formatado COMPLETO para o Grupo VIP."""
     if not VIP_GROUP_ID or not TOKEN:
         logger.warning("⚠️ TELEGRAM_VIP_GROUP_ID ou TOKEN não configurados")
         return False
@@ -218,7 +220,15 @@ def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: s
     
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        response = requests.post(url, json={"chat_id": VIP_GROUP_ID, "text": caption, "parse_mode": "Markdown"}, timeout=10)
+        response = requests.post(
+            url,
+            json={
+                "chat_id": VIP_GROUP_ID,
+                "text": caption,
+                "parse_mode": "Markdown"
+            },
+            timeout=10
+        )
         if response.status_code == 200:
             logger.info(f"✅ Sinal enviado para VIP: {ativo} {direcao}")
             return True
@@ -227,6 +237,46 @@ def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: s
             return False
     except Exception as e:
         logger.error(f"❌ Exceção ao enviar sinal: {type(e).__name__}: {e}")
+        return False
+
+# ==========================================
+# ENVIO DE TEASER FREE (Funil de Vendas)
+# ==========================================
+def enviar_alerta_free(ativo: str, direcao: str, score: int) -> bool:
+    """
+    Envia alerta 'censurado' para o Grupo Free.
+    Gera curiosidade (FOMO) sem dar os números exatos.
+    """
+    if not FREE_GROUP_ID or not TOKEN:
+        return False
+    
+    caption = (
+        f"👀 *ALERTA DE MERCADO: {ativo}*\n\n"
+        f"Detectamos um movimento forte de **{direcao}**!\n"
+        f"📊 Score de Confiança: `{score}%`\n\n"
+        f"⚠️ *O Alvo e Stop Loss estão ocultos para usuários Free.*\n\n"
+        f"🔥 **Quer saber onde entrar?**\n"
+        f"👉 [Seja VIP e receba o sinal completo](https://whop.com/sexta-feira-advanced)\n\n"
+        f"_Powered by Sexta-Feira AI_"
+    )
+    
+    try:
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        response = requests.post(
+            url,
+            json={
+                "chat_id": FREE_GROUP_ID,
+                "text": caption,
+                "parse_mode": "Markdown"
+            },
+            timeout=10
+        )
+        if response.status_code == 200:
+            logger.info(f"✅ Teaser Free enviado: {ativo} {direcao}")
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"❌ Erro ao enviar para Free: {e}")
         return False
 
 # ==========================================
@@ -266,6 +316,5 @@ def main() -> None:
         drop_pending_updates=True
     )
 
-# ✅ Corrigido
 if __name__ == "__main__":
     main()
