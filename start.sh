@@ -1,3 +1,4 @@
+
 #!/bin/bash
 echo "🚀 Iniciando Sexta-Feira Advanced Cloud..."
 
@@ -8,22 +9,18 @@ python -c "from saas_db import init_saas_db; init_saas_db(); print('✅ Banco in
 python telegram_bot.py &
 echo "🤖 Bot VIP iniciado..."
 
-# 3. Bot Grupo FREE (Background) - News, Dicas, Polls
+# 3. Bot Grupo FREE (Background) - Dicas, Polls, Resumo de Mercado
 python telegram_free_bot.py &
 echo "📢 Bot Free Group iniciado..."
 
-# 4. Twitter News Bot (Background) - Notícias do X
-python twitter_news_bot.py &
-echo "🐦 Twitter News Bot iniciado..."
-
-# 5. Processador de Planilha VIP (Background)
+# 4. Processador de Planilha VIP (Background) - Opcional, falha gracefully se sem creds
 python form_processor.py &
 echo "📊 Processador de Planilha iniciado..."
 
-# 6. Orquestrador de Trades SaaS (Background)
+# 5. Orquestrador de Trades SaaS (Background)
 python main_saaS.py &
 echo "🧠 Orquestrador iniciado..."
 
-# 7. Streamlit Dashboard (Frente - mantém container vivo)
+# 6. Streamlit Dashboard (Frente - mantém container vivo)
 echo "📊 Iniciando Dashboard..."
 streamlit run dashboard_saas.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
