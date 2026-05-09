@@ -2,25 +2,53 @@
 import os
 import sys
 import time
+import json
 import logging
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from saas_db import register_user
-from crypto_vault import encrypt_key
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
 logger = logging.getLogger(__name__)
 
-# Configurações Google Sheets
+# Configurações
 SHEET_URL = os.getenv("GOOGLE_SHEET_URL", "https://docs.google.com/spreadsheets/d/1QxdoXoWCMyv-j-G6WAy6Ji5OClsp8NkU1cCfTdEZD9g/edit")
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-CREDS_FILE = os.getenv("GOOGLE_CREDS_FILE", "google_creds.json")
+CREDS_FILE = os.getenv("GOOGLE_CREDS_FILE", "")
+CREDS_JSON = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "")
 PROCESSED_FILE = "processed_vips.txt"
+
+def load_credentials():
+    """Carrega credenciais do arquivo ou da variável de ambiente."""
+    try:
+        # Método 1: Arquivo JSON (Railway com upload direto)
+        if CREDS_FILE and os.path.exists(CREDS_FILE):
+            return ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPE)
+        
+        # Método 2: JSON como string (variável de ambiente)
+        if CREDS_JSON and CREDS_JSON != "{}":
+            creds_info = json.loads(CREDS_JSON)
+            return ServiceAccountCredentials.from_json_keyfile_dict(creds_info, SCOPE)
+        
+        logger.error("❌ Nenhuma credencial do Google encontrada.")
+        return None
+    except Exception as e:
+        logger.error(f"❌ Erro ao carregar credenciais: {e}")
+        return None
+
+def connect_to_sheet():
+    """Conecta na planilha do Google."""
+    creds = load_credentials()
+    if not creds:
+        return None
+    client = gspread.authorize(creds)
+    return client.open_by_url(SHEET_URL).sheet1
 
 def load_processed():
     if os.path.exists(PROCESSED_FILE):
@@ -32,15 +60,13 @@ def save_processed(email):
     with open(PROCESSED_FILE, "a") as f:
         f.write(f"{email}\n")
 
-def connect_to_sheet():
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPE)
-    client = gspread.authorize(creds)
-    return client.open_by_url(SHEET_URL).sheet1
-
 def process_new_signups():
     """Lê planilha e registra VIPs novos no banco."""
     try:
         sheet = connect_to_sheet()
+        if not sheet:
+            return 0
+            
         rows = sheet.get_all_records()
         processed = load_processed()
         new_count = 0
@@ -70,11 +96,9 @@ def process_new_signups():
             logger.info(f"📊 {new_count} novo(s) VIP(s) processado(s)")
         return new_count
         
-    except gspread.exceptions.SpreadsheetNotFound:
-        logger.critical("❌ Planilha não encontrada! Verifique URL e permissões da Service Account.")
     except Exception as e:
         logger.error(f"❌ Erro no processamento: {type(e).__name__}: {e}")
-    return 0
+        return 0
 
 def main():
     logger.info("🔄 Processador de Cadastro VIP iniciado")
