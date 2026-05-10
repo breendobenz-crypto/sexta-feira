@@ -87,11 +87,11 @@ h1, h2, h3 {
 
 @keyframes glow {
     from { text-shadow: 0 0 10px rgba(138,43,226,0.5); }
-    to { text-shadow: 0 0 20px rgba(138,43,226,0.8), 0 0 30px rgba(138,43,226,0.6); }
+    to  { text-shadow: 0 0 20px rgba(138,43,226,0.8), 0 0 30px rgba(138,43,226,0.6); }
 }
 
 @keyframes pulse-purple {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0.7); }
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0.7);  }
     70% { transform: scale(1.0); box-shadow: 0 0 0 12px rgba(138,43,226,0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0); }
 }
@@ -333,15 +333,24 @@ except ImportError as e:
     _SAAS_DB_ERR = str(e)
 
 # ==========================================
-# DADOS DE MERCADO
+# DADOS DE MERCADO (✅ PAXG CORRIGIDO)
 # ==========================================
 def fetch_market_overview():
-    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "PAXG-USDT-SWAP"]
+    """Busca dados de mercado da OKX."""
+    # ✅ Lista de ativos com PAXG (tentando SWAP primeiro, depois SPOT)
+    assets = [
+        ("BTC-USDT-SWAP", "BTC"),
+        ("ETH-USDT-SWAP", "ETH"),
+        ("SOL-USDT-SWAP", "SOL"),
+        ("PAXG-USDT", "PAXG"),  # ✅ PAXG como SPOT (não tem swap)
+    ]
+    
     base = "https://www.okx.com"
     rows = []
-    for inst in assets:
+    
+    for inst_id, symbol in assets:
         try:
-            r = requests.get(f"{base}/api/v5/market/ticker?instId={inst}", timeout=4)
+            r = requests.get(f"{base}/api/v5/market/ticker?instId={inst_id}", timeout=4)
             if r.status_code == 200:
                 data = r.json().get("data", [])
                 if len(data) > 0:
@@ -349,14 +358,40 @@ def fetch_market_overview():
                     last = float(d.get("last", 0))
                     chg = float(d.get("sodUtc8", 0))
                     rows.append({
-                        "Ativo": inst.split("-")[0],
+                        "Ativo": symbol,
                         "Preço": f"${last:,.2f}",
                         "Variação 24h": f"{chg:+.2f}%",
                         "Máx 24h": f"${float(d.get('high24h', 0)):,.2f}",
                         "Mín 24h": f"${float(d.get('low24h', 0)):,.2f}"
                     })
-        except Exception:
-            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—" })
+                else:
+                    # Ativo não encontrado
+                    rows.append({
+                        "Ativo": symbol,
+                        "Preço": "—",
+                        "Variação 24h": "—",
+                        "Máx 24h": "—",
+                        "Mín 24h": "—"
+                    })
+            else:
+                # Erro na API
+                rows.append({
+                    "Ativo": symbol,
+                    "Preço": "—",
+                    "Variação 24h": "—",
+                    "Máx 24h": "—",
+                    "Mín 24h": "—"
+                })
+        except Exception as e:
+            # Erro de conexão
+            rows.append({
+                "Ativo": symbol,
+                "Preço": "—",
+                "Variação 24h": "—",
+                "Máx 24h": "—",
+                "Mín 24h": "—"
+            })
+    
     return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["Ativo", "Preço", "Variação 24h", "Máx 24h", "Mín 24h"])
 
 # ==========================================
@@ -366,9 +401,9 @@ def get_tradingview_widget(symbol="BTCUSDT", height=550):
     tv_symbol = f"OKX:{symbol}.P"
     return f"""
     <div class="tradingview-widget-container" style="height:{height}px;width:100%">
-        <iframe scrolling="no" allowtransparency="true" allowfullscreen="true"
-            src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol={tv_symbol}&theme=dark&style=1&locale=br&withdateranges=1&hide_side_toolbar=0&details=1&hotlist=1&calendar=0&studies=RSI@tv-basicstudies%2CMACD@tv-basicstudies"
-            style="width:100%;height:100%;border:none;"></iframe>
+    <iframe scrolling="no" allowtransparency="true" allowfullscreen="true"
+    src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol={tv_symbol}&theme=dark&style=1&locale=br&withdateranges=1&hide_side_toolbar=0&details=1&hotlist=1&calendar=0&studies=RSI@tv-basicstudies%2CMACD@tv-basicstudies"
+    style="width:100%;height:100%;border:none;"></iframe>
     </div>
     """
 
@@ -379,15 +414,14 @@ def get_tradingview_widget(symbol="BTCUSDT", height=550):
 def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
     import hashlib, hmac, base64
     from datetime import datetime, timezone
-    
     BASE_URL = "https://www.okx.com"
     _sim = os.getenv("OKX_SIMULATED", "false").lower() == "true"
-    
+
     def _sign(ts, method, path, body=""):
         msg = f"{ts}{method.upper()}{path}{body}"
         sig = hmac.new(api_secret.encode(), msg.encode(), digestmod=hashlib.sha256).digest()
         return base64.b64encode(sig).decode()
-    
+
     def _headers(method, path, body=""):
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
         h = {
@@ -399,9 +433,9 @@ def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
         }
         if _sim: h["x-simulated-trading"] = "1"
         return h
-    
+
     sess = requests.Session()
-    
+
     def _get(path, params=None):
         qs = ("?" + "&".join(f"{k}={v}" for k, v in params.items())) if params else ""
         try:
@@ -409,21 +443,20 @@ def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
             return r.json()
         except Exception as e:
             return {"code": "-1", "msg": str(e)}
-    
+
     return _get
 
 def fetch_live_account(user_id: int) -> dict:
     if not _SAAS_DB_OK:
         return {"equity": 0.0, "available": 0.0, "positions": [], "error": _SAAS_DB_ERR}
-    
     creds = get_decrypted_credentials(user_id)
     if not creds:
         return {"equity": 0.0, "available": 0.0, "positions": [], "error": "Credenciais não encontradas"}
-    
+
     okx_get = _build_okx_client(creds["api_key"], creds["api_secret"], creds["passphrase"])
     resp = okx_get("/api/v5/account/balance", {"ccy": "USDT"})
     equity = available = 0.0
-    
+
     if resp.get("code") == "0" and resp.get("data"):
         d = resp["data"][0]
         equity = float(d.get("totalEq", 0) or 0)
@@ -431,17 +464,20 @@ def fetch_live_account(user_id: int) -> dict:
             if det.get("ccy") == "USDT":
                 available = float(det.get("availBal", 0) or 0)
                 break
-    
+
     resp_pos = okx_get("/api/v5/account/positions", {"instType": "SWAP"})
     positions = []
-    SYMBOL_MAP_REV = {"BTC-USDT-SWAP": "BTCUSDT", "ETH-USDT-SWAP": "ETHUSDT", "SOL-USDT-SWAP": "SOLUSDT", "PAXG-USDT-SWAP": "PAXGUSDT"}
+    SYMBOL_MAP_REV = {
+        "BTC-USDT-SWAP": "BTCUSDT", "ETH-USDT-SWAP": "ETHUSDT", 
+        "SOL-USDT-SWAP": "SOLUSDT", "PAXG-USDT": "PAXGUSDT"
+    }
     CT_VAL = {"BTCUSDT": 0.01, "ETHUSDT": 0.1, "SOLUSDT": 1.0, "PAXGUSDT": 0.01}
-    
+
     if resp_pos.get("code") == "0":
         for p in resp_pos.get("data", []):
             sz = float(p.get("pos", 0) or 0)
             if abs(sz) == 0: continue
-            sym = SYMBOL_MAP_REV.get(p.get("instId", " "), p.get("instId", " "))
+            sym = SYMBOL_MAP_REV.get(p.get("instId", ""), p.get("instId", ""))
             ct = CT_VAL.get(sym, 0.01)
             positions.append({
                 "symbol": sym, 
@@ -452,7 +488,7 @@ def fetch_live_account(user_id: int) -> dict:
                 "pnl": float(p.get("upl", 0) or 0),  
                 "leverage": int(float(p.get("lever", 1) or 1)),
             })
-    
+
     return {"equity": equity, "available": available, "positions": positions, "error": None}
 
 # ==========================================
@@ -462,17 +498,16 @@ def chart_equity(curve: list, base_equity: float):
     if not curve: return None
     dates = [r["date"] for r in curve]
     values = [base_equity + r["equity"] for r in curve]
-    
     fig = go.Figure(go.Scatter(x=dates, y=values, mode="lines", name="Equity",
         line=dict(color="#8A2BE2", width=3), fill="tonexty",
         fillcolor=dict(type="linear", y0=0, y1=1, color="rgba(138, 43, 226, 0.1)",
             stops=[[0, "rgba(138, 43, 226, 0)"], [1, "rgba(138, 43, 226, 0.3)"]])))
-    
+
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white"), title_text="Curva de Equity",
         title_font_color="#8A2BE2", margin=dict(l=0, r=0, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
-    
+
     return fig
 
 def chart_pnl_bars(trades: list):
@@ -480,23 +515,22 @@ def chart_pnl_bars(trades: list):
     df = pd.DataFrame(trades[-20:]).iloc[::-1]
     colors = ["#00ff88" if v > 0 else "#ff4444" for v in df["pnl_usdt"]]
     labels = [f"{r['symbol']} {r['side']}" for _, r in df.iterrows()]
-    
     fig = go.Figure(go.Bar(x=df["pnl_usdt"], y=labels, orientation="h", marker_color=colors,
         text=[f"${v:+.2f}" for v in df["pnl_usdt"]], textposition="outside", textfont=dict(family="Orbitron", color="white")))
-    
+
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white", size=10), title_text="PnL Últimos 20",
         title_font_color="#8A2BE2", margin=dict(l=0, r=50, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
-    
+
     return fig
 
 # ==========================================
 # IA TERMINAL
 # ==========================================
 _THOUGHTS = ["Analisando liquidez BTC...", "Calculando EMA9/21/50...", "Verificando filtro HTF 1h...",
-    "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
-    "Brain score carregado...", "Cooldown PAXG...", "Risk Manager normal..."]
+ "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
+ "Brain score carregado...", "Cooldown PAXG...", "Risk Manager normal..."]
 
 def pensamento_ia():
     return f"> [{datetime.now().strftime('%H:%M:%S')}] {random.choice(_THOUGHTS)}"
@@ -518,7 +552,6 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
                 "ativo": trade.get('symbol', 'N/A'),
                 "pnl": pnl_str
             })
-        
         open_trades = get_open_trades(user_id)
         for trade in open_trades:
             activities.append({
@@ -539,7 +572,7 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
             })
     except Exception as e:
         st.error(f"Erro ao buscar atividades: {e}")
-    
+
     return activities[:limit] if activities else [
         {"hora": datetime.now().strftime("%H:%M:%S"), "evento": "⏳ Aguardando operações...", "ativo": "N/A"}
     ]
@@ -550,11 +583,10 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
 def render_login():
     st.markdown("""
     <div style="text-align: center; margin: 80px 0;">
-        <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2;">🔒 SEXTA-FEIRA VIP</h1>
-        <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
+    <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2;">🔒 SEXTA-FEIRA VIP</h1>
+    <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
     </div>
     """, unsafe_allow_html=True)
-    
     with st.form("login_form", clear_on_submit=True):
         st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
         st.markdown('<p class="login-title">🟣 Autenticação</p>', unsafe_allow_html=True)
@@ -604,7 +636,7 @@ def render_login():
                     st.error("❌ Senha incorreta.")
             else:
                 st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-    
+
     st.markdown("""
     <div style="text-align: center; margin-top: 60px; color: #555; font-size: 0.9em;">
         <p>🟣 SEXTA-FEIRA ADVANCED © 2026</p>
@@ -627,13 +659,12 @@ def fetch_news_rss(max_items: int = 10):
         import feedparser
     except ImportError:
         return [{"source": "Info", "title": "Instale feedparser: pip install feedparser", "link": "#", "date": ""}]
-    
     RSS_FEEDS = [
         {"name": "CoinDesk", "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"},
         {"name": "Cointelegraph", "url": "https://cointelegraph.com/rss"},
         {"name": "Decrypt", "url": "https://decrypt.co/feed"},
     ]
-    
+
     news = []
     for feed in RSS_FEEDS:
         try:
@@ -651,7 +682,7 @@ def fetch_news_rss(max_items: int = 10):
                     break
         except Exception:
             continue
-    
+
     return news if news else [{"source": "Info", "title": "Nenhuma notícia nova no momento.", "link": "#", "date": ""}]
 
 # ==========================================
@@ -659,7 +690,6 @@ def fetch_news_rss(max_items: int = 10):
 # ==========================================
 def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
-    
     st.markdown(f"""
     <div style="text-align: center; margin-bottom: 30px; width: 100%;">
         <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
@@ -669,21 +699,21 @@ def render_dashboard():
         </h1>
     </div>
     """, unsafe_allow_html=True)
-    
+
     col_btn = st.columns([1, 1, 1])
     with col_btn[2]:
         if st.button("Sair", use_container_width=True):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-    
+
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
                                     ("OKX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
         locals()[f"s{i+1}"].markdown(f"<div class='status-box'><span class='status-label'>{lbl}</span><span class='status-value'>{val}</span></div>", unsafe_allow_html=True)
-    
+
     st.divider()
-    
+
     with st.spinner("Carregando dados..."):
         live = fetch_live_account(uid) if _SAAS_DB_OK else {"equity": 0, "available": 0, "positions": [], "error": None}
         stats = get_user_stats(uid) if _SAAS_DB_OK else {"win_rate": 0, "total_pnl": 0, "total_trades": 0, "wins": 0, "losses": 0, "avg_pct": 0, "worst_loss": 0, "best_win": 0}
@@ -691,29 +721,29 @@ def render_dashboard():
         curve = get_equity_curve(uid, days=30) if _SAAS_DB_OK else []
         open_pos = get_open_trades(uid) if _SAAS_DB_OK else []
         market_df = fetch_market_overview()
-    
+
     if live.get("error"):
         st.warning(f"⚠️ OKX: {live['error']}")
-    
+
     equity, available, positions = live.get("equity", 0), live.get("available", 0), live.get("positions", [])
     win_rate, total_pnl, total_tr = stats.get("win_rate", 0) * 100, stats.get("total_pnl", 0), stats.get("total_trades", 0)
-    
+
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Equity", f"${equity:.2f}", delta=f"${available:.2f} livre")
     m2.metric("PnL Total", f"${total_pnl:+.2f}")
     m3.metric("Win Rate", f"{win_rate:.1f}%")
     m4.metric("Total Trades", str(total_tr))
     m5.metric("Best Win", f"${stats.get('best_win', 0):.2f}")
-    
+
     st.caption(f"🔄 Última atualização: {datetime.now().strftime('%H:%M:%S')}")
     st.divider()
-    
+
     # ✅ 7 ABAS COM CONFIGURAÇÕES
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📈 Mercado", "📊 Performance", "📌 Posições", 
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
     ])
-    
+
     with tab1:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -741,13 +771,13 @@ def render_dashboard():
         
         chart_asset = st.selectbox(
             "Selecione o Ativo para o Gráfico",
-            ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"],
+            ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"],  # ✅ PAXG adicionado
             key="tv_selector",
             label_visibility="collapsed" 
         )
         
         st.markdown(get_tradingview_widget(chart_asset, height=500), unsafe_allow_html=True)
-    
+
     with tab2:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -775,7 +805,7 @@ def render_dashboard():
         scol2.metric("Losses", stats.get("losses", 0))
         scol3.metric("Avg PnL %", f"{stats.get('avg_pct', 0):.2f}%")
         scol4.metric("Pior Loss", f"${stats.get('worst_loss', 0):.2f}")
-    
+
     with tab3:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -788,9 +818,9 @@ def render_dashboard():
             st.info("Nenhuma posição aberta.")
         else:
             rows = [{"Ativo": p["symbol"], "Direção": p["side"], "Tamanho": p["size"],
-                     "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
-                     "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >=0 else f"-${abs(p['pnl']):.2f}",
-                     "Alavancagem": f"{p['leverage']}x"} for p in positions]
+                      "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
+                      "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >= 0 else f"-${abs(p['pnl']):.2f}",
+                      "Alavancagem": f"{p['leverage']}x"} for p in positions]
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         
         if open_pos:
@@ -798,7 +828,7 @@ def render_dashboard():
             df_open = pd.DataFrame(open_pos)[["symbol", "side", "entry_price", "size", "score", "open_time"]]
             df_open.columns = ["Ativo", "Lado", "Entrada", "Size", "Score", "Aberto em"]
             st.dataframe(df_open, use_container_width=True, hide_index=True)
-    
+
     with tab4:
         col_refresh, col_export = st.columns([1, 1])
         with col_refresh:
@@ -835,7 +865,7 @@ def render_dashboard():
                     else:
                         st.markdown("<div class='reasoning-box'>⏳ Análise em processamento...</div>", unsafe_allow_html=True)
                     st.caption(f"Fechado em: {row['Fechado em']}")
-    
+
     with tab5:
         st.subheader("💻 Processamento da IA — Modo Terminal")
         logs = "\n".join([pensamento_ia() for _ in range(10)])
@@ -854,7 +884,7 @@ def render_dashboard():
                 bc3.metric("Win Rate Brain", f"{float(bm.get('win_rate', 0))*100:.1f}%")
             except:
                 pass
-    
+
     with tab6:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
@@ -879,7 +909,7 @@ def render_dashboard():
                 st.info("⏳ Aguardando bot gerar cache...")
         except Exception as e:
             st.error(f"❌ Erro ao carregar: {e}")
-    
+
     # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
     with tab7:
         st.subheader("⚙️ Configurações da Conta")
@@ -975,15 +1005,15 @@ def render_dashboard():
             st.write("#### 📋 Atividades Recentes (Tempo Real)")
             activity_log = get_real_bot_activity(uid, limit=5)
             for log in activity_log:
-                pnl_badge = f" <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
-                entry_badge = f" <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
+                pnl_badge = f"  <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
+                entry_badge = f"  <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
                 st.markdown(f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}", unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
 def main():
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
-    
+        
     if not st.session_state["logged_in"]:
         render_login()
     else:
