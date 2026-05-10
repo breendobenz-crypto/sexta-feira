@@ -582,21 +582,78 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
 # ==========================================
 def render_login():
     st.markdown("""
-    <div style="text-align: center; margin: 80px 0;">
-    <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2;">🔒 SEXTA-FEIRA VIP</h1>
-    <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
+    <div style="text-align: center; margin: 40px 0;">
+        <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-size: 2.5rem; margin-bottom: 10px;">
+            🔒 SEXTA-FEIRA VIP
+        </h1>
+        <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
     </div>
     """, unsafe_allow_html=True)
+    
     with st.form("login_form", clear_on_submit=True):
-        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
-        st.markdown('<p class="login-title">🟣 Autenticação</p>', unsafe_allow_html=True)
-        st.markdown('<p class="login-subtitle">Digite seu email e senha para acessar</p>', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="
+            max-width: 450px; 
+            margin: 0 auto;
+            background: rgba(13, 13, 13, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(138,43,226,0.4);
+            border-radius: 16px; 
+            padding: 2.5rem 2rem;
+            box-shadow: 0 0 50px rgba(138,43,226,0.2);
+            animation: slideIn 0.5s ease-out;
+        ">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="
+                width: 60px; 
+                height: 60px; 
+                background: linear-gradient(135deg, #8A2BE2, #9d4edd);
+                border-radius: 50%;
+                margin: 0 auto 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                box-shadow: 0 0 20px rgba(138,43,226,0.5);
+            ">🟣</div>
+            <h2 style="
+                font-family: 'Orbitron', sans-serif; 
+                color: #8A2BE2; 
+                font-size: 1.3rem; 
+                margin: 0;
+                text-shadow: 0 0 10px rgba(138,43,226,0.5);
+            ">Autenticação</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 0.5rem;">
+                Digite seu email e senha para acessar
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        email = st.text_input("📧 Email cadastrado", placeholder="seu@email.com", key="login_email")
-        password = st.text_input("🔑 Senha VIP", type="password", placeholder="Digite sua senha", key="login_pass")
+        email = st.text_input(
+            "📧 Email cadastrado", 
+            placeholder="seu@email.com", 
+            key="login_email",
+            label_visibility="visible"
+        )
+        password = st.text_input(
+            "🔑 Senha VIP", 
+            type="password", 
+            placeholder="Digite sua senha", 
+            key="login_pass",
+            label_visibility="visible"
+        )
         
-        submitted = st.form_submit_button("🚀 Acessar Dashboard", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+        with col2:
+            submitted = st.form_submit_button(
+                "🚀 Acessar", 
+                use_container_width=True,
+                type="primary"
+            )
+        
+        st.markdown("</div>", unsafe_allow_html=True)
         
         if submitted:
             if not email or "@" not in email:
