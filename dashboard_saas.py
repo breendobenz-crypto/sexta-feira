@@ -568,31 +568,31 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN (AJUSTADO PARA O DESENHO)
+# LOGIN (AJUSTADO - UMA ÚNICA CAIXA)
 # ==========================================
 def render_login():
     # CSS específico para o Login
     st.markdown("""
     <style>
-        /* Container principal do login */
+        /* Container principal do login - UMA ÚNICA CAIXA */
         .login-container {
             background: rgba(13, 13, 13, 0.95) !important;
             border: 2px solid #8A2BE2 !important;
             border-radius: 16px !important;
-            padding: 30px !important;
+            padding: 40px 30px !important;
             box-shadow: 0 0 50px rgba(138,43,226,0.3);
             max-width: 450px;
             margin: 50px auto 0 auto;
             animation: slideIn 0.5s ease-out;
         }
         
-        /* CAIXA DO TÍTULO (Topo) */
+        /* CAIXA DO TÍTULO (Topo - integrada) */
         .title-box {
             border: 2px solid #8A2BE2;
             border-radius: 10px;
             padding: 15px;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             background: rgba(138, 43, 226, 0.1);
         }
         
@@ -610,7 +610,7 @@ def render_login():
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             font-size: 1rem;
-            margin-top: 10px;
+            margin-top: 15px;
             margin-bottom: 25px;
             letter-spacing: 1px;
         }
@@ -639,10 +639,10 @@ def render_login():
     
     with col_login:
         with st.form("login_form", clear_on_submit=True):
-            # Card Container
+            # Card Container ÚNICO
             st.markdown('<div class="login-container">', unsafe_allow_html=True)
             
-            # 1. CAIXA DO TÍTULO NO TOPO
+            # 1. CAIXA DO TÍTULO NO TOPO (integrada)
             st.markdown("""
                 <div class="title-box">
                     <h1 class="title-text">SEXTA-FEIRA</h1>
@@ -652,11 +652,11 @@ def render_login():
             # 2. TEXTO AUTENTICAÇÃO
             st.markdown('<p class="auth-label">Autenticação</p>', unsafe_allow_html=True)
             
-            # 3. CAMPOS
+            # 3. CAMPOS DE LOGIN
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             
-            # 4. BOTÃO
+            # 4. BOTÃO ACESSAR
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
