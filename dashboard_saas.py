@@ -57,15 +57,16 @@ h1, h2, h3 {
     text-align: center;
 }
 
-.login-wrap {
-    max-width: 420px; 
+/* CAIXA DE LOGIN */
+.login-box {
+    max-width: 450px; 
     margin: 60px auto 0;
-    background: rgba(13, 13, 13, 0.9);
+    background: rgba(13, 13, 13, 0.95);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(138,43,226,0.4);
+    border: 2px solid #8A2BE2;
     border-radius: 16px; 
-    padding: 2.5rem 2rem;
-    box-shadow: 0 0 50px rgba(138,43,226,0.2);
+    padding: 40px 30px;
+    box-shadow: 0 0 50px rgba(138,43,226,0.3);
     animation: slideIn 0.5s ease-out;
 }
 
@@ -77,33 +78,55 @@ h1, h2, h3 {
 .login-title {
     text-align: center; 
     color: #8A2BE2; 
-    font-size: 1.5rem; 
+    font-size: 2rem; 
     font-weight: 700;
-    margin-bottom: 1.5rem; 
+    margin-bottom: 10px; 
     font-family: 'Orbitron', sans-serif; 
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(138,43,226,0.8);
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
     letter-spacing: 1px;
-    animation: glow 2s ease-in-out infinite alternate;
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 10px rgba(138,43,226,0.5); }
-    to  { text-shadow: 0 0 20px rgba(138,43,226,0.8), 0 0 30px rgba(138,43,226,0.6); }
+/* BOTÃO ACESSAR - ROXO COM ANIMAÇÃO */
+div[data-testid="stFormSubmitButton"] button {
+    background-color: #8A2BE2 !important;
+    color: white !important;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-radius: 8px !important;
+    width: 100% !important;
+    padding: 12px !important;
+    margin-top: 15px;
+    border: none !important;
+    transition: all 0.3s ease;
+    animation: pulsePurple 2s infinite alternate;
 }
 
-@keyframes pulse-purple {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0.7);  }
-    70% { transform: scale(1.0); box-shadow: 0 0 0 12px rgba(138,43,226,0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(138,43,226,0); }
+div[data-testid="stFormSubmitButton"] button:hover {
+    background-color: #9d4edd !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px #8A2BE2;
 }
 
-.ia-heart {
-    height: 20px; 
-    width: 20px; 
-    background-color: #8A2BE2; 
-    border-radius: 50%;
-    display: inline-block; 
-    margin-right: 12px; 
-    animation: pulse-purple 2s infinite;
+@keyframes pulsePurple {
+    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+}
+
+/* Inputs limpos */
+input[type="text"], input[type="password"] {
+    background-color: rgba(255,255,255,0.05) !important;
+    border: 1px solid #444 !important;
+    color: white !important;
+    border-radius: 8px !important;
 }
 
 [data-testid="stMetric"] {
@@ -333,24 +356,16 @@ except ImportError as e:
     _SAAS_DB_ERR = str(e)
 
 # ==========================================
-# DADOS DE MERCADO (✅ PAXG CORRIGIDO)
+# DADOS DE MERCADO
 # ==========================================
 def fetch_market_overview():
-    """Busca dados de mercado da OKX."""
-    # ✅ Lista de ativos com PAXG (tentando SWAP primeiro, depois SPOT)
-    assets = [
-        ("BTC-USDT-SWAP", "BTC"),
-        ("ETH-USDT-SWAP", "ETH"),
-        ("SOL-USDT-SWAP", "SOL"),
-        ("PAXG-USDT", "PAXG"),  # ✅ PAXG como SPOT (não tem swap)
-    ]
-    
+    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "PAXG-USDT"]
     base = "https://www.okx.com"
     rows = []
     
-    for inst_id, symbol in assets:
+    for inst in assets:
         try:
-            r = requests.get(f"{base}/api/v5/market/ticker?instId={inst_id}", timeout=4)
+            r = requests.get(f"{base}/api/v5/market/ticker?instId={inst}", timeout=4)
             if r.status_code == 200:
                 data = r.json().get("data", [])
                 if len(data) > 0:
@@ -358,39 +373,14 @@ def fetch_market_overview():
                     last = float(d.get("last", 0))
                     chg = float(d.get("sodUtc8", 0))
                     rows.append({
-                        "Ativo": symbol,
+                        "Ativo": inst.split("-")[0],
                         "Preço": f"${last:,.2f}",
                         "Variação 24h": f"{chg:+.2f}%",
                         "Máx 24h": f"${float(d.get('high24h', 0)):,.2f}",
                         "Mín 24h": f"${float(d.get('low24h', 0)):,.2f}"
                     })
-                else:
-                    # Ativo não encontrado
-                    rows.append({
-                        "Ativo": symbol,
-                        "Preço": "—",
-                        "Variação 24h": "—",
-                        "Máx 24h": "—",
-                        "Mín 24h": "—"
-                    })
-            else:
-                # Erro na API
-                rows.append({
-                    "Ativo": symbol,
-                    "Preço": "—",
-                    "Variação 24h": "—",
-                    "Máx 24h": "—",
-                    "Mín 24h": "—"
-                })
-        except Exception as e:
-            # Erro de conexão
-            rows.append({
-                "Ativo": symbol,
-                "Preço": "—",
-                "Variação 24h": "—",
-                "Máx 24h": "—",
-                "Mín 24h": "—"
-            })
+        except Exception:
+            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—" })
     
     return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["Ativo", "Preço", "Variação 24h", "Máx 24h", "Mín 24h"])
 
@@ -578,67 +568,75 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN
+# LOGIN (ALTERADO - TÍTULO DENTRO DA CAIXA + BOTÃO ROXO)
 # ==========================================
 def render_login():
-    st.markdown("""
-    <div style="text-align: center; margin: 80px 0;">
-    <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2;">🔒 SEXTA-FEIRA VIP</h1>
-    <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
-    </div>
-    """, unsafe_allow_html=True)
-    with st.form("login_form", clear_on_submit=True):
-        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
-        st.markdown('<p class="login-title">🟣 Autenticação</p>', unsafe_allow_html=True)
-        st.markdown('<p class="login-subtitle">Digite seu email e senha para acessar</p>', unsafe_allow_html=True)
-        
-        email = st.text_input("📧 Email cadastrado", placeholder="seu@email.com", key="login_email")
-        password = st.text_input("🔑 Senha VIP", type="password", placeholder="Digite sua senha", key="login_pass")
-        
-        submitted = st.form_submit_button("🚀 Acessar Dashboard", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        if submitted:
-            if not email or "@" not in email:
-                st.error("❌ Digite um email válido.")
-                return
-            if not password:
-                st.error("❌ Digite a senha VIP.")
-                return
+    # Centraliza o formulário na tela
+    _, center_col, _ = st.columns([1, 2, 1])
+    
+    with center_col:
+        with st.form("login_form", clear_on_submit=True):
+            # CAIXA DE LOGIN COM TÍTULO DENTRO
+            st.markdown('<div class="login-box">', unsafe_allow_html=True)
             
-            if _SAAS_DB_OK:
-                user = get_user_by_email(email)
-                if not user:
-                    st.error("❌ Email não encontrado.")
-                    return
-                
-                is_valid = False
-                try:
-                    if verify_password(email, password):
-                        is_valid = True
-                    elif password == GLOBAL_PASSWORD:
-                        is_valid = True
-                except:
-                    if password == GLOBAL_PASSWORD:
-                        is_valid = True
-                
-                if is_valid:
-                    st.session_state.update({
-                        "logged_in": True,
-                        "user_id": user["id"],
-                        "user_email": user["email"],
-                        "user_name": user["display_name"] or user["email"].split("@")[0]
-                    })
-                    update_last_login(user["id"])
-                    st.success("✅ Acesso concedido!")
-                    st.rerun()
+            # TÍTULO DENTRO DA CAIXA
+            st.markdown("""
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
+                    <h1 class="login-title">SEXTA-FEIRA</h1>
+                    <p class="login-subtitle">Acesso restrito a assinantes</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # CAMPOS DE LOGIN
+            email = st.text_input(
+                "Email", 
+                placeholder="seu@email.com", 
+                label_visibility="collapsed",
+                key="login_email"
+            )
+            password = st.text_input(
+                "Senha VIP", 
+                type="password", 
+                placeholder="Digite sua senha",
+                label_visibility="collapsed",
+                key="login_pass"
+            )
+            
+            # BOTÃO ACESSAR (CSS já aplica cor roxa e animação)
+            submitted = st.form_submit_button(
+                "🚀 ACESSAR", 
+                use_container_width=True
+            )
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # LÓGICA DE VALIDAÇÃO
+            if submitted:
+                if not email or "@" not in email:
+                    st.error("❌ Email inválido")
+                elif not password:
+                    st.error("❌ Digite a senha")
+                elif _SAAS_DB_OK:
+                    user = get_user_by_email(email)
+                    if not user:
+                        st.error("❌ Usuário não encontrado")
+                    elif verify_password(email, password) or password == GLOBAL_PASSWORD:
+                        st.session_state.update({
+                            "logged_in": True,
+                            "user_id": user["id"],
+                            "user_name": user["display_name"] or "VIP"
+                        })
+                        update_last_login(user["id"])
+                        st.rerun()
+                    else:
+                        st.error("❌ Senha incorreta")
                 else:
-                    st.error("❌ Senha incorreta.")
-            else:
-                st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
+                    st.error("❌ Erro de conexão com o banco")
 
+    # Footer pequeno
     st.markdown("""
-    <div style="text-align: center; margin-top: 60px; color: #555; font-size: 0.9em;">
+    <div style="text-align: center; margin-top: 40px; color: #555; font-size: 0.8em;">
         <p>🟣 SEXTA-FEIRA ADVANCED © 2026</p>
     </div>
     """, unsafe_allow_html=True)
@@ -753,7 +751,6 @@ def render_dashboard():
         
         st.subheader("📡 Monitor de Mercado — Tempo Real")
         if not market_df.empty:
-            # ✅ CORREÇÃO DE COMPATIBILIDADE: Funciona no Local (Pandas Antigo) e Render (Pandas Novo)
             style_func = lambda v: 'color: #00ff88; font-weight: bold' if isinstance(v, str) and v.startswith('+') else ('color: #ff4444; font-weight: bold' if isinstance(v, str) and v.startswith('-') else 'color: white')
             
             if hasattr(market_df.style, 'map'):
@@ -771,7 +768,7 @@ def render_dashboard():
         
         chart_asset = st.selectbox(
             "Selecione o Ativo para o Gráfico",
-            ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"],  # ✅ PAXG adicionado
+            ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"],
             key="tv_selector",
             label_visibility="collapsed" 
         )
