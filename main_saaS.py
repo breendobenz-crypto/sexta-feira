@@ -19,7 +19,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
 
 # ==========================================
 # IMPORTS CORE
@@ -175,5 +175,6 @@ def main():
         log_and_alert("CRITICAL", f"Falha fatal no orquestrador: {e}", "crash")
         logger.critical(traceback.format_exc())
 
+# ✅ Corrigido
 if __name__ == "__main__":
     main()
