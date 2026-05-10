@@ -578,83 +578,55 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN
+# LOGIN (AJUSTADO E CENTRALIZADO)
 # ==========================================
 def render_login():
+    # CSS para centralizar tudo na tela verticalmente e horizontalmente
     st.markdown("""
-    <div style="text-align: center; margin: 40px 0;">
-        <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-size: 2.5rem; margin-bottom: 10px;">
+    <style>
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 85vh; /* Ocupa a tela toda */
+    }
+    .login-box {
+        background: rgba(13, 13, 13, 0.95);
+        border: 1px solid rgba(138,43,226,0.5);
+        border-radius: 16px;
+        padding: 30px 20px;
+        width: 360px;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(138,43,226,0.25);
+        backdrop-filter: blur(10px);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
+    
+    # Título Principal Centralizado
+    st.markdown("""
+    <div style="margin-bottom: 25px; text-align: center;">
+        <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-size: 2rem; margin: 0; text-shadow: 0 0 10px #8A2BE2;">
             🔒 SEXTA-FEIRA VIP
         </h1>
-        <p style="color: #888; font-size: 1.1rem;">Acesso restrito a assinantes</p>
+        <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">Acesso restrito a assinantes</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
+    # Caixa de Login (Retângulo)
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    st.markdown('<p style="color: #8A2BE2; font-family: Orbitron; font-size: 1.1rem; margin-bottom: 20px;">Autenticação</p>', unsafe_allow_html=True)
+
     with st.form("login_form", clear_on_submit=True):
-        st.markdown("""
-        <div style="
-            max-width: 450px; 
-            margin: 0 auto;
-            background: rgba(13, 13, 13, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(138,43,226,0.4);
-            border-radius: 16px; 
-            padding: 2.5rem 2rem;
-            box-shadow: 0 0 50px rgba(138,43,226,0.2);
-            animation: slideIn 0.5s ease-out;
-        ">
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <div style="
-                width: 60px; 
-                height: 60px; 
-                background: linear-gradient(135deg, #8A2BE2, #9d4edd);
-                border-radius: 50%;
-                margin: 0 auto 1rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.8rem;
-                box-shadow: 0 0 20px rgba(138,43,226,0.5);
-            ">🟣</div>
-            <h2 style="
-                font-family: 'Orbitron', sans-serif; 
-                color: #8A2BE2; 
-                font-size: 1.3rem; 
-                margin: 0;
-                text-shadow: 0 0 10px rgba(138,43,226,0.5);
-            ">Autenticação</h2>
-            <p style="color: #888; font-size: 0.9rem; margin-top: 0.5rem;">
-                Digite seu email e senha para acessar
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        email = st.text_input("📧 Email", placeholder="seu@email.com", key="login_email", label_visibility="collapsed")
+        password = st.text_input("🔑 Senha", type="password", placeholder="Digite sua senha", key="login_pass", label_visibility="collapsed")
         
-        email = st.text_input(
-            "📧 Email cadastrado", 
-            placeholder="seu@email.com", 
-            key="login_email",
-            label_visibility="visible"
-        )
-        password = st.text_input(
-            "🔑 Senha VIP", 
-            type="password", 
-            placeholder="Digite sua senha", 
-            key="login_pass",
-            label_visibility="visible"
-        )
-        
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-        with col2:
-            submitted = st.form_submit_button(
-                "🚀 Acessar", 
-                use_container_width=True,
-                type="primary"
-            )
-        
-        st.markdown("</div>", unsafe_allow_html=True)
-        
+        submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True, type="primary")
+        st.markdown('</div></div>', unsafe_allow_html=True) # Fecha as divs
+
         if submitted:
             if not email or "@" not in email:
                 st.error("❌ Digite um email válido.")
@@ -695,7 +667,7 @@ def render_login():
                 st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
 
     st.markdown("""
-    <div style="text-align: center; margin-top: 60px; color: #555; font-size: 0.9em;">
+    <div style="text-align: center; margin-top: 20px; color: #555; font-size: 0.8em;">
         <p>🟣 SEXTA-FEIRA ADVANCED © 2026</p>
     </div>
     """, unsafe_allow_html=True)
