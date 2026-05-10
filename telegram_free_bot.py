@@ -1,4 +1,4 @@
-# telegram_free_bot.py - BOT PARA GRUPO FREE (DADOS OKX + DICAS + POLLS)
+# telegram_free_bot.py - BOT PARA GRUPO FREE (DADOS OKX + DICAS + POLLS + BOTÃO VIP)
 import os
 import sys
 import time
@@ -29,6 +29,9 @@ TELEGRAM_FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")
 # OKX API (pública para dados de mercado - GRÁTIS)
 OKX_BASE_URL = "https://www.okx.com"
 
+# Link VIP (Whop)
+VIP_LINK = "https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/"
+
 # Intervalos (em horas)
 MARKET_BRIEFING_HOUR = 9       # Resumo diário às 09:00
 TIP_INTERVAL = 6               # Dicas a cada 6h
@@ -49,12 +52,28 @@ EDUCATIONAL_TIPS = [
 # ==========================================
 # FUNÇÕES DE ENVIO TELEGRAM
 # ==========================================
-def send_telegram_message(text: str, parse_mode: str = "Markdown"):
+def send_telegram_message(text: str, parse_mode: str = "Markdown", with_button: bool = False) -> bool:
+    """Envia mensagem para o Grupo Free (com opção de botão VIP)."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_FREE_GROUP_ID:
         logger.warning("⚠️ Telegram não configurado.")
         return False
+    
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_FREE_GROUP_ID, "text": text, "parse_mode": parse_mode, "disable_web_page_preview": True}
+    payload = {
+        "chat_id": TELEGRAM_FREE_GROUP_ID,
+        "text": text,
+        "parse_mode": parse_mode,
+        "disable_web_page_preview": True
+    }
+    
+    # Adiciona botão VIP se solicitado
+    if with_button:
+        payload["reply_markup"] = {
+            "inline_keyboard": [[
+                {"text": "🚀 SEJA VIP", "url": VIP_LINK}
+            ]]
+        }
+    
     try:
         resp = requests.post(url, json=payload, timeout=10)
         return resp.status_code == 200
@@ -63,9 +82,16 @@ def send_telegram_message(text: str, parse_mode: str = "Markdown"):
         return False
 
 def send_poll(question: str, options: list):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_FREE_GROUP_ID: return False
+    """Envia poll para o Grupo Free."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_FREE_GROUP_ID:
+        return False
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPoll"
-    payload = {"chat_id": TELEGRAM_FREE_GROUP_ID, "question": question, "options": options, "type": "regular"}
+    payload = {
+        "chat_id": TELEGRAM_FREE_GROUP_ID,
+        "question": question,
+        "options": options,
+        "type": "regular"
+    }
     try:
         return requests.post(url, json=payload, timeout=10).status_code == 200
     except Exception as e:
@@ -87,10 +113,9 @@ def fetch_market_data():
                 if data:
                     d = data[0]
                     symbol = inst.split("-")[0]
-                    # OKX retorna preço e variação em strings
                     market_data[symbol] = {
                         "price": float(d.get("last", 0)),
-                        "change_24h": float(d.get("sodUtc8", 0)), # Variação
+                        "change_24h": float(d.get("sodUtc8", 0)),
                         "high_24h": float(d.get("high24h", 0)),
                         "low_24h": float(d.get("low24h", 0))
                     }
@@ -99,8 +124,10 @@ def fetch_market_data():
     return market_data
 
 def generate_daily_briefing(market_data):
-    """Gera resumo diário."""
-    if not market_data: return None
+    """Gera resumo diário com botão VIP."""
+    if not market_data:
+        return None
+    
     msg = "🌅 *SEXTA-FEIRA MARKET BRIEFING*\n"
     msg += f"📅 {datetime.now().strftime('%d/%m/%Y')}\n\n"
     
@@ -126,12 +153,14 @@ def generate_daily_briefing(market_data):
         msg += "🟡 *SIDEWAYS* — Mercado lateral\n"
         msg += "💡 *Viés:* Aguardar rompimento\n"
 
-    msg += "\n🔗 *Quer operar assim automaticamente?*\n👉 Seja VIP: https://whop.com/sexta-feira-advanced"
+    msg += f"\n🔗 *Quer operar assim automaticamente?*\n👉 [SEJA VIP]({VIP_LINK})"
     return msg
 
 def generate_weekly_trade(market_data):
-    """Gera preview educativo do trade da semana."""
-    if not market_data or "BTC" not in market_data: return None
+    """Gera preview educativo do trade da semana com botão VIP."""
+    if not market_data or "BTC" not in market_data:
+        return None
+    
     btc_price = market_data["BTC"]["price"]
     stop = btc_price * 0.97
     take = btc_price * 1.06
@@ -143,21 +172,23 @@ def generate_weekly_trade(market_data):
     msg += f"🛑 *Stop Loss:* ${stop:,.2f} (-3%)\n"
     msg += f"✅ *Take Profit:* ${take:,.2f} (+6%)\n"
     msg += "\n⚠️ *Aviso:* Este é um exemplo educativo. Não é recomendação.\n"
-    msg += "\n🔗 *Quer receber sinais reais?*\n👉 Seja VIP: https://whop.com/sexta-feira-advanced"
+    msg += f"\n🔗 *Quer receber sinais reais?*\n👉 [SEJA VIP]({VIP_LINK})"
     return msg
 
 # ==========================================
 # DICAS E POLLS
 # ==========================================
 def send_educational_tip():
+    """Envia dica educativa com botão VIP."""
     tip = random.choice(EDUCATIONAL_TIPS)
     msg = f"🧠 *DICA RÁPIDA #{random.randint(1, 999)}*\n\n"
     msg += f"📚 *{tip['category']}:*\n{tip['tip']}\n\n"
     msg += f"{tip['hashtag']}\n\n"
-    msg += "💡 *Quer aprender mais?*\n👉 Conheça o SEXTA-FEIRA ADVANCED\nhttps://whop.com/sexta-feira-advanced"
-    return send_telegram_message(msg)
+    msg += f"💡 *Quer aprender mais?*\n👉 [SEJA VIP]({VIP_LINK})"
+    return send_telegram_message(msg, with_button=True)
 
 def send_daily_poll():
+    """Envia poll de engajamento."""
     polls = [
         {"question": "🗳️ Qual seu viés para BTC nas próximas 24h?", "options": ["🟢 Long (subida)", "🔴 Short (queda)", "🟡 Lateral"]},
         {"question": "📊 Qual ativo você está operando mais?", "options": ["BTC", "ETH", "SOL", "Outros"]},
@@ -176,7 +207,14 @@ def main():
     last_poll = None
 
     # Mensagem inicial
-    send_telegram_message("🚀 *Bot Sexta-Feira Free Ativado!*\n\n📡 Monitorando mercado 24/7\n🧠 Dicas de trading diárias")
+    send_telegram_message(
+        f"🚀 *Bot Sexta-Feira Free Ativado!*\n\n"
+        f"📡 Monitorando mercado 24/7\n"
+        f"🧠 Dicas de trading diárias\n\n"
+        f"🔥 *Quer sinais completos?*\n"
+        f"👉 [SEJA VIP]({VIP_LINK})",
+        with_button=True
+    )
 
     try:
         while True:
@@ -188,7 +226,7 @@ def main():
                 market_data = fetch_market_data()
                 msg = generate_daily_briefing(market_data)
                 if msg:
-                    send_telegram_message(msg)
+                    send_telegram_message(msg, with_button=True)
                 last_briefing = now
             
             # 2. Trade da Semana (Sexta-feira)
@@ -197,7 +235,7 @@ def main():
                 market_data = fetch_market_data()
                 msg = generate_weekly_trade(market_data)
                 if msg:
-                    send_telegram_message(msg)
+                    send_telegram_message(msg, with_button=True)
             
             # 3. Dicas Educativas (a cada 6h)
             if not last_tip or (now - last_tip).total_seconds() >= TIP_INTERVAL * 3600:
