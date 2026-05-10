@@ -568,50 +568,100 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN (ALTERADO - TÍTULO DENTRO DA CAIXA + BOTÃO ROXO)
+# LOGIN (AJUSTADO PARA O DESENHO)
 # ==========================================
 def render_login():
-    # Centraliza o formulário na tela
-    _, center_col, _ = st.columns([1, 2, 1])
+    # CSS específico para o Login
+    st.markdown("""
+    <style>
+        /* Container principal do login */
+        .login-container {
+            background: rgba(13, 13, 13, 0.95) !important;
+            border: 2px solid #8A2BE2 !important;
+            border-radius: 16px !important;
+            padding: 30px !important;
+            box-shadow: 0 0 50px rgba(138,43,226,0.3);
+            max-width: 450px;
+            margin: 50px auto 0 auto;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* CAIXA DO TÍTULO (Topo) */
+        .title-box {
+            border: 2px solid #8A2BE2;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            background: rgba(138, 43, 226, 0.1);
+        }
+        
+        .title-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: #8A2BE2;
+            margin: 0;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .auth-label {
+            text-align: center;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-top: 10px;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        /* Botão Acessar */
+        div[data-testid="stFormSubmitButton"] button {
+            background-color: #8A2BE2 !important;
+            color: white !important;
+            font-weight: bold !important;
+            font-size: 1.1rem !important;
+            border-radius: 8px !important;
+            width: 100% !important;
+            border: none !important;
+            animation: pulsePurple 2s infinite alternate;
+        }
+
+        @keyframes pulsePurple {
+            0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Centraliza o card na tela
+    _, col_login, _ = st.columns([1, 2, 1])
     
-    with center_col:
+    with col_login:
         with st.form("login_form", clear_on_submit=True):
-            # CAIXA DE LOGIN COM TÍTULO DENTRO
-            st.markdown('<div class="login-box">', unsafe_allow_html=True)
+            # Card Container
+            st.markdown('<div class="login-container">', unsafe_allow_html=True)
             
-            # TÍTULO DENTRO DA CAIXA
+            # 1. CAIXA DO TÍTULO NO TOPO
             st.markdown("""
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">🔒</div>
-                    <h1 class="login-title">SEXTA-FEIRA</h1>
-                    <p class="login-subtitle">Acesso restrito a assinantes</p>
+                <div class="title-box">
+                    <h1 class="title-text">SEXTA-FEIRA</h1>
                 </div>
             """, unsafe_allow_html=True)
             
-            # CAMPOS DE LOGIN
-            email = st.text_input(
-                "Email", 
-                placeholder="seu@email.com", 
-                label_visibility="collapsed",
-                key="login_email"
-            )
-            password = st.text_input(
-                "Senha VIP", 
-                type="password", 
-                placeholder="Digite sua senha",
-                label_visibility="collapsed",
-                key="login_pass"
-            )
+            # 2. TEXTO AUTENTICAÇÃO
+            st.markdown('<p class="auth-label">Autenticação</p>', unsafe_allow_html=True)
             
-            # BOTÃO ACESSAR (CSS já aplica cor roxa e animação)
-            submitted = st.form_submit_button(
-                "🚀 ACESSAR", 
-                use_container_width=True
-            )
+            # 3. CAMPOS
+            email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
+            password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
+            
+            # 4. BOTÃO
+            submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # LÓGICA DE VALIDAÇÃO
+            # LÓGICA DE LOGIN
             if submitted:
                 if not email or "@" not in email:
                     st.error("❌ Email inválido")
@@ -633,13 +683,6 @@ def render_login():
                         st.error("❌ Senha incorreta")
                 else:
                     st.error("❌ Erro de conexão com o banco")
-
-    # Footer pequeno
-    st.markdown("""
-    <div style="text-align: center; margin-top: 40px; color: #555; font-size: 0.8em;">
-        <p>🟣 SEXTA-FEIRA ADVANCED © 2026</p>
-    </div>
-    """, unsafe_allow_html=True)
 
 # ==========================================
 # FUNÇÕES AUXILIARES
