@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (COM LINK DO FORMULÁRIO)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (COM COMANDO /FORMULARIO)
 import os
 import logging
 import requests
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # ✅ CORRIGIDO: __name__
 
 # ==========================================
 # CONFIGURAÇÕES
@@ -21,7 +21,7 @@ FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sexta-feira-wm1s.onrender.com")
 
 # 🔗 LINK DO FORMULÁRIO GOOGLE (Configuração OKX)
-FORMULARIO_OKX_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdFFtz9rE5YDdC612HA/viewform"
+FORMULARIO_OKX_URL = "https://docs.google.com/forms/d/1Z4ETDqRY57YKRViCLQnweUv0j9D3DqarrODiTQShNXI/edit"
 
 if not TOKEN:
     logger.error("❌ TELEGRAM_BOT_TOKEN não configurado.")
@@ -38,7 +38,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"Sou seu assistente de trading automatizado com IA.\n\n"
         f"📋 **PRIMEIROS PASSOS:**\n"
         f"1️⃣ Preencha o formulário de configuração:\n"
-        f"🔗 {FORMULARIO_OKX_URL}\n\n"
+        f"🔗 /formulario\n\n"
         f"2️⃣ Acesse o Dashboard VIP:\n"
         f"🔗 {DASHBOARD_URL}\n\n"
         f"O que posso fazer:\n"
@@ -57,32 +57,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     
     await update.message.reply_text(welcome_msg, parse_mode='Markdown', reply_markup=reply_markup)
 
-async def configurar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando específico para enviar o link do formulário"""
-    config_msg = (
-        " **CONFIGURAÇÃO DA CONTA OKX**\n\n"
+# ✅ NOVO COMANDO: /formulario
+async def formulario(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Envia o link do formulário de configuração OKX"""
+    msg = (
+        "📋 **FORMULÁRIO DE CONFIGURAÇÃO OKX**\n\n"
         "Para ativar o bot de trading, preencha o formulário com suas credenciais:\n\n"
-        "🔗 **Link do Formulário:**\n"
-        f"{FORMULARIO_OKX_URL}\n\n"
-        "⚠️ **Importante:**\n"
-        "• Suas chaves serão criptografadas e mantidas em sigilo\n"
-        "• Preencha com seu email cadastrado na Whop\n"
+        f"🔗 **Link direto:**\n{FORMULARIO_OKX_URL}\n\n"
+        "⚠️ **Instruções:**\n"
+        "• Use o mesmo email cadastrado na Whop\n"
+        "• Cole sua API Key, Secret e Passphrase da OKX\n"
+        "• Suas chaves serão criptografadas automaticamente\n"
         "• Após enviar, aguarde até 5 minutos para ativação\n\n"
-        "📊 **Dashboard:** "
-        f"{DASHBOARD_URL}"
+        f"📊 **Dashboard:** {DASHBOARD_URL}"
     )
     
-    keyboard = [[InlineKeyboardButton("📋 Preencher Formulário Agora", url=FORMULARIO_OKX_URL)]]
+    keyboard = [[InlineKeyboardButton("📋 Abrir Formulário Agora", url=FORMULARIO_OKX_URL)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(config_msg, parse_mode='Markdown', reply_markup=reply_markup)
+    await update.message.reply_text(msg, parse_mode='Markdown', reply_markup=reply_markup)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     help_msg = (
         "📚 **COMANDOS DISPONÍVEIS:**\n\n"
         "/start - 🚀 Iniciar o bot\n"
         "/help - 📚 Esta mensagem de ajuda\n"
-        "/configurar - 📋 Preencher formulário OKX\n"
+        "/formulario - 📋 Preencher formulário OKX\n"
         "/status - 📊 Ver status do sistema\n"
         "/vip - 💎 Informações sobre plano VIP\n"
         "/suporte - 🆘 Falar com suporte técnico\n"
@@ -125,7 +125,7 @@ async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Como Assinar:\n"
         "1️⃣ Acesse: https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/\n"
         "2️⃣ Finalize o pagamento\n"
-        "3️⃣ Preencha o formulário de configuração OKX\n"
+        "3️⃣ Preencha o formulário: /formulario\n"
         "4️⃣ Receba acesso imediato ao Dashboard\n\n"
         "🔗 Cadastre-se na OKX com desconto:\n"
         "https://okx.com/join/69938298"
@@ -178,7 +178,7 @@ async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         "• 📊 Ativos monitorados\n"
         "• ⚡ Alavancagem padrão\n\n"
         f"🔗 Dashboard: {DASHBOARD_URL}\n"
-        f"📋 Formulário OKX: {FORMULARIO_OKX_URL}"
+        f"📋 Formulário OKX: /formulario"
     )
     await update.message.reply_text(config_msg, parse_mode='Markdown')
 
@@ -322,9 +322,10 @@ def main() -> None:
 
     application = Application.builder().token(TOKEN).build()
 
+    # ✅ Handlers registrados
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("configurar", configurar))  # ✅ NOVO COMANDO
+    application.add_handler(CommandHandler("formulario", formulario))  # ✅ NOVO COMANDO
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("vip", vip_info))
     application.add_handler(CommandHandler("suporte", suporte))
@@ -341,5 +342,6 @@ def main() -> None:
         drop_pending_updates=True
     )
 
+# ✅ CORRIGIDO: __name__
 if __name__ == "__main__":
     main()
