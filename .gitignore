@@ -47,3 +47,9 @@ processed_vips.txt
 # Bancos locais (se usar PostgreSQL na nuvem)
 *.db
 !jarvis_saas.db
+.env 
+*.log 
+__pycache__/ 
+*.pyc 
+bot_heartbeat.json 
+brain_memory.json 

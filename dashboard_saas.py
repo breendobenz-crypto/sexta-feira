@@ -568,100 +568,50 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN (AJUSTADO - UMA ÚNICA CAIXA)
+# LOGIN (SEM A SEGUNDA CAIXA - TÍTULO DIRETO)
 # ==========================================
 def render_login():
-    # CSS específico para o Login
-    st.markdown("""
-    <style>
-        /* Container principal do login - UMA ÚNICA CAIXA */
-        .login-container {
-            background: rgba(13, 13, 13, 0.95) !important;
-            border: 2px solid #8A2BE2 !important;
-            border-radius: 16px !important;
-            padding: 40px 30px !important;
-            box-shadow: 0 0 50px rgba(138,43,226,0.3);
-            max-width: 450px;
-            margin: 50px auto 0 auto;
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        /* CAIXA DO TÍTULO (Topo - integrada) */
-        .title-box {
-            border: 2px solid #8A2BE2;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            background: rgba(138, 43, 226, 0.1);
-        }
-        
-        .title-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            color: #8A2BE2;
-            margin: 0;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-        
-        .auth-label {
-            text-align: center;
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
-            margin-top: 15px;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
-        }
-
-        /* Botão Acessar */
-        div[data-testid="stFormSubmitButton"] button {
-            background-color: #8A2BE2 !important;
-            color: white !important;
-            font-weight: bold !important;
-            font-size: 1.1rem !important;
-            border-radius: 8px !important;
-            width: 100% !important;
-            border: none !important;
-            animation: pulsePurple 2s infinite alternate;
-        }
-
-        @keyframes pulsePurple {
-            0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-            100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Centraliza o card na tela
-    _, col_login, _ = st.columns([1, 2, 1])
+    # Centraliza o formulário na tela
+    _, center_col, _ = st.columns([1, 2, 1])
     
-    with col_login:
+    with center_col:
         with st.form("login_form", clear_on_submit=True):
-            # Card Container ÚNICO
-            st.markdown('<div class="login-container">', unsafe_allow_html=True)
             
-            # 1. CAIXA DO TÍTULO NO TOPO (integrada)
+            # CAIXA + TÍTULO UNIFICADOS
             st.markdown("""
-                <div class="title-box">
-                    <h1 class="title-text">SEXTA-FEIRA</h1>
-                </div>
+            <div style="
+                background: rgba(13, 13, 13, 0.95);
+                border: 2px solid #8A2BE2;
+                border-radius: 16px;
+                padding: 40px 30px;
+                box-shadow: 0 0 50px rgba(138,43,226,0.3);
+                max-width: 450px;
+                margin: 50px auto;
+                text-align: center;
+            ">
+                <h1 style="
+                    font-family: 'Orbitron', sans-serif;
+                    color: #8A2BE2;
+                    font-size: 2rem;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    letter-spacing: 3px;
+                    text-shadow: 0 0 15px rgba(138,43,226,0.8);
+                ">SEXTA-FEIRA</h1>
+            </div>
             """, unsafe_allow_html=True)
             
-            # 2. TEXTO AUTENTICAÇÃO
-            st.markdown('<p class="auth-label">Autenticação</p>', unsafe_allow_html=True)
+            # Texto "Autenticação"
+            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
             
-            # 3. CAMPOS DE LOGIN
+            # Campos de login
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             
-            # 4. BOTÃO ACESSAR
+            # Botão Acessar
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
             
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            # LÓGICA DE LOGIN
+            # Lógica de login
             if submitted:
                 if not email or "@" not in email:
                     st.error("❌ Email inválido")
@@ -950,105 +900,173 @@ def render_dashboard():
         except Exception as e:
             st.error(f"❌ Erro ao carregar: {e}")
 
-    # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
+# ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
     with tab7:
-        st.subheader("⚙️ Configurações da Conta")
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🔑 Senha de Acesso")
-            with st.form("change_pass_form"):
-                current_pass = st.text_input("Senha Atual", type="password")
-                new_pass = st.text_input("Nova Senha", type="password")
-                confirm_pass = st.text_input("Confirmar Nova Senha", type="password")
-                submitted = st.form_submit_button("💾 Atualizar Senha", use_container_width=True)
-                if submitted:
-                    if not verify_password(st.session_state["user_email"], current_pass) and current_pass != GLOBAL_PASSWORD:
-                        st.error("❌ Senha atual incorreta.")
-                    elif new_pass != confirm_pass:
-                        st.error("❌ As novas senhas não coincidem.")
-                    elif len(new_pass) < 6:
-                        st.error("❌ A nova senha deve ter pelo menos 6 caracteres.")
-                    else:
-                        if _SAAS_DB_OK:
-                            set_user_password(st.session_state["user_email"], new_pass)
-                            st.success("✅ Senha alterada com sucesso!")
-                            st.info("ℹ️ Faça login novamente com a nova senha.")
-                            st.session_state["logged_in"] = False
-                            st.rerun()
-                        else:
-                            st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🔑 Chaves API da OKX")
-            st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
-            
-            with st.form("okx_keys_form"):
-                api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da OKX")
-                api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da OKX")
-                passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da OKX")
-                
-                col_test, col_save = st.columns(2)
-                with col_test:
-                    test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
-                with col_save:
-                    save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
-                
-                if test_conn:
-                    if not all([api_key, api_secret, passphrase]):
-                        st.error("❌ Preencha todos os campos para testar.")
-                    else:
-                        with st.spinner("Testando conexão com a OKX..."):
-                            try:
-                                test_client = _build_okx_client(api_key, api_secret, passphrase)
-                                resp = test_client("/api/v5/account/balance", {"ccy": "USDT"})
-                                if resp.get("code") == "0":
-                                    st.success("✅ Conexão OKX validada com sucesso!")
-                                    st.json({"equity": resp["data"][0].get("totalEq")})
-                                else:
-                                    st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
-                            except Exception as e:
-                                st.error(f"❌ Falha ao conectar: {e}")
-                
-                if save_keys:
-                    if not all([api_key, api_secret, passphrase]):
-                        st.error("❌ Preencha todos os campos.")
-                    elif _SAAS_DB_OK:
-                        try:
-                            update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
-                            st.success("✅ Chaves salvas com segurança!")
-                            st.info("ℹ️ O bot começará a operar em até 1 minuto.")
-                        except Exception as e:
-                            st.error(f"❌ Erro ao salvar: {e}")
+
+        st.markdown("""
+        <style>
+        /* Título centralizado estilo SEXTA-FEIRA */
+        .section-title-box {
+            background: #0d0b1e;
+            border: 2px solid #8A2BE2;
+            border-radius: 10px;
+            padding: 18px 30px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(138, 43, 226, 0.9),
+                         0 0 25px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4),
+                        inset 0 0 20px rgba(138, 43, 226, 0.05);
+            margin-bottom: 16px;
+        }
+
+        /* Wrapper da seção inteira */
+        .section-wrapper {
+            border: 1px solid rgba(138, 43, 226, 0.35);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            background: #09091a;
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.12);
+        }
+
+        .bot-status-online {
+            background: #0a1f0a;
+            border: 1px solid #00cc44;
+            color: #00ff55;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .bot-status-offline {
+            background: #1f0a0a;
+            border: 1px solid #cc2200;
+            color: #ff4422;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # ══════════════════════════════════════
+        # SEÇÃO 1 — SENHA DE ACESSO
+        # ══════════════════════════════════════
+        st.markdown('<div class="section-title-box">🔑 &nbsp; SENHA DE ACESSO</div>', unsafe_allow_html=True)
+
+        with st.form("change_pass_form"):
+            current_pass = st.text_input("Senha Atual", type="password")
+            new_pass     = st.text_input("Nova Senha", type="password")
+            confirm_pass = st.text_input("Confirmar Nova Senha", type="password")
+            submitted    = st.form_submit_button("💾 Atualizar Senha", use_container_width=True)
+
+            if submitted:
+                if not verify_password(st.session_state["user_email"], current_pass) and current_pass != GLOBAL_PASSWORD:
+                    st.error("❌ Senha atual incorreta.")
+                elif new_pass != confirm_pass:
+                    st.error("❌ As novas senhas não coincidem.")
+                elif len(new_pass) < 6:
+                    st.error("❌ A nova senha deve ter pelo menos 6 caracteres.")
+                else:
+                    if _SAAS_DB_OK:
+                        set_user_password(st.session_state["user_email"], new_pass)
+                        st.success("✅ Senha alterada com sucesso!")
+                        st.info("ℹ️ Faça login novamente com a nova senha.")
+                        st.session_state["logged_in"] = False
+                        st.rerun()
                     else:
                         st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with st.container():
-            st.markdown('<div class="config-section">', unsafe_allow_html=True)
-            st.write("### 🤖 Robô Sexta-Feira")
-            
-            bot_active = os.path.exists("bot_heartbeat.json")
-            if bot_active:
-                try:
-                    with open("bot_heartbeat.json") as f:
-                        hb = json.load(f)
-                    last_scan = hb.get("last_scan", "N/A")
-                    st.markdown(f'<div class="bot-status-online">🟢 Bot Online • Último scan: {last_scan}</div>', unsafe_allow_html=True)
-                except:
-                    st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="bot-status-offline">🔴 Bot Offline • Aguardando inicialização</div>', unsafe_allow_html=True)
-            
-            st.write("#### 📋 Atividades Recentes (Tempo Real)")
-            activity_log = get_real_bot_activity(uid, limit=5)
-            for log in activity_log:
-                pnl_badge = f"  <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
-                entry_badge = f"  <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
-                st.markdown(f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}", unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ══════════════════════════════════════
+        # SEÇÃO 2 — CHAVES API OKX
+        # ══════════════════════════════════════
+        st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA OKX</div>', unsafe_allow_html=True)
+
+        st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
+
+        with st.form("okx_keys_form"):
+            api_key    = st.text_input("API Key",    type="password", placeholder="Cole sua API Key da OKX")
+            api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da OKX")
+            passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da OKX")
+
+            col_test, col_save = st.columns(2)
+            with col_test:
+                test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
+            with col_save:
+                save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
+
+            if test_conn:
+                if not all([api_key, api_secret, passphrase]):
+                    st.error("❌ Preencha todos os campos para testar.")
+                else:
+                    with st.spinner("Testando conexão com a OKX..."):
+                        try:
+                            test_client = _build_okx_client(api_key, api_secret, passphrase)
+                            resp = test_client("/api/v5/account/balance", {"ccy": "USDT"})
+                            if resp.get("code") == "0":
+                                st.success("✅ Conexão OKX validada com sucesso!")
+                                st.json({"equity": resp["data"][0].get("totalEq")})
+                            else:
+                                st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
+                        except Exception as e:
+                            st.error(f"❌ Falha ao conectar: {e}")
+
+            if save_keys:
+                if not all([api_key, api_secret, passphrase]):
+                    st.error("❌ Preencha todos os campos.")
+                elif _SAAS_DB_OK:
+                    try:
+                        update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
+                        st.success("✅ Chaves salvas com segurança!")
+                        st.info("ℹ️ O bot começará a operar em até 1 minuto.")
+                    except Exception as e:
+                        st.error(f"❌ Erro ao salvar: {e}")
+                else:
+                    st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ══════════════════════════════════════
+        # SEÇÃO 3 — ROBÔ SEXTA-FEIRA
+        # ══════════════════════════════════════
+        st.markdown('<div class="section-title-box">🤖 &nbsp; ROBÔ SEXTA-FEIRA</div>', unsafe_allow_html=True)
+
+        bot_active = os.path.exists("bot_heartbeat.json")
+        if bot_active:
+            try:
+                with open("bot_heartbeat.json") as f:
+                    hb = json.load(f)
+                last_scan = hb.get("last_scan", "N/A")
+                st.markdown(
+                    f'<div class="bot-status-online">🟢 Bot Online &nbsp;•&nbsp; Último scan: {last_scan}</div>',
+                    unsafe_allow_html=True
+                )
+            except:
+                st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(
+                '<div class="bot-status-offline">🔴 Bot Offline &nbsp;•&nbsp; Aguardando inicialização</div>',
+                unsafe_allow_html=True
+            )
+
+        st.write("#### 📋 Atividades Recentes (Tempo Real)")
+        activity_log = get_real_bot_activity(uid, limit=5)
+        for log in activity_log:
+            pnl_badge   = f"  <span style='color:#00ff88'>{log['pnl']}</span>"   if log.get('pnl')   else ""
+            entry_badge = f"  <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
+            st.markdown(
+                f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}",
+                unsafe_allow_html=True
+            )
 
 def main():
     if "logged_in" not in st.session_state:

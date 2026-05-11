@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (VERSÃO FINAL COM FUNIL VIP/FREE)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (COM ENVIO DE PDF)
 import os
 import logging
 import requests
@@ -8,8 +8,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # ==========================================
 # CONFIGURAÇÕES
@@ -17,8 +20,9 @@ logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
-FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")  # <--- ID DO GRUPO FREE
-DASHBOARD_URL = "https://sexta-feira-wm1s.onrender.com"
+FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sexta-feira-wm1s.onrender.com")
+VIP_LINK = "https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/"
 
 if not TOKEN:
     logger.error("❌ TELEGRAM_BOT_TOKEN não configurado.")
@@ -47,6 +51,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "📚 COMANDOS DISPONÍVEIS:\n\n"
         "/start - 🚀 Iniciar o bot\n"
         "/help - 📚 Esta mensagem de ajuda\n"
+        "/guia - 📥 Baixar o Guia VIP (PDF)\n"  # ✅ NOVO COMANDO
         "/status - 📊 Ver status do sistema\n"
         "/vip - 💎 Informações sobre plano VIP\n"
         "/suporte - 🆘 Falar com suporte técnico\n"
@@ -54,11 +59,33 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/trades - 📈 Ver trades abertos\n"
         "/noticias - 📰 Últimas notícias crypto\n"
         "/dashboard - 📊 Receber link do painel\n\n"
-        "Links Úteis:\n"
         f"🔗 Dashboard VIP: {DASHBOARD_URL}\n"
         "🔗 OKX (Desconto): https://okx.com/join/69938298"
     )
     await update.message.reply_text(help_msg, parse_mode='Markdown')
+
+# ✅ FUNÇÃO PARA ENVIAR O PDF
+async def guia_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Envia o arquivo PDF do Guia de Inicialização."""
+    pdf_file = 'Guia_VIP_Sexta_Feira_Advanced.pdf'
+    
+    try:
+        # Abre o arquivo e envia
+        with open(pdf_file, 'rb') as f:
+            await context.bot.send_document(
+                chat_id=update.effective_chat.id,
+                document=f,
+                caption="📚 **GUIA DE INICIALIZAÇÃO VIP**\n\n"
+                        "Siga as instruções passo a passo para configurar sua conta e conectar à OKX.\n\n"
+                        "🟣 *Sexta-Feira Advanced - A IA que trabalha por você.*",
+                parse_mode='Markdown'
+            )
+        logger.info(f"✅ PDF Guia enviado para {update.effective_user.id}")
+    except FileNotFoundError:
+        await update.message.reply_text("⚠️ Erro: O arquivo do Guia não foi encontrado no servidor.")
+    except Exception as e:
+        logger.error(f"❌ Erro ao enviar PDF: {e}")
+        await update.message.reply_text(f"❌ Erro ao enviar o PDF. Entre em contato com o suporte.")
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     status_msg = (
@@ -84,19 +111,18 @@ async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "✅ Relatórios semanais de performance\n"
         "✅ Grupo VIP exclusivo no Telegram\n"
         "✅ Gráficos TradingView integrados\n\n"
-        "💰 Investimento: R$ 97/mês\n\n"
+        "💰 Investimento: R$ 197/mês\n\n"
         "Como Assinar:\n"
-        "1️⃣ Acesse o site oficial\n"
-        "2️⃣ Clique em 'Assinar VIP'\n"
-        "3️⃣ Preencha com suas credenciais OKX\n"
-        "4️⃣ Aguarde aprovação automática\n\n"
+        f"1️⃣ Acesse: {VIP_LINK}\n"
+        "2️⃣ Finalize o pagamento\n"
+        "3️⃣ Receba acesso imediato ao Dashboard\n\n"
         "🔗 Cadastre-se na OKX com desconto:\n"
         "https://okx.com/join/69938298"
     )
     await update.message.reply_text(vip_msg, parse_mode='Markdown')
 
 async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    admin_user = os.getenv('ADMIN_USERNAME', 'seu_usuario')
+    admin_user = os.getenv('ADMIN_USERNAME', 'sextafeira_suporte')
     suporte_msg = (
         "🆘 SUPORTE TÉCNICO\n\n"
         "Canais de Atendimento:\n\n"
@@ -111,7 +137,7 @@ async def suporte(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "⏱ Tempo médio de resposta: 2h"
     )
     await update.message.reply_text(suporte_msg, parse_mode='Markdown')
-    
+
     if ADMIN_ID:
         try:
             user = update.effective_user
@@ -180,7 +206,6 @@ async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def dashboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [[InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
     await update.message.reply_text(
         "🟣 Sexta-Feira Advanced\n\n"
         "Acesse seu painel de controle, métricas e configurações de API abaixo:",
@@ -198,11 +223,10 @@ async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ENVIO DE SINAL VIP (Completo)
 # ==========================================
 def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: str, stop: str, hora: str, isolado: str = "5x", leverage: str = "10x") -> bool:
-    """Envia sinal formatado COMPLETO para o Grupo VIP."""
     if not VIP_GROUP_ID or not TOKEN:
         logger.warning("⚠️ TELEGRAM_VIP_GROUP_ID ou TOKEN não configurados")
         return False
-    
+
     caption = (
         f"⚡ SEXTA-FEIRA SIGNAL\n\n"
         f"Ativo: {ativo}\n"
@@ -217,16 +241,12 @@ def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: s
         f"Leverage: {leverage}\n"
         f"Hora: {hora}"
     )
-    
+
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         response = requests.post(
             url,
-            json={
-                "chat_id": VIP_GROUP_ID,
-                "text": caption,
-                "parse_mode": "Markdown"
-            },
+            json={"chat_id": VIP_GROUP_ID, "text": caption, "parse_mode": "Markdown"},
             timeout=10
         )
         if response.status_code == 200:
@@ -243,32 +263,24 @@ def enviar_sinal_vip(ativo: str, direcao: str, score: str, entrada: str, take: s
 # ENVIO DE TEASER FREE (Funil de Vendas)
 # ==========================================
 def enviar_alerta_free(ativo: str, direcao: str, score: int) -> bool:
-    """
-    Envia alerta 'censurado' para o Grupo Free.
-    Gera curiosidade (FOMO) sem dar os números exatos.
-    """
     if not FREE_GROUP_ID or not TOKEN:
         return False
-    
+
     caption = (
         f"👀 *ALERTA DE MERCADO: {ativo}*\n\n"
         f"Detectamos um movimento forte de **{direcao}**!\n"
         f"📊 Score de Confiança: `{score}%`\n\n"
         f"⚠️ *O Alvo e Stop Loss estão ocultos para usuários Free.*\n\n"
         f"🔥 **Quer saber onde entrar?**\n"
-        f"👉 [Seja VIP e receba o sinal completo](https://whop.com/sexta-feira-advanced)\n\n"
+        f"👉 [SEXTA-FEIRA ADVANCED]({VIP_LINK})\n\n"
         f"_Powered by Sexta-Feira AI_"
     )
-    
+
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         response = requests.post(
             url,
-            json={
-                "chat_id": FREE_GROUP_ID,
-                "text": caption,
-                "parse_mode": "Markdown"
-            },
+            json={"chat_id": FREE_GROUP_ID, "text": caption, "parse_mode": "Markdown"},
             timeout=10
         )
         if response.status_code == 200:
@@ -286,19 +298,18 @@ def main() -> None:
     if not TOKEN:
         logger.error("❌ TOKEN não configurado. Bot não iniciado.")
         return
-    
-    # 🧹 Limpa webhook antigo para evitar conflito
+
     try:
         requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook", timeout=5)
         logger.info("✅ Webhook antigo removido")
-    except:
+    except Exception:
         pass
-    
+
     application = Application.builder().token(TOKEN).build()
-    
-    # ✅ Handlers corrigidos (sem espaços extras)
+
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("guia", guia_command))  # ✅ REGISTRADO AQUI
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("vip", vip_info))
     application.add_handler(CommandHandler("suporte", suporte))
@@ -307,15 +318,13 @@ def main() -> None:
     application.add_handler(CommandHandler("noticias", noticias_command))
     application.add_handler(CommandHandler("dashboard", dashboard_command))
     application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
-    
+
     logger.info("🤖 Bot Telegram iniciado. Ouvindo comandos...")
-    
-    # ✅ drop_pending_updates=True limpa fila travada e evita erro 409
+
     application.run_polling(
         allowed_updates=Update.ALL_TYPES,
         drop_pending_updates=True
     )
 
-# ✅ Corrigido
 if __name__ == "__main__":
     main()
