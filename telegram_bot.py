@@ -1,4 +1,4 @@
-# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (COM ENVIO DE PDF)
+# telegram_bot.py - BOT TELEGRAM SEXTA-FEIRA (COM LINK DO FORMULÁRIO)
 import os
 import logging
 import requests
@@ -8,10 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # ==========================================
@@ -22,7 +19,9 @@ ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID")
 VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID")
 FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID")
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sexta-feira-wm1s.onrender.com")
-VIP_LINK = "https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/"
+
+# 🔗 LINK DO FORMULÁRIO GOOGLE (Configuração OKX)
+FORMULARIO_OKX_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdFFtz9rE5YDdC612HA/viewform"
 
 if not TOKEN:
     logger.error("❌ TELEGRAM_BOT_TOKEN não configurado.")
@@ -37,6 +36,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"🟣 Bem-vindo à SEXTA-FEIRA Advanced!\n\n"
         f"Olá {user.first_name}! 👋\n\n"
         f"Sou seu assistente de trading automatizado com IA.\n\n"
+        f"📋 **PRIMEIROS PASSOS:**\n"
+        f"1️⃣ Preencha o formulário de configuração:\n"
+        f"🔗 {FORMULARIO_OKX_URL}\n\n"
+        f"2️⃣ Acesse o Dashboard VIP:\n"
+        f"🔗 {DASHBOARD_URL}\n\n"
         f"O que posso fazer:\n"
         f"📊 Enviar sinais de trading em tempo real\n"
         f"📰 Notícias de crypto filtradas\n"
@@ -44,14 +48,41 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"🆘 Suporte técnico prioritário\n\n"
         f"Digite /help para ver todos os comandos disponíveis."
     )
-    await update.message.reply_text(welcome_msg, parse_mode='Markdown')
+    
+    keyboard = [
+        [InlineKeyboardButton("📋 Preencher Formulário OKX", url=FORMULARIO_OKX_URL)],
+        [InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(welcome_msg, parse_mode='Markdown', reply_markup=reply_markup)
+
+async def configurar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Comando específico para enviar o link do formulário"""
+    config_msg = (
+        " **CONFIGURAÇÃO DA CONTA OKX**\n\n"
+        "Para ativar o bot de trading, preencha o formulário com suas credenciais:\n\n"
+        "🔗 **Link do Formulário:**\n"
+        f"{FORMULARIO_OKX_URL}\n\n"
+        "⚠️ **Importante:**\n"
+        "• Suas chaves serão criptografadas e mantidas em sigilo\n"
+        "• Preencha com seu email cadastrado na Whop\n"
+        "• Após enviar, aguarde até 5 minutos para ativação\n\n"
+        "📊 **Dashboard:** "
+        f"{DASHBOARD_URL}"
+    )
+    
+    keyboard = [[InlineKeyboardButton("📋 Preencher Formulário Agora", url=FORMULARIO_OKX_URL)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(config_msg, parse_mode='Markdown', reply_markup=reply_markup)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     help_msg = (
-        "📚 COMANDOS DISPONÍVEIS:\n\n"
+        "📚 **COMANDOS DISPONÍVEIS:**\n\n"
         "/start - 🚀 Iniciar o bot\n"
         "/help - 📚 Esta mensagem de ajuda\n"
-        "/guia - 📥 Baixar o Guia VIP (PDF)\n"  # ✅ NOVO COMANDO
+        "/configurar - 📋 Preencher formulário OKX\n"
         "/status - 📊 Ver status do sistema\n"
         "/vip - 💎 Informações sobre plano VIP\n"
         "/suporte - 🆘 Falar com suporte técnico\n"
@@ -59,33 +90,12 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "/trades - 📈 Ver trades abertos\n"
         "/noticias - 📰 Últimas notícias crypto\n"
         "/dashboard - 📊 Receber link do painel\n\n"
-        f"🔗 Dashboard VIP: {DASHBOARD_URL}\n"
+        "🔗 **Links Importantes:**\n"
+        f"📋 Formulário OKX: {FORMULARIO_OKX_URL}\n"
+        f"📊 Dashboard VIP: {DASHBOARD_URL}\n"
         "🔗 OKX (Desconto): https://okx.com/join/69938298"
     )
     await update.message.reply_text(help_msg, parse_mode='Markdown')
-
-# ✅ FUNÇÃO PARA ENVIAR O PDF
-async def guia_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Envia o arquivo PDF do Guia de Inicialização."""
-    pdf_file = 'Guia_VIP_Sexta_Feira_Advanced.pdf'
-    
-    try:
-        # Abre o arquivo e envia
-        with open(pdf_file, 'rb') as f:
-            await context.bot.send_document(
-                chat_id=update.effective_chat.id,
-                document=f,
-                caption="📚 **GUIA DE INICIALIZAÇÃO VIP**\n\n"
-                        "Siga as instruções passo a passo para configurar sua conta e conectar à OKX.\n\n"
-                        "🟣 *Sexta-Feira Advanced - A IA que trabalha por você.*",
-                parse_mode='Markdown'
-            )
-        logger.info(f"✅ PDF Guia enviado para {update.effective_user.id}")
-    except FileNotFoundError:
-        await update.message.reply_text("⚠️ Erro: O arquivo do Guia não foi encontrado no servidor.")
-    except Exception as e:
-        logger.error(f"❌ Erro ao enviar PDF: {e}")
-        await update.message.reply_text(f"❌ Erro ao enviar o PDF. Entre em contato com o suporte.")
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     status_msg = (
@@ -113,9 +123,10 @@ async def vip_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "✅ Gráficos TradingView integrados\n\n"
         "💰 Investimento: R$ 197/mês\n\n"
         "Como Assinar:\n"
-        f"1️⃣ Acesse: {VIP_LINK}\n"
+        "1️⃣ Acesse: https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/\n"
         "2️⃣ Finalize o pagamento\n"
-        "3️⃣ Receba acesso imediato ao Dashboard\n\n"
+        "3️⃣ Preencha o formulário de configuração OKX\n"
+        "4️⃣ Receba acesso imediato ao Dashboard\n\n"
         "🔗 Cadastre-se na OKX com desconto:\n"
         "https://okx.com/join/69938298"
     )
@@ -166,7 +177,8 @@ async def config_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         "• 🔔 Notificações Telegram\n"
         "• 📊 Ativos monitorados\n"
         "• ⚡ Alavancagem padrão\n\n"
-        f"🔗 Dashboard: {DASHBOARD_URL}"
+        f"🔗 Dashboard: {DASHBOARD_URL}\n"
+        f"📋 Formulário OKX: {FORMULARIO_OKX_URL}"
     )
     await update.message.reply_text(config_msg, parse_mode='Markdown')
 
@@ -204,11 +216,14 @@ async def noticias_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await update.message.reply_text(noticias_msg, parse_mode='Markdown')
 
 async def dashboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    keyboard = [[InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)]]
+    keyboard = [
+        [InlineKeyboardButton("📊 Acessar Dashboard VIP", url=DASHBOARD_URL)],
+        [InlineKeyboardButton("📋 Formulário OKX", url=FORMULARIO_OKX_URL)]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(
         "🟣 Sexta-Feira Advanced\n\n"
-        "Acesse seu painel de controle, métricas e configurações de API abaixo:",
+        "Acesse seu painel de controle e formulário de configuração:",
         reply_markup=reply_markup,
         parse_mode='Markdown'
     )
@@ -272,7 +287,7 @@ def enviar_alerta_free(ativo: str, direcao: str, score: int) -> bool:
         f"📊 Score de Confiança: `{score}%`\n\n"
         f"⚠️ *O Alvo e Stop Loss estão ocultos para usuários Free.*\n\n"
         f"🔥 **Quer saber onde entrar?**\n"
-        f"👉 [SEXTA-FEIRA ADVANCED]({VIP_LINK})\n\n"
+        f"👉 [SEJA VIP](https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/)\n\n"
         f"_Powered by Sexta-Feira AI_"
     )
 
@@ -309,7 +324,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("guia", guia_command))  # ✅ REGISTRADO AQUI
+    application.add_handler(CommandHandler("configurar", configurar))  # ✅ NOVO COMANDO
     application.add_handler(CommandHandler("status", status))
     application.add_handler(CommandHandler("vip", vip_info))
     application.add_handler(CommandHandler("suporte", suporte))
