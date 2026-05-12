@@ -19,7 +19,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__)  # ✅ Corrigido: __name__
+logger = logging.getLogger(__name__)  # ✅ CORRIGIDO: __name__
 
 # ==========================================
 # IMPORTS CORE
@@ -62,6 +62,58 @@ SYMBOLS_TO_SCAN = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"]
 _shutdown_flag = False
 
 # ==========================================
+# NOVAS MENSAGENS PERSONALIZADAS (Opção 2)
+# ==========================================
+def msg_conexao_sucesso(user_id: str, equity: float) -> str:
+    """Mensagem personalizada para conexão bem-sucedida."""
+    return (
+        f"🟢 **CONEXÃO ATIVA**\n\n"
+        f"👤 ID: {user_id}\n"
+        f"💰 Equity: ${equity:,.4f}\n"
+        f"⏰ {datetime.now().strftime('%H:%M:%S')}\n\n"
+        f"_Bot operando normalmente_"
+    )
+
+def msg_conexao_falha(user_id: str) -> str:
+    """Mensagem personalizada para falha de conexão."""
+    return (
+        f"🔴 **ATENÇÃO**\n\n"
+        f"👤 ID: {user_id}\n"
+        f"❌ Falha na conexão ou saldo insuficiente\n"
+        f"💡 Verifique as credenciais na OKX\n\n"
+        f"_Tentativa registrada_"
+    )
+
+def msg_chaves_nao_encontradas(user_id: str) -> str:
+    """Mensagem para chaves API não encontradas."""
+    return (
+        f"⚠️ **CONFIGURAÇÃO PENDENTE**\n\n"
+        f"👤 ID: {user_id}\n"
+        f"❌ Chaves API não encontradas\n"
+        f"📋 Preencha o formulário: /formulario\n\n"
+        f"_Aguardando configuração_"
+    )
+
+def msg_inicio_sistema() -> str:
+    """Mensagem de início do orquestrador."""
+    return (
+        f"🚀 **SEXTA-FEIRA ADVANCED ONLINE**\n\n"
+        f"🤖 Orquestrador V7 ativo\n"
+        f"🧠 IA Anthropic integrada\n"
+        f"📡 Monitorando: {', '.join(SYMBOLS_TO_SCAN)}\n\n"
+        f"_Sistema operacional_"
+    )
+
+def msg_parada_sistema() -> str:
+    """Mensagem de parada do sistema."""
+    return (
+        f"🛑 **SISTEMA PAUSADO**\n\n"
+        f"⏰ {datetime.now().strftime('%d/%m %H:%M:%S')}\n"
+        f"🔄 Reinicie manualmente para retomar\n\n"
+        f"_Operações suspensas_"
+    )
+
+# ==========================================
 # CICLO POR VIP
 # ==========================================
 def process_vip_user(user_id: str, keys: dict):
@@ -73,7 +125,7 @@ def process_vip_user(user_id: str, keys: dict):
             "api_secret": keys["api_secret"],
             "passphrase": keys["passphrase"],
         }
-        
+
         if USE_CLASS_CLIENT:
             client = OKXClient(
                 api_key=creds["api_key"],
@@ -87,11 +139,15 @@ def process_vip_user(user_id: str, keys: dict):
             return
 
         if not acc or acc.get("equity", 0) == 0:
-            log_and_alert("WARNING", f"[{user_id}] Falha ao conectar ou equity zero. Pulando.")
+            # ✅ NOVA MENSAGEM PERSONALIZADA PARA FALHA
+            log_and_alert("WARNING", msg_conexao_falha(user_id))
+            logger.warning(f"⚠️ [{user_id}] Falha na conexão ou equity zero")
             return
 
         logger.info(f"✅ [{user_id}] Conectado | Equity: ${acc['equity']:.4f}")
-        send_telegram_alert(f"✅ [{user_id}] Conectado na OKX. Equity: ${acc['equity']:.4f}", "success")
+        
+        # ✅ NOVA MENSAGEM PERSONALIZADA PARA SUCESSO
+        send_telegram_alert(msg_conexao_sucesso(user_id, acc['equity']), "success")
 
         for symbol in SYMBOLS_TO_SCAN:
             try:
@@ -123,7 +179,6 @@ def process_vip_user(user_id: str, keys: dict):
                         )
                     
                     # 2️⃣ ENVIA PARA O FREE (TEASER / FUNIL)
-                    # Só envia se o score for alto (>=80) para gerar valor
                     if enviar_alerta_free and score >= 80:
                         enviar_alerta_free(ativo=symbol, direcao=direction, score=score)
                         logger.info(f"📢 Teaser enviado para Grupo Free: {symbol}")
@@ -135,11 +190,11 @@ def process_vip_user(user_id: str, keys: dict):
                         executar_ordem(symbol, direction, price, stop, take, 0.01, score=score, user_id=user_id)
                         
             except Exception as e:
-                log_and_alert("ERROR", f"[{user_id}-{symbol}] Erro no scan: {e}")
+                log_and_alert("ERROR", f"[{user_id}-{symbol}] Erro no scan: {str(e)[:100]}")
                 logger.debug(traceback.format_exc())
 
     except Exception as e:
-        log_and_alert("CRITICAL", f"[{user_id}] Erro crítico no ciclo: {e}", "killswitch")
+        log_and_alert("CRITICAL", f"[{user_id}] Erro crítico: {str(e)[:100]}", "killswitch")
         logger.error(traceback.format_exc())
 
 # ==========================================
@@ -148,7 +203,10 @@ def process_vip_user(user_id: str, keys: dict):
 def main():
     logger.info("🟣 SEXTA-FEIRA SAAS - ORQUESTRADOR V7 INICIADO")
     logger.info(f"🌐 Ambiente: {'Classe SaaS' if USE_CLASS_CLIENT else 'Legacy Global'}")
-    send_telegram_alert("🟢 Orquestrador SaaS v7 (IA Ativa) iniciado com sucesso!", "info")
+    
+    # ✅ NOVA MENSAGEM DE INÍCIO PERSONALIZADA
+    send_telegram_alert(msg_inicio_sistema(), "info")
+    
     try:
         while not _shutdown_flag:
             vip_users = get_active_users()
@@ -162,7 +220,9 @@ def main():
                     if keys:
                         process_vip_user(user_id, keys)
                     else:
-                        log_and_alert("WARNING", f"[{user_id}] Chaves não encontradas no DB.")
+                        # ✅ NOVA MENSAGEM PARA CHAVES NÃO ENCONTRADAS
+                        log_and_alert("WARNING", msg_chaves_nao_encontradas(user_id))
+                        logger.warning(f"⚠️ [{user_id}] Chaves não encontradas no DB")
                     time.sleep(2)  # Pausa entre usuários para respeitar Rate Limit
 
             logger.info(f"⏳ Próximo ciclo em {SCAN_INTERVAL}s...")
@@ -170,11 +230,12 @@ def main():
             
     except KeyboardInterrupt:
         logger.info("🛑 Interrompido pelo usuário.")
-        send_telegram_alert("🛑 Orquestrador interrompido manualmente.", "warning")
+        # ✅ NOVA MENSAGEM DE PARADA PERSONALIZADA
+        send_telegram_alert(msg_parada_sistema(), "warning")
     except Exception as e:
-        log_and_alert("CRITICAL", f"Falha fatal no orquestrador: {e}", "crash")
+        log_and_alert("CRITICAL", f"Falha fatal no orquestrador: {str(e)[:100]}", "crash")
         logger.critical(traceback.format_exc())
 
-# ✅ Corrigido
+# ✅ CORRIGIDO: __name__
 if __name__ == "__main__":
     main()
