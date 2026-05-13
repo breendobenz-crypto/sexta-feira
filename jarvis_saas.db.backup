@@ -1,0 +1,51 @@
+SQLite format 3   @     Z   	                                                             Z .c
+ ˚ 
+÷Õ¢
+”g˚	æ	]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Ñ_ âtabletradestrades CREATE TABLE trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            symbol TEXT NOT NULL,
+            side TEXT NOT NULL,
+            entry_price REAL NOT NULL,
+            exit_price REAL,
+            size REAL NOT NULL,
+            pnl_usdt REAL,
+            pnl_pct REAL,
+            score INTEGER DEFAULT 70,
+            status TEXT DEFAULT 'OPEN',
+            open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            close_time TIMESTAMP, ai_reasoning TEXT,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )_ -Åindexidx_trades_closetrades	CREATE INDEX idx_trades_close ON trades(user_id, close_time)X +{indexidx_trades_usertradesCREATE INDEX idx_trades_user ON trades(user_id, status)% æàstabletradestrades CREATE TABLE trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            symbol TEXT NOT NULL,
+            side TÉ Ö{tableusersusersCREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT UNIQUE,
+            email TEXT UNIQUE NOT NULL,
+            display_name TEXT,
+            plan TEXT DEFAULT 'VIP',
+            status TEXT DEFAULT 'ACTIVE',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP
+        , password_hash TEXT)Çi ++Ö	tableapi_credentialsapi_credentialsCREATE TABLE api_credentials (
+            user_id INTEGER PRIMARY KEY,
+            api_key_enc TEXT NOT NULL,
+            api_secret_enc TEXT NOT NULL,
+            passphrase_enc TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )P++Ytablesqlite_sequencesqlite_sequenceCREATE TABLE sqlite_sequence(name,seq)¯}ÖStableusersusersCREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT UNIQUE,
+            email TEXT UNIQUE NOT NULL,
+            display_name TEXT,
+            plan TEXT DEFAULT 'VIP',
+            status TEXT DEFAULT 'ACTIVE',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP
+        ))= indexsqlite_autoindex_users_2users)= indexsqlite_autoindex_users_1users       
+   ı ûı                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     :: Abra o SQLite e adicione a coluna
+sqlite3 jarvis_saas.db "ALTER TABLE users ADD COLUMN created_at TEXT;"
+sqlite3 jarvis_saas.db "ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active';"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           

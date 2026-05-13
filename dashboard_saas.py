@@ -11,7 +11,6 @@ import csv
 import io
 from datetime import datetime, timedelta
 
-# Correção para encontrar o caminho do arquivo corretamente
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # ==========================================
@@ -21,7 +20,6 @@ GLOBAL_PASSWORD = os.getenv("VIP_PASSWORD", "SextaFeira2026!")
 SALT = "sexta-feira-advanced-vip-salt-2026"
 
 def hash_password(password: str) -> str:
-    """Gera hash SHA256 da senha com salt."""
     return hashlib.sha256((password + SALT).encode()).hexdigest()
 
 # ==========================================
@@ -46,7 +44,7 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%);
 }
-.main { background-color:  #050505; }
+.main { background-color: #050505; }
 
 h1, h2, h3 {
     color: #8A2BE2 !important;
@@ -56,7 +54,6 @@ h1, h2, h3 {
     text-align: center;
 }
 
-/* CAIXA DE LOGIN */
 .login-box {
     max-width: 450px; 
     margin: 60px auto 0;
@@ -93,7 +90,6 @@ h1, h2, h3 {
     letter-spacing: 1px;
 }
 
-/* BOTÃO ACESSAR - ROXO COM ANIMAÇÃO */
 div[data-testid="stFormSubmitButton"] button {
     background-color: #8A2BE2 !important;
     color: white !important;
@@ -120,7 +116,6 @@ div[data-testid="stFormSubmitButton"] button:hover {
     100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
 }
 
-/* Inputs limpos */
 input[type="text"], input[type="password"] {
     background-color: rgba(255,255,255,0.05) !important;
     border: 1px solid #444 !important;
@@ -319,7 +314,7 @@ td {
     animation: fadeIn 0.6s ease-out;
 }
 
-.config-section:hover  {
+.config-section:hover {
     border-color: #8A2BE2;
     box-shadow: 0 0 15px rgba(138,43,226,0.2);
 }
@@ -562,15 +557,12 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
     ]
 
 # ==========================================
-# LOGIN (SEM A SEGUNDA CAIXA - TÍTULO DIRETO)
+# LOGIN
 # ==========================================
 def render_login():
-    # Centraliza o formulário na tela
     _, center_col, _ = st.columns([1, 2, 1])
     with center_col:
         with st.form("login_form", clear_on_submit=True):
-            
-            # CAIXA + TÍTULO UNIFICADOS
             st.markdown("""
             <div style="
                 background: rgba(13, 13, 13, 0.95);
@@ -595,17 +587,13 @@ def render_login():
             </div>
             """, unsafe_allow_html=True)
             
-            # Texto "Autenticação"
             st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
             
-            # Campos de login
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             
-            # Botão Acessar
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
             
-            # Lógica de login
             if submitted:
                 if not email or "@" not in email:
                     st.error("❌ Email inválido")
@@ -675,163 +663,272 @@ def fetch_news_rss(max_items: int = 10):
 def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
-    # ── ESFERA IA ANIMADA (NOVO) ────────────────────────────────────────────
+    # ═══════════════════════════════════════════════════════════════
+    # ESFERA 3D ANIMADA - "PENSANDO" IA (800x800)
+    # ═══════════════════════════════════════════════════════════════
     st.markdown("""
-    <div style="display:flex; flex-direction:column; align-items:center; margin: 10px 0 24px;">
-      <canvas id="sfCanvas" width="220" height="220" style="display:block;"></canvas>
-      <div id="sfTask" style="
-         margin-top: 14px;
-         font-family: 'JetBrains Mono', monospace;
-         font-size: 0.78rem;
-         color: #8A2BE2;
-         letter-spacing: 1px;
-         opacity: 0.9;
-         min-height: 1.2em;
-         text-align: center;
-      ">Inicializando...</div>
+    <div style="display:flex; flex-direction:column; align-items:center; margin: 30px 0;">
+        <canvas id="aiThinkingSphere" width="800" height="800" style="display:block; max-width:100%; height:auto;"></canvas>
+        <div id="sphereText" style="
+            margin-top: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #8A2BE2;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-align: center;
+            min-height: 1.5em;
+            text-shadow: 0 0 10px rgba(138,43,226,0.6);
+        ">Inicializando...</div>
     </div>
 
     <script>
-    (function(){
-      const canvas = document.getElementById('sfCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height, CX = W/2, CY = H/2, R = 82;
-
-      const NUM = 120;
-      const pts = [];
-      for (let i = 0; i < NUM; i++) {
-        const phi   = Math.acos(1 - 2*(i+0.5)/NUM);
-        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-        pts.push({ phi, theta, pulse: Math.random() * Math.PI * 2 });
-       }
-
-      const PULSES = 6;
-      const pulses = Array.from({length: PULSES}, () => ({
-        phi:   Math.random() * Math.PI,
-        theta: Math.random() * Math.PI * 2,
-        speed: 0.012 + Math.random() * 0.018,
-        dir:   Math.random() < 0.5 ? 1 : -1,
-        life:  Math.random()
-      }));
-
-      const TASKS = [
-         "Analisando contexto de mercado...",
-         "Procurando espaço vetorial...",
-         "Otimizando parâmetros de entrada...",
-         "Calculando volatilidade implícita...",
-         "Sincronizando com OKX API...",
-         "Avaliando regime de tendência HTF...",
-         "Processando score adaptativo...",
-         "Verificando filtros de risco...",
-         "Mapeando liquidez estrutural...",
-         "Ajustando stops por ATR...",
-      ];
-      let taskIdx = 0;
-      const taskEl = document.getElementById('sfTask');
-      function cycleTask() {
-        if (!taskEl) return;
-        taskEl.style.transition = 'opacity 0.4s';
-        taskEl.style.opacity = '0';
-        setTimeout(() => {
-          taskIdx = (taskIdx + 1) % TASKS.length;
-          taskEl.textContent = TASKS[taskIdx];
-          taskEl.style.opacity = '1';
-        }, 400);
-      }
-      setInterval(cycleTask, 2200);
-
-      let angle = 0;
-
-      function project(phi, theta) {
-        const cosA = Math.cos(angle), sinA = Math.sin(angle);
-        const x0 = R * Math.sin(phi) * Math.cos(theta);
-        const y0 = R * Math.cos(phi);
-        const z0 = R * Math.sin(phi) * Math.sin(theta);
-        const x1 = x0 * cosA - z0 * sinA;
-        const z1 = x0 * sinA + z0 * cosA;
-        const scale = (z1 + R*1.6) / (R*2.6);
-        return { sx: CX + x1 * scale, sy: CY - y0 * scale, scale, z: z1 };
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, W, H);
-        angle += 0.008;
-
-        for (let lat = 1; lat < 6; lat++) {
-          const phi = (lat/6) * Math.PI;
-          ctx.beginPath();
-          let first = true;
-          for (let t = 0; t <= 64; t++) {
-            const theta = (t/64) * Math.PI * 2;
-            const {sx, sy, scale} = project(phi, theta);
-            if (first) { ctx.moveTo(sx, sy); first = false; }
-            else ctx.lineTo(sx, sy);
-          }
-          ctx.strokeStyle = 'rgba(138,43,226,0.07)';
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-
-        pts.forEach(p => {
-          const { sx, sy, scale } = project(p.phi, p.theta);
-          if (scale < 0.2) return;
-          p.pulse += 0.04;
-          const glow = 0.5 + 0.5 * Math.sin(p.pulse);
-          const r = 1.5 + scale * 1.8;
-          const alpha = 0.3 + 0.6 * scale;
-          ctx.beginPath();
-          ctx.arc(sx, sy, r, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(138,43,226,' + alpha + ')';
-          ctx.fill();
-          if (glow > 0.7) {
-            ctx.beginPath();
-            ctx.arc(sx, sy, r * 2.2, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(168,85,247,' + ((glow-0.7)*0.4) + ')';
-            ctx.fill();
-          } 
-        });
-
-        pulses.forEach(p => {
-          p.life += p.speed;
-          if (p.life > 1) {
-            p.life = 0;
-            p.phi   = Math.random() * Math.PI;
-            p.theta = Math.random() * Math.PI * 2;
-            p.dir   = Math.random() < 0.5 ? 1 : -1;
-          }
-          const dynTheta = p.theta + angle * p.dir * 3;
-          const { sx, sy, scale } = project(p.phi, dynTheta);
-          if (scale < 0.2) return;
-          const alpha = Math.sin(p.life * Math.PI) * 0.9;
-          const radius = 3 + scale * 4;
-          const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius);
-          grad.addColorStop(0, 'rgba(220,180,255,' + alpha + ')');
-          grad.addColorStop(0.5, 'rgba(138,43,226,' + (alpha * 0.6) + ')');
-          grad.addColorStop(1, 'rgba(138,43,226,0)');
-          ctx.beginPath();
-          ctx.arc(sx, sy, radius, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
-          ctx.fill();
-        });
-
-        const gCenter = ctx.createRadialGradient(CX, CY, 0, CX, CY, R*0.55);
-        gCenter.addColorStop(0, 'rgba(138,43,226,0.06)');
-        gCenter.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.beginPath();
-        ctx.arc(CX, CY, R*0.55, 0, Math.PI*2);
-        ctx.fillStyle = gCenter;
-        ctx.fill();
-
-        requestAnimationFrame(draw);
-      }
-
-      requestAnimationFrame(draw);
+    (function() {
+        setTimeout(function() {
+            var canvas = document.getElementById('aiThinkingSphere');
+            if (!canvas) return;
+            
+            var ctx = canvas.getContext('2d');
+            var W = canvas.width, H = canvas.height;
+            var CX = W / 2, CY = H / 2, RADIUS = 260;
+            
+            // Tarefas falsas
+            var tasks = [
+                "Analisando o contexto...",
+                "Procurando espaço vetorial...",
+                "Otimizando a resposta...",
+                "Calculando embeddings...",
+                "Mapeando relações semânticas...",
+                "Validando consistência lógica...",
+                "Gerando inferências...",
+                "Ajustando pesos de atenção...",
+                "Processando tokens residuais...",
+                "Convergindo para solução ótima..."
+            ];
+            
+            var taskIndex = 0;
+            var textEl = document.getElementById('sphereText');
+            
+            setInterval(function() {
+                if (textEl) {
+                    textEl.style.opacity = 0;
+                    setTimeout(function() {
+                        taskIndex = (taskIndex + 1) % tasks.length;
+                        textEl.textContent = tasks[taskIndex];
+                        textEl.style.opacity = 1;
+                    }, 300);
+                }
+            }, 2800);
+            
+            // Gerar pontos uniformemente na esfera (Fibonacci Sphere)
+            var NUM_POINTS = 400;
+            var points = [];
+            var goldenRatio = (1 + Math.sqrt(5)) / 2;
+            
+            for (var i = 0; i < NUM_POINTS; i++) {
+                var theta = Math.acos(1 - 2 * (i + 0.5) / NUM_POINTS);
+                var phi = 2 * Math.PI * i / goldenRatio;
+                points.push({
+                    theta: theta,
+                    phi: phi,
+                    baseSize: 1.5 + Math.random() * 1.5,
+                    pulseOffset: Math.random() * Math.PI * 2,
+                    pulseSpeed: 0.02 + Math.random() * 0.03
+                });
+            }
+            
+            // Pulsos viajantes (órbitas na superfície)
+            var NUM_PULSES = 12;
+            var pulses = [];
+            
+            for (var i = 0; i < NUM_PULSES; i++) {
+                var isOrbital = Math.random() > 0.5;
+                pulses.push({
+                    theta: Math.random() * Math.PI,
+                    phi: Math.random() * Math.PI * 2,
+                    speed: (0.005 + Math.random() * 0.01) * (Math.random() > 0.5 ? 1 : -1),
+                    orbitTheta: Math.random() * Math.PI,
+                    orbitPhi: Math.random() * Math.PI * 2,
+                    orbitRadius: 0.3 + Math.random() * 0.4,
+                    orbitSpeed: 0.01 + Math.random() * 0.02,
+                    phase: Math.random() * Math.PI * 2,
+                    size: 4 + Math.random() * 6,
+                    color: isOrbital ? 'hsla(' + (200 + Math.random() * 60) + ', 80%, 70%, ' : 'hsla(' + (260 + Math.random() * 40) + ', 90%, 65%, ',
+                    trail: []
+                });
+            }
+            
+            var rotation = 0;
+            var time = 0;
+            
+            function project(theta, phi, rot) {
+                var cosT = Math.cos(theta), sinT = Math.sin(theta);
+                var cosP = Math.cos(phi), sinP = Math.sin(phi);
+                var cosR = Math.cos(rot), sinR = Math.sin(rot);
+            
+                let x = RADIUS * sinT * cosP;
+                let y = RADIUS * cosT;
+                let z = RADIUS * sinT * sinP;
+            
+                let x1 = x * cosR - z * sinR;
+                let z1 = x * sinR + z * cosR;
+            
+                var perspective = 1200;
+                var scale = perspective / (perspective + z1);
+            
+                return {
+                    x: CX + x1 * scale,
+                    y: CY + y * scale,
+                    z: z1,
+                    scale: scale
+                };
+            }
+            
+            function drawConnections(projected) {
+                ctx.strokeStyle = 'rgba(80, 140, 255, 0.06)';
+                ctx.lineWidth = 0.5;
+                
+                for (var i = 0; i < projected.length; i++) {
+                    for (var j = i + 1; j < projected.length; j++) {
+                        var dx = projected[i].x - projected[j].x;
+                        var dy = projected[i].y - projected[j].y;
+                        var dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 80 && projected[i].z > -100 && projected[j].z > -100) {
+                            var alpha = (1 - dist / 80) * 0.15 * ((projected[i].scale + projected[j].scale) / 2);
+                            ctx.strokeStyle = 'rgba(100, 160, 255, ' + alpha + ')';
+                            ctx.beginPath();
+                            ctx.moveTo(projected[i].x, projected[i].y);
+                            ctx.lineTo(projected[j].x, projected[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, W, H);
+                
+                // Glow central
+                var gradient = ctx.createRadialGradient(CX, CY, 0, CX, CY, RADIUS * 1.2);
+                gradient.addColorStop(0, 'rgba(80, 140, 255, 0.08)');
+                gradient.addColorStop(0.5, 'rgba(100, 100, 255, 0.03)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(CX, CY, RADIUS * 1.2, 0, Math.PI * 2);
+                ctx.fill();
+            
+                rotation += 0.003;
+                time += 0.016;
+            
+                // Projetar todos os pontos
+                var projected = points.map(function(p, i) {
+                    var newPhi = p.phi + time * 0.1; // Leve deriva
+                    return project(p.theta, newPhi, rotation);
+                });
+            
+                // Desenhar conexões primeiro (atrás dos pontos)
+                drawConnections(projected);
+            
+                // Desenhar pontos
+                points.forEach(function(p, i) {
+                    var proj = projected[i];
+                    var pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.5 + 0.5;
+                    var size = p.baseSize * proj.scale * (1 + pulse * 0.5);
+                    var depthAlpha = Math.max(0.1, Math.min(1, (proj.z + RADIUS) / (2 * RADIUS)));
+                    var alpha = depthAlpha * (0.4 + pulse * 0.6);
+            
+                    // Brilho externo
+                    if (pulse > 0.7) {
+                        ctx.beginPath();
+                        ctx.arc(proj.x, proj.y, size * 3, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(120, 170, 255, ' + (alpha * 0.15) + ')';
+                        ctx.fill();
+                    }
+            
+                    // Ponto principal
+                    ctx.beginPath();
+                    ctx.arc(proj.x, proj.y, size, 0, Math.PI * 2);
+                    var hue = 220 + pulse * 30;
+                    ctx.fillStyle = 'hsla(' + hue + ', 70%, ' + (60 + pulse * 20) + '%, ' + alpha + ')';
+                    ctx.fill();
+                });
+            
+                // Desenhar pulsos viajantes
+                pulses.forEach(function(pulse) {
+                    pulse.phi += pulse.speed;
+                    if (pulse.phi > Math.PI * 2) pulse.phi -= Math.PI * 2;
+                    
+                    var orbitAngle = time * pulse.orbitSpeed + pulse.phase;
+                    var orbitX = Math.cos(orbitAngle) * pulse.orbitRadius * Math.sin(pulse.orbitTheta);
+                    var orbitY = Math.sin(orbitAngle) * pulse.orbitRadius;
+                    var orbitZ = Math.cos(orbitAngle) * pulse.orbitRadius * Math.cos(pulse.orbitTheta);
+                    
+                    var r = Math.sqrt(orbitX * orbitX + orbitY * orbitY + orbitZ * orbitZ);
+                    if (r > 0) {
+                        var theta = Math.acos(orbitY / r);
+                        var phi = Math.atan2(orbitZ, orbitX);
+                        
+                        var proj = project(theta, phi + pulse.phi, rotation);
+                        
+                        // Rastro
+                        pulse.trail.push({ x: proj.x, y: proj.y, alpha: 1 });
+                        if (pulse.trail.length > 20) pulse.trail.shift();
+                        
+                        for (var i = 0; i < pulse.trail.length; i++) {
+                            var t = pulse.trail[i];
+                            t.alpha *= 0.92;
+                            ctx.beginPath();
+                            ctx.arc(t.x, t.y, pulse.size * 0.5 * t.alpha, 0, Math.PI * 2);
+                            ctx.fillStyle = pulse.color + (t.alpha * 0.5) + ')';
+                            ctx.fill();
+                        }
+                        
+                        var glowSize = pulse.size * 2.5;
+                        var glow = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, glowSize);
+                        glow.addColorStop(0, pulse.color + '0.9)');
+                        glow.addColorStop(0.4, pulse.color + '0.4)');
+                        glow.addColorStop(1, pulse.color + '0)');
+                        
+                        ctx.fillStyle = glow;
+                        ctx.beginPath();
+                        ctx.arc(proj.x, proj.y, glowSize, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        ctx.beginPath();
+                        ctx.arc(proj.x, proj.y, pulse.size * 0.6, 0, Math.PI * 2);
+                        ctx.fillStyle = pulse.color + '1)';
+                        ctx.fill();
+                    }
+                });
+            
+                // Anéis de órbita sutis
+                ctx.strokeStyle = 'rgba(100, 150, 255, 0.08)';
+                ctx.lineWidth = 1;
+                for (var i = 0; i < 3; i++) {
+                    var ringTheta = Math.PI * (0.3 + i * 0.25);
+                    ctx.beginPath();
+                    for (var t = 0; t <= Math.PI * 2; t += 0.05) {
+                        var proj = project(ringTheta, t, rotation);
+                        if (t === 0) ctx.moveTo(proj.x, proj.y);
+                        else ctx.lineTo(proj.x, proj.y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }, 100);
     })();
     </script>
     """, unsafe_allow_html=True)
-    # ── FIM ESFERA ──────────────────────────────────────────────────────────────
-
+    # ═══════════════════════════════════════════════════════════════
+    # FIM DA ESFERA
+    # ═══════════════════════════════════════════════════════════════
+    
     st.markdown(f"""
     <div style="text-align: center; margin-bottom: 30px; width: 100%;">
     <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
@@ -880,7 +977,6 @@ def render_dashboard():
     st.caption(f"🔄 Última atualização: {datetime.now().strftime('%H:%M:%S')}")
     st.divider()
 
-    # ✅ 7 ABAS COM CONFIGURAÇÕES
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📈 Mercado", "📊 Performance", "📌 Posições", 
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
@@ -1051,12 +1147,9 @@ def render_dashboard():
         except Exception as e:
             st.error(f"❌ Erro ao carregar: {e}")
 
-    # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
     with tab7:
-
         st.markdown("""
         <style>
-        /* Título centralizado estilo SEXTA-FEIRA */
         .section-title-box {
             background: #0d0b1e;
             border: 2px solid #8A2BE2;
@@ -1076,7 +1169,6 @@ def render_dashboard():
             margin-bottom: 16px;
         }
 
-        /* Wrapper da seção inteira */
         .section-wrapper {
             border: 1px solid rgba(138, 43, 226, 0.35);
             border-radius: 12px;
@@ -1107,9 +1199,6 @@ def render_dashboard():
         </style>
         """, unsafe_allow_html=True)
 
-        # ══════════════════════════════════════
-        # SEÇÃO 1 — SENHA DE ACESSO
-        # ══════════════════════════════════════
         st.markdown('<div class="section-title-box">🔑 &nbsp; SENHA DE ACESSO</div>', unsafe_allow_html=True)
 
         with st.form("change_pass_form"):
@@ -1137,9 +1226,6 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ══════════════════════════════════════
-        # SEÇÃO 2 — CHAVES API OKX
-        # ══════════════════════════════════════
         st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA OKX</div>', unsafe_allow_html=True)
 
         st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
@@ -1186,9 +1272,6 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ══════════════════════════════════════
-        # SEÇÃO 3 — ROBÔ SEXTA-FEIRA
-        # ══════════════════════════════════════
         st.markdown('<div class="section-title-box">🤖 &nbsp; ROBÔ SEXTA-FEIRA</div>', unsafe_allow_html=True)
 
         bot_active = os.path.exists("bot_heartbeat.json")
