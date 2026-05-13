@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esfera 3D - Sexta-Feira Advanced</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Cena
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(300, 300);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // === CAMADA 1: NÚCLEO DENSO (partículas maiores e brilhantes) ===
+        const coreGeometry = new THREE.BufferGeometry();
+        const coreCount = 3000;
+        const corePositions = new Float32Array(coreCount * 3);
+        const coreSizes = new Float32Array(coreCount);
+        
+        for(let i = 0; i < coreCount * 3; i += 3) {
+            const theta = Math.acos(1 - 2 * ((i/3) + 0.5) / coreCount);
+            const phi = 2 * Math.PI * (i/3) / coreCount + Math.random() * 0.5;
+            const radius = 45 + Math.random() * 10;
+            
+            corePositions[i] = radius * Math.sin(theta) * Math.cos(phi);
+            corePositions[i+1] = radius * Math.cos(theta);
+            corePositions[i+2] = radius * Math.sin(theta) * Math.sin(phi);
+            coreSizes[i/3] = 1.5 + Math.random() * 2;
+        }
+        
+        coreGeometry.setAttribute('position', new THREE.BufferAttribute(corePositions, 3));
+        coreGeometry.setAttribute('size', new THREE.BufferAttribute(coreSizes, 1));
+        
+        const coreMaterial = new THREE.PointsMaterial({
+            size: 2,
+            color: 0x8A2BE2,
+            transparent: true,
+            opacity: 0.95,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            sizeAttenuation: true
+        });
+        
+        const coreSphere = new THREE.Points(coreGeometry, coreMaterial);
+        scene.add(coreSphere);
+
+        // === CAMADA 2: CAMADA MÉDIA (partículas médias) ===
+        const midGeometry = new THREE.BufferGeometry();
+        const midCount = 4000;
+        const midPositions = new Float32Array(midCount * 3);
+        
+        for(let i = 0; i < midCount * 3; i += 3) {
+            const theta = Math.acos(1 - 2 * ((i/3) + 0.5) / midCount);
+            const phi = 2 * Math.PI * (i/3) / midCount + Math.random() * 0.5;
+            const radius = 50 + Math.random() * 15;
+            
+            midPositions[i] = radius * Math.sin(theta) * Math.cos(phi);
+            midPositions[i+1] = radius * Math.cos(theta);
+            midPositions[i+2] = radius * Math.sin(theta) * Math.sin(phi);
+        }
+        
+        midGeometry.setAttribute('position', new THREE.BufferAttribute(midPositions, 3));
+        
+        const midMaterial = new THREE.PointsMaterial({
+            size: 1.2,
+            color: 0xA855F7,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        
+        const midSphere = new THREE.Points(midGeometry, midMaterial);
+        scene.add(midSphere);
+
+        // === CAMADA 3: CAMADA EXTERNA (partículas pequenas e difusas) ===
+        const outerGeometry = new THREE.BufferGeometry();
+        const outerCount = 5000;
+        const outerPositions = new Float32Array(outerCount * 3);
+        
+        for(let i = 0; i < outerCount * 3; i += 3) {
+            const theta = Math.acos(1 - 2 * ((i/3) + 0.5) / outerCount);
+            const phi = 2 * Math.PI * (i/3) / outerCount + Math.random() * 0.5;
+            const radius = 60 + Math.random() * 20;
+            
+            outerPositions[i] = radius * Math.sin(theta) * Math.cos(phi);
+            outerPositions[i+1] = radius * Math.cos(theta);
+            outerPositions[i+2] = radius * Math.sin(theta) * Math.sin(phi);
+        }
+        
+        outerGeometry.setAttribute('position', new THREE.BufferAttribute(outerPositions, 3));
+        
+        const outerMaterial = new THREE.PointsMaterial({
+            size: 0.8,
+            color: 0xC084FC,
+            transparent: true,
+            opacity: 0.5,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        
+        const outerSphere = new THREE.Points(outerGeometry, outerMaterial);
+        scene.add(outerSphere);
+
+        // === CAMADA 4: HALO EXTERNO (partículas muito pequenas) ===
+        const haloGeometry = new THREE.BufferGeometry();
+        const haloCount = 2000;
+        const haloPositions = new Float32Array(haloCount * 3);
+        
+        for(let i = 0; i < haloCount * 3; i += 3) {
+            const theta = Math.random() * Math.PI;
+            const phi = Math.random() * Math.PI * 2;
+            const radius = 85 + Math.random() * 15;
+            
+            haloPositions[i] = radius * Math.sin(theta) * Math.cos(phi);
+            haloPositions[i+1] = radius * Math.cos(theta);
+            haloPositions[i+2] = radius * Math.sin(theta) * Math.sin(phi);
+        }
+        
+        haloGeometry.setAttribute('position', new THREE.BufferAttribute(haloPositions, 3));
+        
+        const haloMaterial = new THREE.PointsMaterial({
+            size: 0.5,
+            color: 0xD8B4FE,
+            transparent: true,
+            opacity: 0.3,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        
+        const haloSphere = new THREE.Points(haloGeometry, haloMaterial);
+        scene.add(haloSphere);
+
+
+
+        camera.position.z = 150;
+
+        // === ANIMAÇÃO ===
+        let time = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.005;
+            
+            // Rotação das camadas em velocidades diferentes (efeito 3D profundo)
+            coreSphere.rotation.x += 0.002;
+            coreSphere.rotation.y += 0.003;
+            
+            midSphere.rotation.x += 0.0015;
+            midSphere.rotation.y += 0.0025;
+            
+            outerSphere.rotation.x += 0.001;
+            outerSphere.rotation.y += 0.002;
+            
+            haloSphere.rotation.x += 0.0005;
+            haloSphere.rotation.y += 0.001;
+            
+            // Variação sutil de opacidade nas camadas
+            coreMaterial.opacity = 0.9 + Math.sin(time) * 0.05;
+            midMaterial.opacity = 0.65 + Math.sin(time * 0.8) * 0.05;
+            outerMaterial.opacity = 0.45 + Math.sin(time * 0.6) * 0.05;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(300, 300);
+        });
+    </script>
+</body>
+</html>

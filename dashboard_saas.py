@@ -54,13 +54,13 @@ h1, h2, h3 {
     text-align: center;
 }
 
-.login-box {
-    max-width: 450px; 
+.login-container {
+    max-width: 450px;
     margin: 60px auto 0;
     background: rgba(13, 13, 13, 0.95);
     backdrop-filter: blur(12px);
     border: 2px solid #8A2BE2;
-    border-radius: 16px; 
+    border-radius: 16px;
     padding: 40px 30px;
     box-shadow: 0 0 50px rgba(138,43,226,0.3);
     animation: slideIn 0.5s ease-out;
@@ -72,12 +72,12 @@ h1, h2, h3 {
 }
 
 .login-title {
-    text-align: center; 
-    color: #8A2BE2; 
-    font-size: 2rem; 
+    text-align: center;
+    color: #8A2BE2;
+    font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 10px; 
-    font-family: 'Orbitron', sans-serif; 
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
     letter-spacing: 2px;
     text-shadow: 0 0 20px rgba(138,43,226,0.8);
 }
@@ -373,8 +373,7 @@ def fetch_market_overview():
                         "Mín 24h": f"${float(d.get('low24h', 0)):,.2f}"
                     })
         except Exception:
-            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—"})
-
+            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—" })
     return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["Ativo", "Preço", "Variação 24h", "Máx 24h", "Mín 24h"])
 
 # ==========================================
@@ -487,7 +486,6 @@ def chart_equity(curve: list, base_equity: float):
         font=dict(family="Orbitron", color="white"), title_text="Curva de Equity",
         title_font_color="#8A2BE2", margin=dict(l=0, r=0, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
-
     return fig
 
 def chart_pnl_bars(trades: list):
@@ -501,7 +499,6 @@ def chart_pnl_bars(trades: list):
         font=dict(family="Orbitron", color="white", size=10), title_text="PnL Últimos 20",
         title_font_color="#8A2BE2", margin=dict(l=0, r=50, t=30, b=0), height=260,
         xaxis=dict(showgrid=False, zeroline=False), yaxis=dict(showgrid=False, zeroline=False), showlegend=False)
-
     return fig
 
 # ==========================================
@@ -551,10 +548,7 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
             })
     except Exception as e:
         st.error(f"Erro ao buscar atividades: {e}")
-
-    return activities[:limit] if activities else [
-        {"hora": datetime.now().strftime("%H:%M:%S"), "evento": "⏳ Aguardando operações...", "ativo": "N/A"}
-    ]
+    return activities[:limit] if activities else [{"hora": datetime.now().strftime("%H:%M:%S"), "evento": "⏳ Aguardando operações...", "ativo": "N/A"}]
 
 # ==========================================
 # LOGIN
@@ -583,17 +577,13 @@ def render_login():
                     letter-spacing: 3px;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8);
                     white-space: nowrap;
-                ">SEXTA &#8209;FEIRA</h1>
+                ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
-            
             st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
-            
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
-            
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
-            
             if submitted:
                 if not email or "@" not in email:
                     st.error("❌ Email inválido")
@@ -650,11 +640,8 @@ def fetch_news_rss(max_items: int = 10):
                         "link": entry.get("link", "#"),
                         "date": entry.get("published", "")[:16] if entry.get("published") else ""
                     })
-                if len(news) >= max_items:
-                    break
-        except Exception:
-            continue
-
+                if len(news) >= max_items: break
+        except Exception: continue
     return news if news else [{"source": "Info", "title": "Nenhuma notícia nova no momento.", "link": "#", "date": ""}]
 
 # ==========================================
@@ -664,277 +651,32 @@ def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
     # ═══════════════════════════════════════════════════════════════
-    # ESFERA 3D ANIMADA - "PENSANDO" IA (800x800)
+    # ESFERA 3D CENTRALIZADA (THREE.JS)
     # ═══════════════════════════════════════════════════════════════
-    st.markdown("""
-    <div style="display:flex; flex-direction:column; align-items:center; margin: 30px 0;">
-        <canvas id="aiThinkingSphere" width="800" height="800" style="display:block; max-width:100%; height:auto;"></canvas>
-        <div id="sphereText" style="
-            margin-top: 20px;
-            font-family: 'JetBrains Mono', monospace;
-            color: #8A2BE2;
-            font-size: 1rem;
-            letter-spacing: 2px;
-            text-align: center;
-            min-height: 1.5em;
-            text-shadow: 0 0 10px rgba(138,43,226,0.6);
-        ">Inicializando...</div>
-    </div>
-
-    <script>
-    (function() {
-        setTimeout(function() {
-            var canvas = document.getElementById('aiThinkingSphere');
-            if (!canvas) return;
-            
-            var ctx = canvas.getContext('2d');
-            var W = canvas.width, H = canvas.height;
-            var CX = W / 2, CY = H / 2, RADIUS = 260;
-            
-            // Tarefas falsas
-            var tasks = [
-                "Analisando o contexto...",
-                "Procurando espaço vetorial...",
-                "Otimizando a resposta...",
-                "Calculando embeddings...",
-                "Mapeando relações semânticas...",
-                "Validando consistência lógica...",
-                "Gerando inferências...",
-                "Ajustando pesos de atenção...",
-                "Processando tokens residuais...",
-                "Convergindo para solução ótima..."
-            ];
-            
-            var taskIndex = 0;
-            var textEl = document.getElementById('sphereText');
-            
-            setInterval(function() {
-                if (textEl) {
-                    textEl.style.opacity = 0;
-                    setTimeout(function() {
-                        taskIndex = (taskIndex + 1) % tasks.length;
-                        textEl.textContent = tasks[taskIndex];
-                        textEl.style.opacity = 1;
-                    }, 300);
-                }
-            }, 2800);
-            
-            // Gerar pontos uniformemente na esfera (Fibonacci Sphere)
-            var NUM_POINTS = 400;
-            var points = [];
-            var goldenRatio = (1 + Math.sqrt(5)) / 2;
-            
-            for (var i = 0; i < NUM_POINTS; i++) {
-                var theta = Math.acos(1 - 2 * (i + 0.5) / NUM_POINTS);
-                var phi = 2 * Math.PI * i / goldenRatio;
-                points.push({
-                    theta: theta,
-                    phi: phi,
-                    baseSize: 1.5 + Math.random() * 1.5,
-                    pulseOffset: Math.random() * Math.PI * 2,
-                    pulseSpeed: 0.02 + Math.random() * 0.03
-                });
-            }
-            
-            // Pulsos viajantes (órbitas na superfície)
-            var NUM_PULSES = 12;
-            var pulses = [];
-            
-            for (var i = 0; i < NUM_PULSES; i++) {
-                var isOrbital = Math.random() > 0.5;
-                pulses.push({
-                    theta: Math.random() * Math.PI,
-                    phi: Math.random() * Math.PI * 2,
-                    speed: (0.005 + Math.random() * 0.01) * (Math.random() > 0.5 ? 1 : -1),
-                    orbitTheta: Math.random() * Math.PI,
-                    orbitPhi: Math.random() * Math.PI * 2,
-                    orbitRadius: 0.3 + Math.random() * 0.4,
-                    orbitSpeed: 0.01 + Math.random() * 0.02,
-                    phase: Math.random() * Math.PI * 2,
-                    size: 4 + Math.random() * 6,
-                    color: isOrbital ? 'hsla(' + (200 + Math.random() * 60) + ', 80%, 70%, ' : 'hsla(' + (260 + Math.random() * 40) + ', 90%, 65%, ',
-                    trail: []
-                });
-            }
-            
-            var rotation = 0;
-            var time = 0;
-            
-            function project(theta, phi, rot) {
-                var cosT = Math.cos(theta), sinT = Math.sin(theta);
-                var cosP = Math.cos(phi), sinP = Math.sin(phi);
-                var cosR = Math.cos(rot), sinR = Math.sin(rot);
-            
-                let x = RADIUS * sinT * cosP;
-                let y = RADIUS * cosT;
-                let z = RADIUS * sinT * sinP;
-            
-                let x1 = x * cosR - z * sinR;
-                let z1 = x * sinR + z * cosR;
-            
-                var perspective = 1200;
-                var scale = perspective / (perspective + z1);
-            
-                return {
-                    x: CX + x1 * scale,
-                    y: CY + y * scale,
-                    z: z1,
-                    scale: scale
-                };
-            }
-            
-            function drawConnections(projected) {
-                ctx.strokeStyle = 'rgba(80, 140, 255, 0.06)';
-                ctx.lineWidth = 0.5;
-                
-                for (var i = 0; i < projected.length; i++) {
-                    for (var j = i + 1; j < projected.length; j++) {
-                        var dx = projected[i].x - projected[j].x;
-                        var dy = projected[i].y - projected[j].y;
-                        var dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < 80 && projected[i].z > -100 && projected[j].z > -100) {
-                            var alpha = (1 - dist / 80) * 0.15 * ((projected[i].scale + projected[j].scale) / 2);
-                            ctx.strokeStyle = 'rgba(100, 160, 255, ' + alpha + ')';
-                            ctx.beginPath();
-                            ctx.moveTo(projected[i].x, projected[i].y);
-                            ctx.lineTo(projected[j].x, projected[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-            }
-            
-            function animate() {
-                ctx.clearRect(0, 0, W, H);
-                
-                // Glow central
-                var gradient = ctx.createRadialGradient(CX, CY, 0, CX, CY, RADIUS * 1.2);
-                gradient.addColorStop(0, 'rgba(80, 140, 255, 0.08)');
-                gradient.addColorStop(0.5, 'rgba(100, 100, 255, 0.03)');
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(CX, CY, RADIUS * 1.2, 0, Math.PI * 2);
-                ctx.fill();
-            
-                rotation += 0.003;
-                time += 0.016;
-            
-                // Projetar todos os pontos
-                var projected = points.map(function(p, i) {
-                    var newPhi = p.phi + time * 0.1; // Leve deriva
-                    return project(p.theta, newPhi, rotation);
-                });
-            
-                // Desenhar conexões primeiro (atrás dos pontos)
-                drawConnections(projected);
-            
-                // Desenhar pontos
-                points.forEach(function(p, i) {
-                    var proj = projected[i];
-                    var pulse = Math.sin(time * p.pulseSpeed + p.pulseOffset) * 0.5 + 0.5;
-                    var size = p.baseSize * proj.scale * (1 + pulse * 0.5);
-                    var depthAlpha = Math.max(0.1, Math.min(1, (proj.z + RADIUS) / (2 * RADIUS)));
-                    var alpha = depthAlpha * (0.4 + pulse * 0.6);
-            
-                    // Brilho externo
-                    if (pulse > 0.7) {
-                        ctx.beginPath();
-                        ctx.arc(proj.x, proj.y, size * 3, 0, Math.PI * 2);
-                        ctx.fillStyle = 'rgba(120, 170, 255, ' + (alpha * 0.15) + ')';
-                        ctx.fill();
-                    }
-            
-                    // Ponto principal
-                    ctx.beginPath();
-                    ctx.arc(proj.x, proj.y, size, 0, Math.PI * 2);
-                    var hue = 220 + pulse * 30;
-                    ctx.fillStyle = 'hsla(' + hue + ', 70%, ' + (60 + pulse * 20) + '%, ' + alpha + ')';
-                    ctx.fill();
-                });
-            
-                // Desenhar pulsos viajantes
-                pulses.forEach(function(pulse) {
-                    pulse.phi += pulse.speed;
-                    if (pulse.phi > Math.PI * 2) pulse.phi -= Math.PI * 2;
-                    
-                    var orbitAngle = time * pulse.orbitSpeed + pulse.phase;
-                    var orbitX = Math.cos(orbitAngle) * pulse.orbitRadius * Math.sin(pulse.orbitTheta);
-                    var orbitY = Math.sin(orbitAngle) * pulse.orbitRadius;
-                    var orbitZ = Math.cos(orbitAngle) * pulse.orbitRadius * Math.cos(pulse.orbitTheta);
-                    
-                    var r = Math.sqrt(orbitX * orbitX + orbitY * orbitY + orbitZ * orbitZ);
-                    if (r > 0) {
-                        var theta = Math.acos(orbitY / r);
-                        var phi = Math.atan2(orbitZ, orbitX);
-                        
-                        var proj = project(theta, phi + pulse.phi, rotation);
-                        
-                        // Rastro
-                        pulse.trail.push({ x: proj.x, y: proj.y, alpha: 1 });
-                        if (pulse.trail.length > 20) pulse.trail.shift();
-                        
-                        for (var i = 0; i < pulse.trail.length; i++) {
-                            var t = pulse.trail[i];
-                            t.alpha *= 0.92;
-                            ctx.beginPath();
-                            ctx.arc(t.x, t.y, pulse.size * 0.5 * t.alpha, 0, Math.PI * 2);
-                            ctx.fillStyle = pulse.color + (t.alpha * 0.5) + ')';
-                            ctx.fill();
-                        }
-                        
-                        var glowSize = pulse.size * 2.5;
-                        var glow = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, glowSize);
-                        glow.addColorStop(0, pulse.color + '0.9)');
-                        glow.addColorStop(0.4, pulse.color + '0.4)');
-                        glow.addColorStop(1, pulse.color + '0)');
-                        
-                        ctx.fillStyle = glow;
-                        ctx.beginPath();
-                        ctx.arc(proj.x, proj.y, glowSize, 0, Math.PI * 2);
-                        ctx.fill();
-                        
-                        ctx.beginPath();
-                        ctx.arc(proj.x, proj.y, pulse.size * 0.6, 0, Math.PI * 2);
-                        ctx.fillStyle = pulse.color + '1)';
-                        ctx.fill();
-                    }
-                });
-            
-                // Anéis de órbita sutis
-                ctx.strokeStyle = 'rgba(100, 150, 255, 0.08)';
-                ctx.lineWidth = 1;
-                for (var i = 0; i < 3; i++) {
-                    var ringTheta = Math.PI * (0.3 + i * 0.25);
-                    ctx.beginPath();
-                    for (var t = 0; t <= Math.PI * 2; t += 0.05) {
-                        var proj = project(ringTheta, t, rotation);
-                        if (t === 0) ctx.moveTo(proj.x, proj.y);
-                        else ctx.lineTo(proj.x, proj.y);
-                    }
-                    ctx.closePath();
-                    ctx.stroke();
-                }
-            
-                requestAnimationFrame(animate);
-            }
-            
-            animate();
-        }, 100);
-    })();
-    </script>
-    """, unsafe_allow_html=True)
-    # ═══════════════════════════════════════════════════════════════
-    # FIM DA ESFERA
-    # ═══════════════════════════════════════════════════════════════
+    import streamlit.components.v1 as components
     
+    # Ler o arquivo HTML da esfera
+    try:
+        with open("sphere_3d.html", "r", encoding="utf-8") as f:
+            sphere_html = f.read()
+        
+        # Centralizar usando colunas
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            components.html(sphere_html, height=420, scrolling=False)
+    except Exception as e:
+        st.error(f"Erro ao carregar esfera 3D: {e}")
+        st.info("Certifique-se que o arquivo sphere_3d.html está na mesma pasta")
+    # ═══════════════════════════════════════════════════════════════
+    # FIM DA ESFERA 3D
+    # ═══════════════════════════════════════════════════════════════
+
     st.markdown(f"""
     <div style="text-align: center; margin-bottom: 30px; width: 100%;">
     <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
     <div class="ia-heart"></div>
     SEXTA-FEIRA ADVANCED
-    <span style="font-size: 0.55em; color: #888; font-weight: 400; font-family: 'JetBrains Mono', monospace;">— {uname}</span>
+    <span style="font-size: 0.55em; color: #888; font-weight: 400; font-family: 'JetBrains Mono', monospace;">- {uname}</span>
     </h1>
     </div>
     """, unsafe_allow_html=True)
@@ -988,31 +730,20 @@ def render_dashboard():
             if st.button("🔄 Atualizar", key="refresh_market"):
                 st.cache_data.clear()
                 st.rerun()
-        
         st.subheader("📡 Monitor de Mercado — Tempo Real")
         if not market_df.empty:
             style_func = lambda v: 'color: #00ff88; font-weight: bold' if isinstance(v, str) and v.startswith('+') else ('color: #ff4444; font-weight: bold' if isinstance(v, str) and v.startswith('-') else 'color: white')
-            
             if hasattr(market_df.style, 'map'):
                 styled_df = market_df.style.map(style_func, subset=['Variação 24h'])
             else:
                 styled_df = market_df.style.applymap(style_func, subset=['Variação 24h'])
-            
             st.dataframe(styled_df, use_container_width=True, hide_index=True)
         else:
             st.info("Carregando dados de mercado...")
         st.caption("Dados públicos da OKX. Atualiza ao recarregar a aba.")
-        
         st.divider()
         st.subheader("📊 Gráfico Interativo — TradingView")
-        
-        chart_asset = st.selectbox(
-            "Selecione o Ativo para o Gráfico",
-            ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"],
-            key="tv_selector",
-            label_visibility="collapsed" 
-        )
-        
+        chart_asset = st.selectbox("Selecione o Ativo para o Gráfico", ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"], key="tv_selector", label_visibility="collapsed")
         st.markdown(get_tradingview_widget(chart_asset, height=500), unsafe_allow_html=True)
 
     with tab2:
@@ -1021,21 +752,15 @@ def render_dashboard():
              if st.button("🔄 Atualizar", key="refresh_perf"):
                 st.cache_data.clear()
                 st.rerun()
-        
         c_chart, c_bars = st.columns([3, 2])
         with c_chart:
             fig_eq = chart_equity(curve, equity - total_pnl)
-            if fig_eq:
-                st.plotly_chart(fig_eq, use_container_width=True)
-            else:
-                st.info("Aguardando trades fechados para gerar curva de equity.")
+            if fig_eq: st.plotly_chart(fig_eq, use_container_width=True)
+            else: st.info("Aguardando trades fechados para gerar curva de equity.")
         with c_bars:
             fig_bars = chart_pnl_bars(trades)
-            if fig_bars:
-                st.plotly_chart(fig_bars, use_container_width=True)
-            else:
-                st.info("Sem trades suficientes para o gráfico de PnL.")
-        
+            if fig_bars: st.plotly_chart(fig_bars, use_container_width=True)
+            else: st.info("Sem trades suficientes para o gráfico de PnL.")
         st.subheader("Resumo de Performance")
         scol1, scol2, scol3, scol4 = st.columns(4)
         scol1.metric("Wins", stats.get("wins", 0))
@@ -1049,7 +774,6 @@ def render_dashboard():
             if st.button("🔄 Atualizar", key="refresh_pos"):
                 st.cache_data.clear()
                 st.rerun()
-        
         st.subheader("Posições Abertas — Tempo Real")
         if not positions:
             st.info("Nenhuma posição aberta.")
@@ -1059,7 +783,6 @@ def render_dashboard():
                        "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >= 0 else f"-${abs(p['pnl']):.2f}",
                        "Alavancagem": f"{p['leverage']}x"} for p in positions]
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-        
         if open_pos:
             st.subheader("Ordens Abertas no DB")
             df_open = pd.DataFrame(open_pos)[["symbol", "side", "entry_price", "size", "score", "open_time"]]
@@ -1075,14 +798,7 @@ def render_dashboard():
         with col_export:
             if trades:
                 csv_data = export_trades_to_csv(trades)
-                st.download_button(
-                    label="📥 Exportar CSV",
-                    data=csv_data,
-                    file_name=f"historico_trades_{datetime.now().strftime('%Y%m%d')}.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
-        
+                st.download_button(label="📥 Exportar CSV", data=csv_data, file_name=f"historico_trades_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv", use_container_width=True)
         st.subheader("Histórico de Trades")
         if not trades:
             st.info("Nenhum trade fechado.")
@@ -1091,9 +807,7 @@ def render_dashboard():
             df_hist.columns = ["Ativo", "Lado", "Entrada", "Saída", "PnL ($)", "PnL (%)", "Score", "Fechado em", "Raciocínio IA"]
             df_hist["PnL ($)"] = df_hist["PnL ($)"].apply(lambda x: f"+${x:.2f}" if x >= 0 else f"-${abs(x):.2f}")
             df_hist["PnL (%)"] = df_hist["PnL (%)"].apply(lambda x: f"{x:+.2f}%")
-            st.dataframe(df_hist[["Ativo", "Lado", "Entrada", "Saída", "PnL ($)", "PnL (%)", "Score", "Fechado em"]], 
-                        use_container_width=True, hide_index=True, height=280)
-            
+            st.dataframe(df_hist[["Ativo", "Lado", "Entrada", "Saída", "PnL ($)", "PnL (%)", "Score", "Fechado em"]], use_container_width=True, hide_index=True, height=280)
             st.subheader("🧠 Raciocínio da IA por Trade")
             for _, row in df_hist.iterrows():
                 with st.expander(f"{row['Ativo']} {row['Lado']} | {row['PnL ($)']}"):
@@ -1107,106 +821,58 @@ def render_dashboard():
         st.subheader("💻 Processamento da IA — Modo Terminal")
         logs = "\n".join([pensamento_ia() for _ in range(10)])
         st.code(logs, language="bash")
-        
         st.markdown('<div style="text-align:center; margin:10px 0;"><span class="ia-heart"></span><span style="color:#00ff88; font-family:\'Orbitron\';">IA Ativa — Processando</span></div>', unsafe_allow_html=True)
-        
         brain_file = "brain_memory.json"
         if os.path.exists(brain_file):
             try:
-                with open(brain_file) as f:
-                    bm = json.load(f)
+                with open(brain_file) as f: bm = json.load(f)
                 bc1, bc2, bc3 = st.columns(3)
                 bc1.metric("Min Score", bm.get("optimized_min_score", "—"))
                 bc2.metric("Risk Level", bm.get("risk_level", "—"))
                 bc3.metric("Win Rate Brain", f"{float(bm.get('win_rate', 0))*100:.1f}%")
-            except:
-                pass
+            except: pass
 
     with tab6:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
-            if st.button("🔄 Atualizar Notícias", key="refresh_news"):
-                st.cache_data.clear()
-                st.rerun()
-        
+            if st.button("🔄 Atualizar Notícias", key="refresh_news"): st.cache_data.clear(); st.rerun()
         st.subheader("📡 Feed de Notícias Crypto")
         try:
             if os.path.exists("news_cache.json"):
-                with open("news_cache.json", 'r', encoding='utf-8') as f:
-                    cache = json.load(f)
+                with open("news_cache.json", 'r', encoding='utf-8') as f: cache = json.load(f)
                 if cache:
-                    for item in cache:
-                        st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
+                    for item in cache: st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
                 else:
                     st.info("🔄 Buscando notícias via RSS...")
                     news_items = fetch_news_rss()
-                    for item in news_items:
-                        st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
-            else:
-                st.info("⏳ Aguardando bot gerar cache...")
-        except Exception as e:
-            st.error(f"❌ Erro ao carregar: {e}")
+                    for item in news_items: st.markdown(f"**{item['source']}** — {item['date']}\n\n{item['title']}\n\n[🔗 Ler completa]({item['link']})\n\n---")
+        except Exception as e: st.error(f"❌ Erro ao carregar: {e}")
 
     with tab7:
         st.markdown("""
         <style>
         .section-title-box {
-            background: #0d0b1e;
-            border: 2px solid #8A2BE2;
-            border-radius: 10px;
-            padding: 18px 30px;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(138, 43, 226, 0.9),
-                         0 0 25px rgba(138, 43, 226, 0.5);
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4),
-                        inset 0 0 20px rgba(138, 43, 226, 0.05);
-            margin-bottom: 16px;
+            background: #0d0b1e; border: 2px solid #8A2BE2; border-radius: 10px;
+            padding: 18px 30px; text-align: center; font-family: 'Orbitron', sans-serif;
+            font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 3px;
+            text-transform: uppercase; text-shadow: 0 0 12px rgba(138, 43, 226, 0.9), 0 0 25px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.05); margin-bottom: 16px;
         }
-
         .section-wrapper {
-            border: 1px solid rgba(138, 43, 226, 0.35);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            background: #09091a;
-            box-shadow: 0 0 25px rgba(138, 43, 226, 0.12);
+            border: 1px solid rgba(138, 43, 226, 0.35); border-radius: 12px; padding: 20px;
+            margin-bottom: 24px; background: #09091a; box-shadow: 0 0 25px rgba(138, 43, 226, 0.12);
         }
-
-        .bot-status-online {
-            background: #0a1f0a;
-            border: 1px solid #00cc44;
-            color: #00ff55;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-        .bot-status-offline {
-            background: #1f0a0a;
-            border: 1px solid #cc2200;
-            color: #ff4422;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
+        .bot-status-online { background: #0a1f0a; border: 1px solid #00cc44; color: #00ff55; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+        .bot-status-offline { background: #1f0a0a; border: 1px solid #cc2200; color: #ff4422; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
         </style>
         """, unsafe_allow_html=True)
 
         st.markdown('<div class="section-title-box">🔑 &nbsp; SENHA DE ACESSO</div>', unsafe_allow_html=True)
-
         with st.form("change_pass_form"):
             current_pass = st.text_input("Senha Atual", type="password")
-            new_pass     = st.text_input("Nova Senha", type="password")
+            new_pass = st.text_input("Nova Senha", type="password")
             confirm_pass = st.text_input("Confirmar Nova Senha", type="password")
-            submitted    = st.form_submit_button("💾 Atualizar Senha", use_container_width=True)
-
+            submitted = st.form_submit_button("💾 Atualizar Senha", use_container_width=True)
             if submitted:
                 if not verify_password(st.session_state["user_email"], current_pass) and current_pass != GLOBAL_PASSWORD:
                     st.error("❌ Senha atual incorreta.")
@@ -1225,25 +891,17 @@ def render_dashboard():
                         st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
 
         st.markdown("<br>", unsafe_allow_html=True)
-
         st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA OKX</div>', unsafe_allow_html=True)
-
         st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
-
         with st.form("okx_keys_form"):
-            api_key    = st.text_input("API Key",    type="password", placeholder="Cole sua API Key da OKX")
+            api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da OKX")
             api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da OKX")
             passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da OKX")
-
             col_test, col_save = st.columns(2)
-            with col_test:
-                test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
-            with col_save:
-                save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
-
+            with col_test: test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
+            with col_save: save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
             if test_conn:
-                if not all([api_key, api_secret, passphrase]):
-                    st.error("❌ Preencha todos os campos para testar.")
+                if not all([api_key, api_secret, passphrase]): st.error("❌ Preencha todos os campos para testar.")
                 else:
                     with st.spinner("Testando conexão com a OKX..."):
                         try:
@@ -1252,56 +910,40 @@ def render_dashboard():
                             if resp.get("code") == "0":
                                 st.success("✅ Conexão OKX validada com sucesso!")
                                 st.json({"equity": resp["data"][0].get("totalEq")})
-                            else:
-                                st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
-                        except Exception as e:
-                            st.error(f"❌ Falha ao conectar: {e}")
-
+                            else: st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
+                        except Exception as e: st.error(f"❌ Falha ao conectar: {e}")
             if save_keys:
-                if not all([api_key, api_secret, passphrase]):
-                    st.error("❌ Preencha todos os campos.")
+                if not all([api_key, api_secret, passphrase]): st.error("❌ Preencha todos os campos.")
                 elif _SAAS_DB_OK:
                     try:
                         update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
                         st.success("✅ Chaves salvas com segurança!")
                         st.info("ℹ️ O bot começará a operar em até 1 minuto.")
-                    except Exception as e:
-                        st.error(f"❌ Erro ao salvar: {e}")
-                else:
-                    st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
+                    except Exception as e: st.error(f"❌ Erro ao salvar: {e}")
+                else: st.error(f"❌ Erro de banco: {_SAAS_DB_ERR}")
 
         st.markdown("<br>", unsafe_allow_html=True)
-
         st.markdown('<div class="section-title-box">🤖 &nbsp; ROBÔ SEXTA-FEIRA</div>', unsafe_allow_html=True)
-
         bot_active = os.path.exists("bot_heartbeat.json")
         if bot_active:
             try:
-                with open("bot_heartbeat.json") as f:
-                    hb = json.load(f)
+                with open("bot_heartbeat.json") as f: hb = json.load(f)
                 last_scan = hb.get("last_scan", "N/A")
-                st.markdown(
-                    f'<div class="bot-status-online">🟢 Bot Online &nbsp;• &nbsp; Último scan: {last_scan}</div>',
-                    unsafe_allow_html=True
-                )
-            except:
-                st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="bot-status-online">🟢 Bot Online &nbsp;• &nbsp; Último scan: {last_scan}</div>', unsafe_allow_html=True)
+            except: st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
         else:
-            st.markdown(
-                '<div class="bot-status-offline">🔴 Bot Offline &nbsp;• &nbsp; Aguardando inicialização</div>',
-                unsafe_allow_html=True
-            )
+            st.markdown('<div class="bot-status-offline">🔴 Bot Offline &nbsp;• &nbsp; Aguardando inicialização</div>', unsafe_allow_html=True)
 
         st.write("#### 📋 Atividades Recentes (Tempo Real)")
         activity_log = get_real_bot_activity(uid, limit=5)
         for log in activity_log:
-            pnl_badge   = f"  <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
-            entry_badge = f"  <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
-            st.markdown(
-                f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}",
-                unsafe_allow_html=True
-            )
+            pnl_badge = f"   <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
+            entry_badge = f"   <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
+            st.markdown(f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}", unsafe_allow_html=True)
 
+# ==========================================
+# MAIN
+# ==========================================
 def main():
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
