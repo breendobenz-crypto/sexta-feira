@@ -1,4 +1,3 @@
-# dashboard_saas.py - DASHBOARD SAAS FINAL COMPLETO
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -47,7 +46,7 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%);
 }
-.main { background-color: #050505; }
+.main { background-color:  #050505; }
 
 h1, h2, h3 {
     color: #8A2BE2 !important;
@@ -101,7 +100,7 @@ div[data-testid="stFormSubmitButton"] button {
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     font-size: 1.1rem;
-    border-radius: 8px !important;
+    border-radius: 8px !important; 
     width: 100% !important;
     padding: 12px !important;
     margin-top: 15px;
@@ -320,7 +319,7 @@ td {
     animation: fadeIn 0.6s ease-out;
 }
 
-.config-section:hover {
+.config-section:hover  {
     border-color: #8A2BE2;
     box-shadow: 0 0 15px rgba(138,43,226,0.2);
 }
@@ -362,7 +361,6 @@ def fetch_market_overview():
     assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "PAXG-USDT"]
     base = "https://www.okx.com"
     rows = []
-    
     for inst in assets:
         try:
             r = requests.get(f"{base}/api/v5/market/ticker?instId={inst}", timeout=4)
@@ -380,8 +378,8 @@ def fetch_market_overview():
                         "Mín 24h": f"${float(d.get('low24h', 0)):,.2f}"
                     })
         except Exception:
-            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—" })
-    
+            rows.append({"Ativo": inst.split("-")[0], "Preço": "—", "Variação 24h": "—", "Máx 24h": "—", "Mín 24h": "—"})
+
     return pd.DataFrame(rows) if rows else pd.DataFrame(columns=["Ativo", "Preço", "Variação 24h", "Máx 24h", "Mín 24h"])
 
 # ==========================================
@@ -406,7 +404,6 @@ def _build_okx_client(api_key: str, api_secret: str, passphrase: str):
     from datetime import datetime, timezone
     BASE_URL = "https://www.okx.com"
     _sim = os.getenv("OKX_SIMULATED", "false").lower() == "true"
-
     def _sign(ts, method, path, body=""):
         msg = f"{ts}{method.upper()}{path}{body}"
         sig = hmac.new(api_secret.encode(), msg.encode(), digestmod=hashlib.sha256).digest()
@@ -442,7 +439,6 @@ def fetch_live_account(user_id: int) -> dict:
     creds = get_decrypted_credentials(user_id)
     if not creds:
         return {"equity": 0.0, "available": 0.0, "positions": [], "error": "Credenciais não encontradas"}
-
     okx_get = _build_okx_client(creds["api_key"], creds["api_secret"], creds["passphrase"])
     resp = okx_get("/api/v5/account/balance", {"ccy": "USDT"})
     equity = available = 0.0
@@ -489,10 +485,9 @@ def chart_equity(curve: list, base_equity: float):
     dates = [r["date"] for r in curve]
     values = [base_equity + r["equity"] for r in curve]
     fig = go.Figure(go.Scatter(x=dates, y=values, mode="lines", name="Equity",
-        line=dict(color="#8A2BE2", width=3), fill="tonexty",
-        fillcolor=dict(type="linear", y0=0, y1=1, color="rgba(138, 43, 226, 0.1)",
-            stops=[[0, "rgba(138, 43, 226, 0)"], [1, "rgba(138, 43, 226, 0.3)"]])))
-
+    line=dict(color="#8A2BE2", width=3), fill="tonexty",
+    fillcolor=dict(type="linear", y0=0, y1=1, color="rgba(138, 43, 226, 0.1)",
+    stops=[[0, "rgba(138, 43, 226, 0)"], [1, "rgba(138, 43, 226, 0.3)"]])))
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white"), title_text="Curva de Equity",
         title_font_color="#8A2BE2", margin=dict(l=0, r=0, t=30, b=0), height=260,
@@ -506,8 +501,7 @@ def chart_pnl_bars(trades: list):
     colors = ["#00ff88" if v > 0 else "#ff4444" for v in df["pnl_usdt"]]
     labels = [f"{r['symbol']} {r['side']}" for _, r in df.iterrows()]
     fig = go.Figure(go.Bar(x=df["pnl_usdt"], y=labels, orientation="h", marker_color=colors,
-        text=[f"${v:+.2f}" for v in df["pnl_usdt"]], textposition="outside", textfont=dict(family="Orbitron", color="white")))
-
+    text=[f"${v:+.2f}" for v in df["pnl_usdt"]], textposition="outside", textfont=dict(family="Orbitron", color="white")))
     fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Orbitron", color="white", size=10), title_text="PnL Últimos 20",
         title_font_color="#8A2BE2", margin=dict(l=0, r=50, t=30, b=0), height=260,
@@ -518,10 +512,11 @@ def chart_pnl_bars(trades: list):
 # ==========================================
 # IA TERMINAL
 # ==========================================
-_THOUGHTS = ["Analisando liquidez BTC...", "Calculando EMA9/21/50...", "Verificando filtro HTF 1h...",
- "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
- "Brain score carregado...", "Cooldown PAXG...", "Risk Manager normal..."]
-
+_THOUGHTS = [
+    "Analisando liquidez BTC...", "Calculando EMA9/21/50...", "Verificando filtro HTF 1h...",
+    "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
+    "Brain score carregado...", "Cooldown PAXG...", "Risk Manager normal..."
+]
 def pensamento_ia():
     return f"> [{datetime.now().strftime('%H:%M:%S')}] {random.choice(_THOUGHTS)}"
 
@@ -550,7 +545,6 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
                 "ativo": trade.get('symbol', 'N/A'),
                 "entry": f"${trade.get('entry_price', 0):.2f}"
             })
-        
         if os.path.exists("bot_heartbeat.json"):
             with open("bot_heartbeat.json") as f:
                 hb = json.load(f)
@@ -573,7 +567,6 @@ def get_real_bot_activity(user_id: int, limit: int = 10):
 def render_login():
     # Centraliza o formulário na tela
     _, center_col, _ = st.columns([1, 2, 1])
-    
     with center_col:
         with st.form("login_form", clear_on_submit=True):
             
@@ -597,7 +590,8 @@ def render_login():
                     font-weight: bold;
                     letter-spacing: 3px;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8);
-                ">SEXTA-FEIRA</h1>
+                    white-space: nowrap;
+                ">SEXTA &#8209;FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
             
@@ -655,7 +649,6 @@ def fetch_news_rss(max_items: int = 10):
         {"name": "Cointelegraph", "url": "https://cointelegraph.com/rss"},
         {"name": "Decrypt", "url": "https://decrypt.co/feed"},
     ]
-
     news = []
     for feed in RSS_FEEDS:
         try:
@@ -681,13 +674,171 @@ def fetch_news_rss(max_items: int = 10):
 # ==========================================
 def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
+    
+    # ── ESFERA IA ANIMADA (NOVO) ────────────────────────────────────────────
+    st.markdown("""
+    <div style="display:flex; flex-direction:column; align-items:center; margin: 10px 0 24px;">
+      <canvas id="sfCanvas" width="220" height="220" style="display:block;"></canvas>
+      <div id="sfTask" style="
+         margin-top: 14px;
+         font-family: 'JetBrains Mono', monospace;
+         font-size: 0.78rem;
+         color: #8A2BE2;
+         letter-spacing: 1px;
+         opacity: 0.9;
+         min-height: 1.2em;
+         text-align: center;
+      ">Inicializando...</div>
+    </div>
+
+    <script>
+    (function(){
+      const canvas = document.getElementById('sfCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height, CX = W/2, CY = H/2, R = 82;
+
+      const NUM = 120;
+      const pts = [];
+      for (let i = 0; i < NUM; i++) {
+        const phi   = Math.acos(1 - 2*(i+0.5)/NUM);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+        pts.push({ phi, theta, pulse: Math.random() * Math.PI * 2 });
+       }
+
+      const PULSES = 6;
+      const pulses = Array.from({length: PULSES}, () => ({
+        phi:   Math.random() * Math.PI,
+        theta: Math.random() * Math.PI * 2,
+        speed: 0.012 + Math.random() * 0.018,
+        dir:   Math.random() < 0.5 ? 1 : -1,
+        life:  Math.random()
+      }));
+
+      const TASKS = [
+         "Analisando contexto de mercado...",
+         "Procurando espaço vetorial...",
+         "Otimizando parâmetros de entrada...",
+         "Calculando volatilidade implícita...",
+         "Sincronizando com OKX API...",
+         "Avaliando regime de tendência HTF...",
+         "Processando score adaptativo...",
+         "Verificando filtros de risco...",
+         "Mapeando liquidez estrutural...",
+         "Ajustando stops por ATR...",
+      ];
+      let taskIdx = 0;
+      const taskEl = document.getElementById('sfTask');
+      function cycleTask() {
+        if (!taskEl) return;
+        taskEl.style.transition = 'opacity 0.4s';
+        taskEl.style.opacity = '0';
+        setTimeout(() => {
+          taskIdx = (taskIdx + 1) % TASKS.length;
+          taskEl.textContent = TASKS[taskIdx];
+          taskEl.style.opacity = '1';
+        }, 400);
+      }
+      setInterval(cycleTask, 2200);
+
+      let angle = 0;
+
+      function project(phi, theta) {
+        const cosA = Math.cos(angle), sinA = Math.sin(angle);
+        const x0 = R * Math.sin(phi) * Math.cos(theta);
+        const y0 = R * Math.cos(phi);
+        const z0 = R * Math.sin(phi) * Math.sin(theta);
+        const x1 = x0 * cosA - z0 * sinA;
+        const z1 = x0 * sinA + z0 * cosA;
+        const scale = (z1 + R*1.6) / (R*2.6);
+        return { sx: CX + x1 * scale, sy: CY - y0 * scale, scale, z: z1 };
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        angle += 0.008;
+
+        for (let lat = 1; lat < 6; lat++) {
+          const phi = (lat/6) * Math.PI;
+          ctx.beginPath();
+          let first = true;
+          for (let t = 0; t <= 64; t++) {
+            const theta = (t/64) * Math.PI * 2;
+            const {sx, sy, scale} = project(phi, theta);
+            if (first) { ctx.moveTo(sx, sy); first = false; }
+            else ctx.lineTo(sx, sy);
+          }
+          ctx.strokeStyle = 'rgba(138,43,226,0.07)';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+
+        pts.forEach(p => {
+          const { sx, sy, scale } = project(p.phi, p.theta);
+          if (scale < 0.2) return;
+          p.pulse += 0.04;
+          const glow = 0.5 + 0.5 * Math.sin(p.pulse);
+          const r = 1.5 + scale * 1.8;
+          const alpha = 0.3 + 0.6 * scale;
+          ctx.beginPath();
+          ctx.arc(sx, sy, r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(138,43,226,' + alpha + ')';
+          ctx.fill();
+          if (glow > 0.7) {
+            ctx.beginPath();
+            ctx.arc(sx, sy, r * 2.2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(168,85,247,' + ((glow-0.7)*0.4) + ')';
+            ctx.fill();
+          } 
+        });
+
+        pulses.forEach(p => {
+          p.life += p.speed;
+          if (p.life > 1) {
+            p.life = 0;
+            p.phi   = Math.random() * Math.PI;
+            p.theta = Math.random() * Math.PI * 2;
+            p.dir   = Math.random() < 0.5 ? 1 : -1;
+          }
+          const dynTheta = p.theta + angle * p.dir * 3;
+          const { sx, sy, scale } = project(p.phi, dynTheta);
+          if (scale < 0.2) return;
+          const alpha = Math.sin(p.life * Math.PI) * 0.9;
+          const radius = 3 + scale * 4;
+          const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, radius);
+          grad.addColorStop(0, 'rgba(220,180,255,' + alpha + ')');
+          grad.addColorStop(0.5, 'rgba(138,43,226,' + (alpha * 0.6) + ')');
+          grad.addColorStop(1, 'rgba(138,43,226,0)');
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        });
+
+        const gCenter = ctx.createRadialGradient(CX, CY, 0, CX, CY, R*0.55);
+        gCenter.addColorStop(0, 'rgba(138,43,226,0.06)');
+        gCenter.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath();
+        ctx.arc(CX, CY, R*0.55, 0, Math.PI*2);
+        ctx.fillStyle = gCenter;
+        ctx.fill();
+
+        requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    })();
+    </script>
+    """, unsafe_allow_html=True)
+    # ── FIM ESFERA ──────────────────────────────────────────────────────────────
+
     st.markdown(f"""
     <div style="text-align: center; margin-bottom: 30px; width: 100%;">
-        <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
-            <div class="ia-heart"></div>
-            SEXTA-FEIRA ADVANCED
-            <span style="font-size: 0.55em; color: #888; font-weight: 400; font-family: 'JetBrains Mono', monospace;">— {uname}</span>
-        </h1>
+    <h1 style="font-family: 'Orbitron', sans-serif; color: #8A2BE2; font-weight: 700; display: inline-flex; align-items: center; gap: 15px; margin: 0;">
+    <div class="ia-heart"></div>
+    SEXTA-FEIRA ADVANCED
+    <span style="font-size: 0.55em; color: #888; font-weight: 400; font-family: 'JetBrains Mono', monospace;">— {uname}</span>
+    </h1>
     </div>
     """, unsafe_allow_html=True)
 
@@ -771,7 +922,7 @@ def render_dashboard():
     with tab2:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
-            if st.button("🔄 Atualizar", key="refresh_perf"):
+             if st.button("🔄 Atualizar", key="refresh_perf"):
                 st.cache_data.clear()
                 st.rerun()
         
@@ -808,9 +959,9 @@ def render_dashboard():
             st.info("Nenhuma posição aberta.")
         else:
             rows = [{"Ativo": p["symbol"], "Direção": p["side"], "Tamanho": p["size"],
-                      "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
-                      "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >= 0 else f"-${abs(p['pnl']):.2f}",
-                      "Alavancagem": f"{p['leverage']}x"} for p in positions]
+                       "Entrada": f"${p['entry']:.2f}", "Mark": f"${p['mark']:.2f}",
+                       "PnL Não Realizado": f"+${p['pnl']:.2f}" if p['pnl'] >= 0 else f"-${abs(p['pnl']):.2f}",
+                       "Alavancagem": f"{p['leverage']}x"} for p in positions]
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         
         if open_pos:
@@ -900,7 +1051,7 @@ def render_dashboard():
         except Exception as e:
             st.error(f"❌ Erro ao carregar: {e}")
 
-# ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
+    # ✅ ABA 7 - CONFIGURAÇÕES COMPLETAS
     with tab7:
 
         st.markdown("""
@@ -1047,21 +1198,21 @@ def render_dashboard():
                     hb = json.load(f)
                 last_scan = hb.get("last_scan", "N/A")
                 st.markdown(
-                    f'<div class="bot-status-online">🟢 Bot Online &nbsp;•&nbsp; Último scan: {last_scan}</div>',
+                    f'<div class="bot-status-online">🟢 Bot Online &nbsp;• &nbsp; Último scan: {last_scan}</div>',
                     unsafe_allow_html=True
                 )
             except:
                 st.markdown('<div class="bot-status-offline">🔴 Status indisponível</div>', unsafe_allow_html=True)
         else:
             st.markdown(
-                '<div class="bot-status-offline">🔴 Bot Offline &nbsp;•&nbsp; Aguardando inicialização</div>',
+                '<div class="bot-status-offline">🔴 Bot Offline &nbsp;• &nbsp; Aguardando inicialização</div>',
                 unsafe_allow_html=True
             )
 
         st.write("#### 📋 Atividades Recentes (Tempo Real)")
         activity_log = get_real_bot_activity(uid, limit=5)
         for log in activity_log:
-            pnl_badge   = f"  <span style='color:#00ff88'>{log['pnl']}</span>"   if log.get('pnl')   else ""
+            pnl_badge   = f"  <span style='color:#00ff88'>{log['pnl']}</span>" if log.get('pnl') else ""
             entry_badge = f"  <span style='color:#8A2BE2'>{log['entry']}</span>" if log.get('entry') else ""
             st.markdown(
                 f"`[{log['hora']}]` {log['evento']} • **{log['ativo']}**{pnl_badge}{entry_badge}",
@@ -1071,7 +1222,6 @@ def render_dashboard():
 def main():
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
-        
     if not st.session_state["logged_in"]:
         render_login()
     else:
