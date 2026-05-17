@@ -237,19 +237,30 @@ def get_decrypted_credentials(internal_user_id: int):
         cursor.close()
         conn.close()
 
-def get_user_credentials(user_id: str):
-    """✅ FUNÇÃO QUE ESTAVA FALTANDO - Busca credenciais pelo user_id externo"""
+def get_user_credentials(user_id):
+    """Busca credenciais pelo id interno (int) ou user_id externo (str).
+    ✅ FIX: get_active_users() agora retorna id interno (int) — chamada direta sem lookup."""
+    # Se for int ou string numérica → é o id interno, vai direto
+    try:
+        internal_id = int(user_id)
+        return get_decrypted_credentials(internal_id)
+    except (ValueError, TypeError):
+        pass
+    # Fallback: é um user_id TEXT externo — faz lookup
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         if USE_POSTGRES:
-            cursor.execute("SELECT id FROM users WHERE user_id = %s", (user_id,))
+            cursor.execute("SELECT id FROM users WHERE user_id = %s", (str(user_id),))
         else:
-            cursor.execute("SELECT id FROM users WHERE user_id = ?", (user_id,))
+            cursor.execute("SELECT id FROM users WHERE user_id = ?", (str(user_id),))
         row = cursor.fetchone()
         if row:
             d = _dictify(row, cursor)
             return get_decrypted_credentials(d['id'])
+        return None
+    except Exception as e:
+        print(f"[get_user_credentials] Erro: {e}")
         return None
     finally:
         cursor.close()
@@ -425,15 +436,31 @@ def get_equity_curve(internal_user_id: int, days: int = 30):
         conn.close()
 
 def get_active_users():
+    """Retorna lista de IDs internos (INTEGER) de VIPs com status ACTIVE e credenciais cadastradas."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        if USE_POSTGRES:
-            cursor.execute("SELECT user_id FROM users WHERE status = 'ACTIVE'")
-        else:
-            cursor.execute("SELECT user_id FROM users WHERE status = 'ACTIVE'")
+        # ✅ FIX: JOIN com api_credentials para só retornar VIPs que já têm chaves cadastradas
+        # Retorna users.id (INTEGER interno) — compatível com get_decrypted_credentials()
+        query = """
+            SELECT u.id FROM users u
+            INNER JOIN api_credentials ac ON ac.user_id = u.id
+            WHERE u.status = 'ACTIVE'
+              AND ac.api_key_enc IS NOT NULL
+              AND ac.api_key_enc NOT IN ('', 'VAZIO', 'N/A', 'NONE')
+        """
+        cursor.execute(query)
         rows = cursor.fetchall()
-        return [(_dictify(r, cursor) if USE_POSTGRES else r)[0] for r in rows]
+        result = []
+        for r in rows:
+            d = _dictify(r, cursor) if USE_POSTGRES else {"id": r[0]}
+            uid = d.get("id")
+            if uid is not None:
+                result.append(uid)
+        return result
+    except Exception as e:
+        print(f"[get_active_users] Erro: {e}")
+        return []
     finally:
         cursor.close()
         conn.close()

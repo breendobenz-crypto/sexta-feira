@@ -743,6 +743,22 @@ def render_dashboard():
             _bot_status  = _hb.get("status", "alive")
             _bot_equity  = float(_hb.get("equity") or 0)
             _bot_scan    = _hb.get("last_scan", "—")
+        else:
+            # ✅ FIX 4b: sem heartbeat, verifica se VIP tem credenciais cadastradas
+            # Se tiver, o bot está configurado mesmo que o arquivo não exista (filesystem efêmero)
+            if _SAAS_DB_OK:
+                _creds = get_decrypted_credentials(uid)
+                if _creds:
+                    _bot_status = "configured"
+                    # Tenta buscar equity da OKX para confirmar conectividade
+                    try:
+                        _live_check = fetch_live_account(uid)
+                        if _live_check.get("equity", 0) > 0:
+                            _bot_online  = True
+                            _bot_equity  = _live_check["equity"]
+                            _bot_scan    = datetime.now().strftime("%H:%M:%S")
+                    except Exception:
+                        pass
     except Exception: pass
 
     try:
@@ -1516,6 +1532,8 @@ def render_dashboard():
                 elif _SAAS_DB_OK:
                     try:
                         update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
+                        # ✅ FIX 4: invalida cache do cliente OKX para usar as novas chaves imediatamente
+                        st.cache_resource.clear()
                         st.success("✅ Chaves salvas com segurança!")
                         st.info("ℹ️ O bot começará a operar em até 1 minuto.")
                     except Exception as e: st.error(f"❌ Erro ao salvar: {e}")
