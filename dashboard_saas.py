@@ -325,71 +325,31 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══════════════════════════════════════════
-   RESPONSIVIDADE — MOBILE / TABLET / DESKTOP
-   ══════════════════════════════════════════ */
-
-/* Tablet (≤ 1024px) */
+/* ══ RESPONSIVIDADE ══ */
 @media (max-width: 1024px) {
     .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
     [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
-    .status-value { font-size: 12px !important; }
-    .status-label { font-size: 9px !important; }
     button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
 }
-
-/* Mobile (≤ 768px) */
 @media (max-width: 768px) {
-    /* Padding geral reduzido */
-    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1rem !important; }
-
-    /* Título do dashboard menor */
-    .titulo-card { padding: 10px 16px !important; }
-    .titulo-card-text { font-size: 0.95rem !important; letter-spacing: 1px !important; white-space: normal !important; }
-
-    /* Título admin card */
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
+    .titulo-card { padding: 10px 12px !important; }
+    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
     .admin-name { font-size: 11px !important; }
     .admin-label { font-size: 9px !important; }
-
-    /* Métricas menores */
-    [data-testid="stMetricValue"] { font-size: 0.9rem !important; }
+    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
     [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
     [data-testid="stMetric"] { padding: 10px !important; }
-
-    /* Status boxes menores */
     .status-value { font-size: 10px !important; }
     .status-label { font-size: 8px !important; }
     .status-box { padding: 8px 4px !important; }
-
-    /* Tabs compactas */
     button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
-
-    /* Círculo patrimônio — escala menor */
-    .m1-wrap svg { width: 120px !important; height: 120px !important; }
-
-    /* Login container ocupa mais espaço */
-    .login-container { padding: 24px 16px !important; margin: 20px auto 0 !important; }
-
-    /* TradingView widget altura menor */
-    .tradingview-widget-container { height: 350px !important; }
-
-    /* Scrollbar menor */
-    ::-webkit-scrollbar { width: 4px !important; height: 4px !important; }
-
-    /* Tabs wrap sem padding excessivo */
     [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-
-    /* Seção título box */
-    .section-title-box { font-size: 12px !important; padding: 8px 12px !important; }
 }
-
-/* Mobile pequeno (≤ 480px) */
 @media (max-width: 480px) {
-    .titulo-card-text { font-size: 0.8rem !important; }
+    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; }
     [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
     button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
-    .admin-name { font-size: 10px !important; }
 }
 
 /* ── CARD TÍTULO (igual ao login) ── */
@@ -710,13 +670,14 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif;
                     color: #8A2BE2;
-                    font-size: 2rem;
+                    font-size: clamp(1.2rem, 7vw, 2rem);
                     margin: 0;
                     font-weight: bold;
-                    letter-spacing: 3px;
+                    letter-spacing: clamp(2px, 2vw, 3px);
                     text-shadow: 0 0 15px rgba(138,43,226,0.8);
-                    text-align: center;
+                    white-space: nowrap;
                     width: 100%;
+                    text-align: center;
                 ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
@@ -1041,7 +1002,7 @@ def render_dashboard():
 
     # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin: 8px 0 18px;">
+    <div style="text-align:center; margin: 8px 0 10px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -1071,20 +1032,18 @@ def render_dashboard():
 
     m1, m2, m3, m4, m5 = st.columns(5)
 
-    # ── PATRIMÔNIO: anel proporcional ao uso real do saldo ──
-    # Correção: available=0 com equity>0 indica que a API não retornou o campo
-    # corretamente (filesystem efêmero no Render). Só calcula se available > 0.
+    # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
     _usage_pct = 0.0
     try:
         if equity > 0 and available > 0:
-            _used = equity - available
-            _usage_pct = max(0.0, min(100.0, (_used / equity) * 100))
+            # Calcula percentual alocado normalmente
+            _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
         elif equity > 0 and available == 0 and len(positions) > 0:
-            # Estima pelo valor nocional das posições abertas
-            _pos_value = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
-            if _pos_value > 0:
-                _usage_pct = max(0.0, min(95.0, (_pos_value / equity) * 100))
-        # equity=0 → _usage_pct = 0.0 → círculo vazio (correto)
+            # available=0 no Render (filesystem efêmero) mas há posições: estima pelo nocional
+            _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
+            if _pos_val > 0:
+                _usage_pct = max(0.0, min(95.0, (_pos_val / equity) * 100))
+        # equity=0 → círculo vazio (0%) — correto no ambiente local
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
