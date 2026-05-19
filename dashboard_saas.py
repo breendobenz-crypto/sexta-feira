@@ -703,16 +703,20 @@ def render_login():
                 max-width: 450px;
                 margin: 50px auto;
                 text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             ">
                 <h1 style="
                     font-family: 'Orbitron', sans-serif;
                     color: #8A2BE2;
                     font-size: 2rem;
-                    margin-bottom: 10px;
+                    margin: 0;
                     font-weight: bold;
                     letter-spacing: 3px;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8);
-                    white-space: nowrap;
+                    text-align: center;
+                    width: 100%;
                 ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
@@ -1037,7 +1041,7 @@ def render_dashboard():
 
     # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin: -112px 0 18px;">
+    <div style="text-align:center; margin: 8px 0 18px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
