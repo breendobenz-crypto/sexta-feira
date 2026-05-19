@@ -353,6 +353,14 @@ hr {
 }
 
 /* ── CARD TÍTULO (igual ao login) ── */
+@keyframes titleBarSlide {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+@keyframes titleBarSlideRev {
+    0%   { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
 .titulo-card {
     display: inline-block;
     background: rgba(13, 13, 13, 0.95);
@@ -361,6 +369,28 @@ hr {
     padding: 14px 40px;
     box-shadow: 0 0 30px rgba(138,43,226,0.25);
     animation: slideIn 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+.titulo-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: titleBarSlide 2.4s ease-in-out infinite;
+}
+.titulo-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: titleBarSlideRev 2.4s ease-in-out infinite;
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -1002,12 +1032,31 @@ def render_dashboard():
 
     # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
+    <style>
+    /* Mobile: esconde btn_sair da col_sair, mostra btn_sair_mobile abaixo do título */
+    @media (max-width: 768px) {
+        div[data-testid="column"]:nth-child(3) div[data-testid="stButton"] { display: none !important; }
+        .sair-mobile-block { display: block !important; }
+    }
+    /* Desktop: esconde btn_sair_mobile abaixo do título */
+    @media (min-width: 769px) {
+        .sair-mobile-block { display: none !important; }
+    }
+    </style>
     <div style="text-align:center; margin: 8px 0 10px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Wrapper com classe controlada pelo CSS acima
+    st.markdown('<div class="sair-mobile-block" style="display:none;">', unsafe_allow_html=True)
+    if st.button("Sair", use_container_width=True, key="btn_sair_mobile"):
+        for k in ["logged_in", "user_id", "user_email", "user_name"]:
+            st.session_state.pop(k, None)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
