@@ -4,6 +4,8 @@ import sys
 import time
 import logging
 import traceback
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -151,15 +153,8 @@ def process_vip_user(user_id: str, keys: dict):
 
         for symbol in SYMBOLS_TO_SCAN:
             try:
-                # Injeta o cliente isolado no módulo de indicadores
-                import indicators
-                original_func = indicators.get_klines
-                indicators.get_klines = client.get_klines if hasattr(client, "get_klines") else indicators.get_klines
-
-                signal = gerar_sinal(symbol)
-                
-                # Restaura função original para evitar vazamento entre VIPs
-                indicators.get_klines = original_func
+                # ✅ FIX: client injetado via parâmetro — sem monkey-patch global
+                signal = gerar_sinal(symbol, client=client)
 
                 if signal:
                     direction, score, price, stop, take = signal
@@ -200,10 +195,24 @@ def process_vip_user(user_id: str, keys: dict):
 # ==========================================
 # LOOP PRINCIPAL
 # ==========================================
+def _start_telegram_polling():
+    """Inicia o polling do bot Telegram em thread daemon.
+    ✅ FIX: só uma instância roda (dentro do main_saaS) — elimina conflito 409."""
+    try:
+        from telegram_bot import main as telegram_main
+        t = threading.Thread(target=telegram_main, name="TelegramPolling", daemon=True)
+        t.start()
+        logger.info("✅ Telegram polling iniciado em thread daemon.")
+    except Exception as e:
+        logger.warning(f"⚠️ Telegram polling não iniciado: {e}")
+
 def main():
     logger.info("🟣 SEXTA-FEIRA SAAS - ORQUESTRADOR V7 INICIADO")
     logger.info(f"🌐 Ambiente: {'Classe SaaS' if USE_CLASS_CLIENT else 'Legacy Global'}")
-    
+
+    # Inicia Telegram polling em thread (sem processo separado)
+    _start_telegram_polling()
+
     # ✅ NOVA MENSAGEM DE INÍCIO PERSONALIZADA
     send_telegram_alert(msg_inicio_sistema(), "info")
     
@@ -214,16 +223,24 @@ def main():
             if not vip_users:
                 logger.info("💤 Nenhum VIP ativo. Aguardando...")
             else:
-                logger.info(f"👥 {len(vip_users)} VIP(s) ativo(s). Processando...")
-                for user_id in vip_users:
-                    keys = get_user_credentials(user_id)
+                logger.info(f"👥 {len(vip_users)} VIP(s) ativo(s). Processando em paralelo...")
+                # ✅ FIX 4: VIPs processados em paralelo — max 5 simultâneos
+                def _run_vip(uid):
+                    keys = get_user_credentials(uid)
                     if keys:
-                        process_vip_user(user_id, keys)
+                        process_vip_user(uid, keys)
                     else:
-                        # ✅ NOVA MENSAGEM PARA CHAVES NÃO ENCONTRADAS
-                        log_and_alert("WARNING", msg_chaves_nao_encontradas(user_id))
-                        logger.warning(f"⚠️ [{user_id}] Chaves não encontradas no DB")
-                    time.sleep(2)  # Pausa entre usuários para respeitar Rate Limit
+                        log_and_alert("WARNING", msg_chaves_nao_encontradas(uid))
+                        logger.warning(f"⚠️ [{uid}] Chaves não encontradas no DB")
+
+                with ThreadPoolExecutor(max_workers=5) as pool:
+                    futures = {pool.submit(_run_vip, uid): uid for uid in vip_users}
+                    for future in as_completed(futures):
+                        uid = futures[future]
+                        try:
+                            future.result()
+                        except Exception as e:
+                            logger.error(f"[{uid}] Falha na thread: {e}")
 
             logger.info(f"⏳ Próximo ciclo em {SCAN_INTERVAL}s...")
             time.sleep(SCAN_INTERVAL)
