@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO
+# CSS — GLASSMORPHISM + ANIMAÇÕES
 # ==========================================
 st.markdown("""
 <style>
@@ -96,7 +96,7 @@ div[data-testid="stFormSubmitButton"] button {
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     font-size: 1.1rem;
-    border-radius: 8px !important; 
+    border-radius: 8px !important;  
     width: 100% !important;
     padding: 12px !important;
     margin-top: 15px;
@@ -400,31 +400,6 @@ button[data-baseweb="tab"]:hover {
 button[data-baseweb="tab"][aria-selected="true"] {
     color: #fff !important;
     background: rgba(138,43,226,0.3) !important;
-}
-
-/* ── RESPONSIVO: MOBILE/TABLET/DESKTOP ── */
-@media (max-width: 768px) {
-    .titulo-card { padding: 10px 20px; }
-    .titulo-card-text { font-size: 1.2rem; }
-    .admin-card { padding: 8px 12px; }
-    .admin-name { font-size: 12px; }
-    .status-box { padding: 8px; }
-    .status-value { font-size: 12px; }
-    [data-testid="stMetric"] { padding: 12px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.2rem !important; }
-    .m1-wrap svg { width: 120px !important; height: 120px !important; }
-    .m1-wrap text { font-size: 7px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 14px !important; }
-}
-
-@media (max-width: 480px) {
-    .titulo-card-text { font-size: 1rem; letter-spacing: 1px; }
-    .admin-name { font-size: 11px; }
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    .m1-wrap svg { width: 100px !important; height: 100px !important; }
-    .m1-wrap text { font-size: 6px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 6px 8px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -839,7 +814,6 @@ def render_dashboard():
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
   #status-bar {{
@@ -880,11 +854,6 @@ def render_dashboard():
     letter-spacing: 1px;
     min-height: 18px;
     transition: opacity 0.4s;
-  }}
-  @media (max-width: 768px) {{
-    #status-bar {{ font-size: 9px; }}
-    #equity-display {{ font-size: 9px; }}
-    #task-text {{ font-size: 9px; }}
   }}
 </style>
 </head>
@@ -928,7 +897,7 @@ def render_dashboard():
 
   camera.position.z = 150;
 
-  const tasks = {task_list};
+  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
   if(taskEl) {{ taskEl.textContent = tasks[0]; taskEl.style.opacity = '1'; }}
@@ -993,9 +962,9 @@ def render_dashboard():
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO COM CARD
+    # TÍTULO CENTRALIZADO ABAIXO DA ESFERA (COMO NA SEGUNDA FOTO)
     st.markdown("""
-    <div style="text-align:center; margin: -112px 0 18px;">
+    <div style="text-align:center; margin: 20px 0 30px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -1026,18 +995,15 @@ def render_dashboard():
     m1, m2, m3, m4, m5 = st.columns(5)
 
     # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
-    # ✅ FIX: Cálculo robusto do stroke-dasharray para funcionar em todos os ambientes
     _usage_pct = 0.0
     try:
         if equity > 0 and available >= 0:
             _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
     except Exception:
         _usage_pct = 0.0
-    
-    # ✅ FIX: Usar round() para garantir precisão consistente em todos os ambientes
-    _circ = round(2 * 3.14159265359 * 54, 2)
-    _dash_val = round(_circ * (_usage_pct / 100), 2)
-    _gap_val = round(_circ - _dash_val, 2)
+    _circ     = 2 * 3.14159 * 54
+    _dash_val = _circ * (_usage_pct / 100)
+    _gap_val  = _circ - _dash_val
 
     with m1:
         st.markdown(f"""
@@ -1076,7 +1042,7 @@ def render_dashboard():
                     stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
                 <circle class="m1-arc" cx="80" cy="80" r="54" fill="none"
                     stroke="#8A2BE2" stroke-width="12"
-                    stroke-dasharray="{_dash_val} {_gap_val}"
+                    stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}"
                     stroke-linecap="round"
                     transform="rotate(-90 80 80)"/>
                 <text x="80" y="64" text-anchor="middle"
@@ -1110,6 +1076,7 @@ def render_dashboard():
         padding: 8px 12px 0 12px !important;
         backdrop-filter: blur(8px);
     }
+    /* Remove borda inferior padrão do Streamlit nas tabs */
     [data-testid="stTabs"] > div:first-child {
         border-bottom: 1px solid rgba(138,43,226,0.2) !important;
         padding-bottom: 2px;
@@ -1138,7 +1105,7 @@ def render_dashboard():
     """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "📈 Mercado", "📊 Performance", "📌 Posições",
+        "📈 Mercado", "📊 Performance", "📌 Posições", 
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
     ])
 
@@ -1358,10 +1325,10 @@ def render_dashboard():
             except Exception:
                 usage_pct = 0
 
-            # ✅ FIX: SVG ring com cálculo robusto para funcionar em todos os ambientes
-            circumference = round(2 * 3.14159265359 * 54, 2)
-            dash_val = round(circumference * (usage_pct / 100), 2)
-            gap_val = round(circumference - dash_val, 2)
+            # SVG ring de equity
+            circumference = 2 * 3.14159 * 54
+            dash_val = circumference * (usage_pct / 100)
+            gap_val = circumference - dash_val
 
             st.markdown(f"""
             <div style="text-align:center; padding:10px 0;">
@@ -1370,7 +1337,7 @@ def render_dashboard():
                         stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
                     <circle cx="80" cy="80" r="54" fill="none"
                         stroke="#8A2BE2" stroke-width="12"
-                        stroke-dasharray="{dash_val} {gap_val}"
+                        stroke-dasharray="{dash_val:.1f} {gap_val:.1f}"
                         stroke-linecap="round"
                         transform="rotate(-90 80 80)"/>
                     <text x="80" y="72" text-anchor="middle"
