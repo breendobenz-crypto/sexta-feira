@@ -96,7 +96,7 @@ div[data-testid="stFormSubmitButton"] button {
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     font-size: 1.1rem;
-    border-radius: 8px !important;  
+    border-radius: 8px !important; 
     width: 100% !important;
     padding: 12px !important;
     margin-top: 15px;
@@ -324,6 +324,73 @@ hr {
 ::-webkit-scrollbar-thumb:hover { background: #9d4edd; }
 
 #MainMenu, footer, header { visibility: hidden; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVIDADE — MOBILE / TABLET / DESKTOP
+   ══════════════════════════════════════════ */
+
+/* Tablet (≤ 1024px) */
+@media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
+    .status-value { font-size: 12px !important; }
+    .status-label { font-size: 9px !important; }
+    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
+}
+
+/* Mobile (≤ 768px) */
+@media (max-width: 768px) {
+    /* Padding geral reduzido */
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1rem !important; }
+
+    /* Título do dashboard menor */
+    .titulo-card { padding: 10px 16px !important; }
+    .titulo-card-text { font-size: 0.95rem !important; letter-spacing: 1px !important; white-space: normal !important; }
+
+    /* Título admin card */
+    .admin-name { font-size: 11px !important; }
+    .admin-label { font-size: 9px !important; }
+
+    /* Métricas menores */
+    [data-testid="stMetricValue"] { font-size: 0.9rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    [data-testid="stMetric"] { padding: 10px !important; }
+
+    /* Status boxes menores */
+    .status-value { font-size: 10px !important; }
+    .status-label { font-size: 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+
+    /* Tabs compactas */
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
+
+    /* Círculo patrimônio — escala menor */
+    .m1-wrap svg { width: 120px !important; height: 120px !important; }
+
+    /* Login container ocupa mais espaço */
+    .login-container { padding: 24px 16px !important; margin: 20px auto 0 !important; }
+
+    /* TradingView widget altura menor */
+    .tradingview-widget-container { height: 350px !important; }
+
+    /* Scrollbar menor */
+    ::-webkit-scrollbar { width: 4px !important; height: 4px !important; }
+
+    /* Tabs wrap sem padding excessivo */
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+
+    /* Seção título box */
+    .section-title-box { font-size: 12px !important; padding: 8px 12px !important; }
+}
+
+/* Mobile pequeno (≤ 480px) */
+@media (max-width: 480px) {
+    .titulo-card-text { font-size: 0.8rem !important; }
+    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
+    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
+    .admin-name { font-size: 10px !important; }
+}
 
 /* ── CARD TÍTULO (igual ao login) ── */
 .titulo-card {
@@ -786,28 +853,28 @@ def render_dashboard():
             task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
             pulse_color = "'#444444'"
             status_text = "OFFLINE"
-            status_color = "#6b7280"
+            status_color = "#6b7280"      # cinza neutro — sem vermelho agressivo
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
-            task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
+            task_list = "['Modo defensivo ativo...', 'Reduzindo exposição...', f'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
             pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
-            status_color = "#a78bfa"
+            status_color = "#a78bfa"      # roxo claro — alerta suave
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
-            task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
+            task_list = "['Performance excelente!', f'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', f'Score mínimo: {min_score}']"
             pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
-            status_color = "#c4b5fd"
+            status_color = "#c4b5fd"      # lilás suave — positivo no tema
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
-            task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
+            task_list = "['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', f'Score mínimo: {min_score}', 'Aguardando sweep...']"
             pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
-            status_color = "#c4b5fd"
+            status_color = "#c4b5fd"      # lilás suave — consistente com o tema
             status_dot   = "#8A2BE2"
 
         return f"""<!DOCTYPE html>
@@ -897,6 +964,7 @@ def render_dashboard():
 
   camera.position.z = 150;
 
+  // Tarefas dinâmicas baseadas no estado do bot
   const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
@@ -916,13 +984,18 @@ def render_dashboard():
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
+
+    // Rotações diferenciais
     core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
     mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
     outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
     halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
+
+    // Pulsação de opacidade
     core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
     mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
+
     renderer.render(scene, camera);
   }}
   animate();
@@ -962,9 +1035,9 @@ def render_dashboard():
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO ABAIXO DA ESFERA (COMO NA SEGUNDA FOTO)
+    # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin: 20px 0 30px;">
+    <div style="text-align:center; margin: -112px 0 18px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -994,11 +1067,20 @@ def render_dashboard():
 
     m1, m2, m3, m4, m5 = st.columns(5)
 
-    # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
+    # ── PATRIMÔNIO: anel proporcional ao uso real do saldo ──
+    # Correção: available=0 com equity>0 indica que a API não retornou o campo
+    # corretamente (filesystem efêmero no Render). Só calcula se available > 0.
     _usage_pct = 0.0
     try:
-        if equity > 0 and available >= 0:
-            _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
+        if equity > 0 and available > 0:
+            _used = equity - available
+            _usage_pct = max(0.0, min(100.0, (_used / equity) * 100))
+        elif equity > 0 and available == 0 and len(positions) > 0:
+            # Estima pelo valor nocional das posições abertas
+            _pos_value = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
+            if _pos_value > 0:
+                _usage_pct = max(0.0, min(95.0, (_pos_value / equity) * 100))
+        # equity=0 → _usage_pct = 0.0 → círculo vazio (correto)
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
@@ -1105,7 +1187,7 @@ def render_dashboard():
     """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "📈 Mercado", "📊 Performance", "📌 Posições", 
+        "📈 Mercado", "📊 Performance", "📌 Posições",
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
     ])
 
@@ -1361,6 +1443,7 @@ def render_dashboard():
                 try:
                     with open("bot_heartbeat.json") as f: hb = json.load(f)
                     last_scan = hb.get("last_scan", "N/A")
+                    bot_status_str = hb.get("status", "alive")
                     st.markdown(f"""
                     <div style="text-align:center; margin-top:8px;">
                         <div style="display:inline-flex; align-items:center; gap:6px;
