@@ -711,12 +711,14 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.9rem, 5vw, 2rem) !important;
+                    font-size: clamp(1.1rem, 8vw, 2rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
                     letter-spacing: clamp(1px, 1vw, 3px) !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
+                    word-break: keep-all !important;
+                    overflow-wrap: normal !important;
                     width: 100% !important;
                     text-align: center !important;
                     display: block !important;
@@ -1016,27 +1018,44 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # ── HEADER: admin esquerda | sair direita — HTML puro (funciona em mobile/tablet/desktop)
-    st.markdown(f"""
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;
-                padding: 16px 8px 0; width:100%;">
-        <div class="admin-card">
-            <span class="admin-label">Conta VIP</span>
-            <span class="admin-name">{uname}</span>
-        </div>
-        <div style="min-width:100px; max-width:140px;">
-            <!-- espaço reservado para o botão Sair do Streamlit -->
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Botão Sair alinhado à direita via coluna
+    # ── HEADER: admin esquerda | sair direita — alinhados na mesma altura
     _, col_sair_btn = st.columns([4, 1])
     with col_sair_btn:
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
+
+    st.markdown(f"""
+    <style>
+    /* sobrepõe o botão Sair para ficarem alinhados */
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="column"]:last-child button[kind="secondary"]) {{
+        margin-top: 0 !important;
+    }}
+    .header-row {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 8px;
+        margin-top: -52px;
+        width: 100%;
+        pointer-events: none;
+    }}
+    .admin-card-wrap {{ pointer-events: all; }}
+    @media (max-width: 640px) {{
+        .header-row {{ margin-top: -50px; }}
+    }}
+    </style>
+    <div class="header-row">
+        <div class="admin-card-wrap">
+            <div class="admin-card">
+                <span class="admin-label">Conta VIP</span>
+                <span class="admin-name">{uname}</span>
+            </div>
+        </div>
+        <div style="min-width:80px;"></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Esfera centralizada
     _, col_esfera, _ = st.columns([1, 2, 1])
