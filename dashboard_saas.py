@@ -325,75 +325,38 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══ RESPONSIVIDADE COMPLETA ══ */
-
-/* ── DESKTOP LARGO (>1200px) ── */
-@media (min-width: 1200px) {
-    .block-container { padding-left: 2rem !important; padding-right: 2rem !important; }
-    .titulo-card-text { font-size: 1.6rem !important; letter-spacing: 3px !important; }
-}
-
-/* ── DESKTOP NORMAL (1024px–1199px) ── */
-@media (max-width: 1199px) and (min-width: 1024px) {
-    .titulo-card-text { font-size: 1.3rem !important; letter-spacing: 2px !important; }
+/* ══ RESPONSIVIDADE ══ */
+@media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
     [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
     button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
 }
-
-/* ── TABLET (768px–1023px) ── */
-@media (max-width: 1023px) and (min-width: 768px) {
-    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 0.5rem !important; }
-    .titulo-card { padding: 12px 20px !important; }
-    .titulo-card-text { font-size: clamp(1rem, 3vw, 1.3rem) !important; letter-spacing: 2px !important; white-space: nowrap !important; }
-    .admin-name { font-size: 12px !important; }
+@media (max-width: 768px) {
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
+    .titulo-card { padding: 10px 12px !important; }
+    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
+    .admin-name { font-size: 11px !important; }
     .admin-label { font-size: 9px !important; }
-    [data-testid="stMetricValue"] { font-size: 0.95rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.68rem !important; }
-    [data-testid="stMetric"] { padding: 12px !important; }
+    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    [data-testid="stMetric"] { padding: 10px !important; }
     .status-value { font-size: 10px !important; }
     .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 6px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
-    [data-testid="stTabs"] { padding: 4px 8px 0 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+}
+@media (max-width: 480px) {
+    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
+    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
+    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
+
+    /* Título: margem menor no mobile */
+    .titulo-sair-wrap { margin-top: 10px !important; }
 }
 
-/* ── MOBILE GRANDE (480px–767px) ── */
-@media (max-width: 767px) and (min-width: 480px) {
-    .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; padding-top: 0.4rem !important; }
-    .titulo-card { padding: 10px 14px !important; }
-    .titulo-card-text { font-size: clamp(0.9rem, 4.5vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
-    .admin-card { padding: 7px 10px !important; }
-    .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 8px !important; }
-    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.62rem !important; }
-    [data-testid="stMetric"] { padding: 8px !important; }
-    .status-value { font-size: 9px !important; }
-    .status-label { font-size: 7px !important; }
-    .status-box { padding: 6px 3px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 5px !important; }
-    [data-testid="stTabs"] { padding: 4px 4px 0 4px !important; }
-    .section-title-box { font-size: 13px !important; padding: 12px 16px !important; }
-    .bot-control-panel { padding: 14px !important; }
-}
-
-/* ── MOBILE PEQUENO (<480px) ── */
-@media (max-width: 479px) {
-    .block-container { padding-left: 0.4rem !important; padding-right: 0.4rem !important; padding-top: 0.3rem !important; }
-    .titulo-card { padding: 8px 10px !important; }
-    .titulo-card-text { font-size: clamp(0.75rem, 4vw, 0.95rem) !important; letter-spacing: 0.5px !important; white-space: nowrap !important; }
-    .admin-card { padding: 5px 8px !important; }
-    .admin-name { font-size: 10px !important; }
-    .admin-label { font-size: 7px !important; }
-    [data-testid="stMetricValue"] { font-size: 0.78rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.58rem !important; }
-    [data-testid="stMetric"] { padding: 6px !important; }
-    .status-value { font-size: 8px !important; }
-    .status-label { font-size: 6px !important; }
-    .status-box { padding: 5px 2px !important; }
-    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 4px !important; }
-    [data-testid="stTabs"] { padding: 3px 2px 0 2px !important; }
-    .section-title-box { font-size: 11px !important; padding: 10px 12px !important; letter-spacing: 1px !important; }
+/* Esconde bloco mobile-sair em telas maiores */
+@media (min-width: 481px) {
 }
 
 /* ── CARD TÍTULO (igual ao login) ── */
@@ -757,10 +720,10 @@ def render_login():
                     width: 100% !important;
                     text-align: center !important;
                     display: block !important;
-                ">SEXTA-FEIRA</h1>
+                ">SEXTA&#8209;FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
+            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px; text-align: center; width: 100%;">Autenticação</p>', unsafe_allow_html=True)
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
@@ -1079,7 +1042,7 @@ def render_dashboard():
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO — subido ~60px acima
+    # TÍTULO CENTRALIZADO
     st.markdown("""
     <div style="text-align:center; margin-top:-60px; margin-bottom:12px;">
         <div class="titulo-card">
@@ -1111,23 +1074,18 @@ def render_dashboard():
 
     m1, m2, m3, m4, m5 = st.columns(5)
 
-    # ── PATRIMÔNIO: anel proporcional ao uso real da conta ──
+    # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
     _usage_pct = 0.0
     try:
-        if equity > 0:
-            if available > 0:
-                # Caso normal: calcula % alocado
-                _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
-            elif available == 0:
-                # available=0 com equity>0 = conta 100% alocada (comportamento OKX real)
-                # No local (sem API) equity=0 → não entra aqui → círculo vazio. Correto.
-                if len(positions) > 0:
-                    # Estima pelo nocional das posições abertas
-                    _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
-                    _usage_pct = max(0.0, min(100.0, (_pos_val / equity) * 100)) if _pos_val > 0 else 100.0
-                else:
-                    # Sem posições mas available=0: mostra 100% por segurança
-                    _usage_pct = 100.0
+        if equity > 0 and available > 0:
+            # Calcula percentual alocado normalmente
+            _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
+        elif equity > 0 and available == 0 and len(positions) > 0:
+            # available=0 no Render (filesystem efêmero) mas há posições: estima pelo nocional
+            _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
+            if _pos_val > 0:
+                _usage_pct = max(0.0, min(95.0, (_pos_val / equity) * 100))
+        # equity=0 → círculo vazio (0%) — correto no ambiente local
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
