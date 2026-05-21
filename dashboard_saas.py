@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO
+# CSS — GLASSMORPHISM + ANIMAÇÕES + MOBILE FIX
 # ==========================================
 st.markdown("""
 <style>
@@ -52,6 +52,34 @@ h1, h2, h3 {
     font-weight: 700 !important;
     text-shadow: 0 0 10px rgba(138,43,226,0.5);
     text-align: center;
+}
+
+/* ==========================================
+   CORREÇÃO MOBILE: BOTÃO SAIR FLUTUANTE
+   ========================================== */
+@media (max-width: 600px) {
+    .btn-sair-mobile {
+        position: fixed !important;
+        top: 65px !important; /* Distância do topo (evita a barra do navegador) */
+        right: 15px !important;
+        z-index: 99999 !important;
+        width: auto !important;
+    }
+    .btn-sair-mobile button {
+        background: rgba(255, 68, 68, 0.15) !important;
+        border: 1px solid #ff4444 !important;
+        color: #ff4444 !important;
+        padding: 6px 15px !important;
+        font-size: 11px !important;
+        border-radius: 20px !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-weight: bold !important;
+    }
+    
+    /* Ajustes extras para mobile */
+    .titulo-card { padding: 10px 15px !important; }
+    .titulo-card-text { font-size: 1.1rem !important; }
+    .admin-card { padding: 8px 12px !important; }
 }
 
 .login-container {
@@ -277,16 +305,17 @@ td {
 
 .stButton > button {
     border-radius: 8px !important;
-    border: 1px solid rgba(138,43,226,0.5) !important;
-    background: rgba(138,43,226,0.08) !important;
+    border: 1px solid #8A2BE2 !important;
+    background: rgba(138,43,226,0.1) !important;
     color: #fff !important;
     font-family: 'Orbitron', sans-serif !important;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .stButton > button:hover {
-    background: rgba(138,43,226,0.25) !important;
-    border-color: #8A2BE2 !important;
+    background: #8A2BE2 !important;
+    box-shadow: 0 0 15px #8A2BE2 !important;
     transform: translateY(-1px);
 }
 
@@ -332,71 +361,7 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══ RESPONSIVIDADE ══ */
-@media (max-width: 1024px) {
-    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
-}
-@media (max-width: 768px) {
-    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
-    .titulo-card { padding: 10px 12px !important; }
-    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
-    .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 9px !important; }
-    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
-    [data-testid="stMetric"] { padding: 10px !important; }
-    .status-value { font-size: 10px !important; }
-    .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 4px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
-    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-    
-    /* Botão Sair no mobile - reposicionar */
-    .btn-sair-mobile {
-        position: fixed !important;
-        top: 10px !important;
-        right: 10px !important;
-        z-index: 9999 !important;
-        width: auto !important;
-        padding: 8px 16px !important;
-        font-size: 0.8rem !important;
-    }
-}
-@media (max-width: 480px) {
-    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
-    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
-    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
-
-    /* Título: margem menor no mobile */
-    .titulo-sair-wrap { margin-top: 10px !important; }
-    
-    /* Botão Sair ainda mais compacto no mobile pequeno */
-    .btn-sair-mobile {
-        padding: 6px 12px !important;
-        font-size: 0.75rem !important;
-    }
-}
-
-/* Esconde bloco mobile-sair em telas maiores */
-@media (min-width: 769px) {
-    .btn-sair-mobile { display: none !important; }
-}
-
 /* ── CARD TÍTULO (igual ao login) ── */
-@keyframes barPingPong {
-    0%   { transform: translateX(-100%); }
-    50%  { transform: translateX(200%); }
-    50.001% { transform: translateX(200%); }
-    100% { transform: translateX(-100%); }
-}
-@keyframes barPingPongRev {
-    0%   { transform: translateX(200%); }
-    50%  { transform: translateX(-100%); }
-    50.001% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
-}
 .titulo-card {
     display: inline-block;
     background: rgba(13, 13, 13, 0.95);
@@ -427,6 +392,18 @@ hr {
     height: 3px;
     background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
     animation: barPingPongRev 2.8s ease-in-out infinite;
+}
+@keyframes barPingPong {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(200%); }
+    50.001% { transform: translateX(200%); }
+    100% { transform: translateX(-100%); }
+}
+@keyframes barPingPongRev {
+    0% { transform: translateX(200%); }
+    50% { transform: translateX(-100%); }
+    50.001% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -1050,13 +1027,14 @@ def render_dashboard():
     with col_esfera:
         components.html(sphere_html_interactive, height=420, scrolling=False)
 
+    # ✅ FIX: BOTÃO SAIR NO MOBILE (FLUTUANTE)
     with col_sair:
-        st.markdown("<div style='padding-top:20px;'>", unsafe_allow_html=True)
+        st.markdown('<div class="btn-sair-mobile">', unsafe_allow_html=True)
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     # ═══════════════════════════════════════════════════════════════
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
