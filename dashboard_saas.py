@@ -325,55 +325,16 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══ NAVBAR FIXA ══ */
-/* O Streamlit injeta este CSS no <head> do documento real — position:fixed funciona aqui */
-[data-testid="stAppViewContainer"] > .main::before {
-    content: '';
-    display: block;
-    height: 54px;
-}
-.sf-navbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 999999;
-    height: 54px;
-    background: rgba(5,5,5,0.97);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(138,43,226,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    box-shadow: 0 2px 32px rgba(138,43,226,0.25);
-}
-.sf-navbar-logo { width: 28px; height: 28px; flex-shrink: 0; }
-.sf-navbar-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #8A2BE2;
-    letter-spacing: 3px;
-    text-shadow: 0 0 16px rgba(138,43,226,0.8);
-    white-space: nowrap;
-}
-@media (max-width: 768px) {
-    .sf-navbar { height: 46px; }
-    .sf-navbar-title { font-size: 0.75rem; letter-spacing: 2px; }
-    .sf-navbar-logo { width: 22px; height: 22px; }
-}
-@media (max-width: 480px) {
-    .sf-navbar-title { font-size: 0.62rem; letter-spacing: 1.5px; }
-}
-
 /* ══ RESPONSIVIDADE ══ */
 @media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
     [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
     button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
 }
 @media (max-width: 768px) {
-    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-    .titulo-card { padding: 10px 16px !important; }
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
+    .titulo-card { padding: 10px 12px !important; }
+    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
     .admin-name { font-size: 11px !important; }
     .admin-label { font-size: 9px !important; }
     [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
@@ -386,8 +347,16 @@ hr {
     [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
 }
 @media (max-width: 480px) {
+    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
     [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
     button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
+
+    /* Título: margem menor no mobile */
+    .titulo-sair-wrap { margin-top: 10px !important; }
+}
+
+/* Esconde bloco mobile-sair em telas maiores */
+@media (min-width: 481px) {
 }
 
 /* ── CARD TÍTULO (igual ao login) ── */
@@ -437,19 +406,13 @@ hr {
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
     color: #8A2BE2;
-    font-size: 2.6rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    letter-spacing: 6px;
-    text-shadow: 0 0 20px rgba(138,43,226,0.9), 0 0 50px rgba(138,43,226,0.4);
+    letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(138,43,226,0.7);
     margin: 0;
     white-space: nowrap;
     text-align: center;
-}
-@media (max-width: 900px) {
-    .titulo-card-text { font-size: 1.7rem !important; letter-spacing: 3px !important; }
-}
-@media (max-width: 480px) {
-    .titulo-card-text { font-size: 1.1rem !important; letter-spacing: 2px !important; }
 }
 
 /* ── CARD ADMIN (esquerda) ── */
@@ -1053,49 +1016,40 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # ══ NAVBAR FIXA — HTML puro renderizado pelo Streamlit no documento real ══
-    st.markdown("""
-    <div class="sf-navbar">
-        <svg class="sf-navbar-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="sfG2" x1="0" y1="48" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#6d28d9"/>
-                    <stop offset="100%" stop-color="#c084fc"/>
-                </linearGradient>
-            </defs>
-            <polygon points="24,3 45,42 3,42" fill="none" stroke="url(#sfG2)" stroke-width="3.5" stroke-linejoin="round"/>
-            <polygon points="24,14 38,38 10,38" fill="rgba(138,43,226,0.13)" stroke="url(#sfG2)" stroke-width="1.5" stroke-linejoin="round"/>
-            <circle cx="24" cy="32" r="2.5" fill="#c084fc"/>
-        </svg>
-        <span class="sf-navbar-title">SEXTA&#8209;FEIRA&nbsp;ADVANCED</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── HEADER: admin card (esq) + botão Sair (dir) na mesma linha ──
-    col_admin, col_sair_btn = st.columns([5, 1])
-    with col_admin:
-        st.markdown(f"""
+    # ── HEADER: admin esquerda | sair direita — HTML puro (funciona em mobile/tablet/desktop)
+    st.markdown(f"""
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;
+                padding: 16px 8px 0; width:100%;">
         <div class="admin-card">
             <span class="admin-label">Conta VIP</span>
             <span class="admin-name">{uname}</span>
         </div>
-        """, unsafe_allow_html=True)
+        <div style="min-width:100px; max-width:140px;">
+            <!-- espaço reservado para o botão Sair do Streamlit -->
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Botão Sair alinhado à direita via coluna
+    _, col_sair_btn = st.columns([4, 1])
     with col_sair_btn:
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
 
-    # Esfera centralizada — logo abaixo do header
+    # Esfera centralizada
     _, col_esfera, _ = st.columns([1, 2, 1])
     with col_esfera:
         components.html(sphere_html_interactive, height=420, scrolling=False)
     # ═══════════════════════════════════════════════════════════════
+    # FIM DA ESFERA 3D INTERATIVA
+    # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO — maior, logo abaixo da esfera
+    # TÍTULO CENTRALIZADO
     st.markdown("""
-    <div style="text-align:center; margin-top:-45px; margin-bottom:16px;">
-        <div class="titulo-card" style="padding: 20px 60px;">
+    <div style="text-align:center; margin-top:-60px; margin-bottom:12px;">
+        <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
     </div>
