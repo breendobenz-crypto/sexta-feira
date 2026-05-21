@@ -325,38 +325,135 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══ RESPONSIVIDADE ══ */
-@media (max-width: 1024px) {
-    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
+/* ══ NAVBAR FIXA ══ */
+.sf-navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    height: 52px;
+    background: rgba(5,5,5,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(138,43,226,0.35);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+}
+.sf-navbar-logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #8A2BE2, #5b21b6);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: #fff;
+    letter-spacing: 0;
+    box-shadow: 0 0 12px rgba(138,43,226,0.5);
+    flex-shrink: 0;
+}
+.sf-navbar-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #c4b5fd;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+.sf-navbar-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.sf-navbar-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+/* Empurra o conteúdo abaixo da navbar */
+.block-container {
+    padding-top: 68px !important;
+}
+
+/* ══ TÍTULO MAIOR ══ */
+.titulo-card-text {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #8A2BE2 !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 4px !important;
+    text-shadow: 0 0 15px rgba(138,43,226,0.7) !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+}
+
+/* ══ RESPONSIVIDADE COMPLETA ══ */
+
+/* DESKTOP LARGO (>1200px) */
+@media (min-width: 1200px) {
+    .titulo-card-text { font-size: 2rem !important; letter-spacing: 4px !important; }
+    .sf-navbar-name { font-size: 14px !important; }
+}
+
+/* DESKTOP NORMAL (1024–1199px) */
+@media (max-width: 1199px) and (min-width: 1024px) {
+    .titulo-card-text { font-size: 1.7rem !important; letter-spacing: 3px !important; }
     [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
     button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
 }
-@media (max-width: 768px) {
-    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
-    .titulo-card { padding: 10px 12px !important; }
-    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
+
+/* TABLET (768–1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .titulo-card-text { font-size: 1.4rem !important; letter-spacing: 2px !important; }
+    .titulo-card { padding: 12px 24px !important; }
+    .admin-name { font-size: 12px !important; }
+    [data-testid="stMetricValue"] { font-size: 0.95rem !important; }
+    [data-testid="stMetric"] { padding: 12px !important; }
+    .status-value { font-size: 11px !important; }
+    .status-box { padding: 8px 6px !important; }
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
+    .sf-navbar-name { font-size: 12px !important; }
+}
+
+/* MOBILE GRANDE (480–767px) */
+@media (max-width: 767px) and (min-width: 480px) {
+    .block-container { padding-left: 0.6rem !important; padding-right: 0.6rem !important; }
+    .titulo-card-text { font-size: 1.1rem !important; letter-spacing: 1.5px !important; }
+    .titulo-card { padding: 10px 18px !important; }
     .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 9px !important; }
+    .admin-label { font-size: 8px !important; }
     [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
-    [data-testid="stMetric"] { padding: 10px !important; }
-    .status-value { font-size: 10px !important; }
-    .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 4px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
-    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-}
-@media (max-width: 480px) {
-    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
-    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
+    [data-testid="stMetric"] { padding: 8px !important; }
+    .status-value { font-size: 9px !important; }
+    .status-label { font-size: 7px !important; }
+    .status-box { padding: 6px 3px !important; }
     button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
-
-    /* Título: margem menor no mobile */
-    .titulo-sair-wrap { margin-top: 10px !important; }
+    .sf-navbar-name { font-size: 11px !important; letter-spacing: 1px !important; }
 }
 
-/* Esconde bloco mobile-sair em telas maiores */
-@media (min-width: 481px) {
+/* MOBILE PEQUENO (<480px) */
+@media (max-width: 479px) {
+    .block-container { padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+    .titulo-card-text { font-size: clamp(0.85rem, 4.5vw, 1rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
+    .titulo-card { padding: 8px 14px !important; }
+    .admin-name { font-size: 10px !important; }
+    .admin-label { font-size: 7px !important; }
+    .admin-card { padding: 6px 10px !important; }
+    [data-testid="stMetricValue"] { font-size: 0.78rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.58rem !important; }
+    [data-testid="stMetric"] { padding: 6px !important; }
+    .status-value { font-size: 8px !important; }
+    .status-label { font-size: 6px !important; }
+    .status-box { padding: 5px 2px !important; }
+    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 3px !important; }
+    [data-testid="stTabs"] { padding: 3px 2px 0 2px !important; }
+    .section-title-box { font-size: 11px !important; padding: 10px 12px !important; }
+    .sf-navbar-name { display: none !important; }
 }
 
 /* ── CARD TÍTULO (igual ao login) ── */
@@ -382,37 +479,6 @@ hr {
     animation: slideIn 0.5s ease-out;
     position: relative;
     overflow: hidden;
-}
-.titulo-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
-    animation: barPingPong 2.8s ease-in-out infinite;
-}
-.titulo-card::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
-    animation: barPingPongRev 2.8s ease-in-out infinite;
-}
-.titulo-card-text {
-    font-family: 'Orbitron', sans-serif;
-    color: #8A2BE2;
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-shadow: 0 0 15px rgba(138,43,226,0.7);
-    margin: 0;
-    white-space: nowrap;
-    text-align: center;
 }
 
 /* ── CARD ADMIN (esquerda) ── */
@@ -1016,39 +1082,49 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # ── HEADER: admin esquerda | sair direita — HTML puro (funciona em mobile/tablet/desktop)
+    # ── NAVBAR FIXA (logo + nome + status online) ─────────────────
+    _nav_dot_color = "#4ade80" if _bot_online else "#6b7280"
+    _nav_status    = "ONLINE" if _bot_online else "OFFLINE"
     st.markdown(f"""
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;
-                padding: 16px 8px 0; width:100%;">
-        <div class="admin-card">
-            <span class="admin-label">Conta VIP</span>
-            <span class="admin-name">{uname}</span>
-        </div>
-        <div style="min-width:100px; max-width:140px;">
-            <!-- espaço reservado para o botão Sair do Streamlit -->
-        </div>
+    <div class="sf-navbar">
+        <div class="sf-navbar-logo">SF</div>
+        <span class="sf-navbar-name">SEXTA&#8209;FEIRA</span>
+        <span class="sf-navbar-status">&nbsp;·&nbsp; {_nav_status}</span>
+        <div class="sf-navbar-dot" style="background:{_nav_dot_color};
+            box-shadow:0 0 6px {_nav_dot_color};"></div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Botão Sair alinhado à direita via coluna
-    _, col_sair_btn = st.columns([4, 1])
-    with col_sair_btn:
+    # ── HEADER: admin esquerda | sair direita — alinhados na mesma linha ─
+    col_admin_h, col_sair_h = st.columns([3, 1])
+    with col_admin_h:
+        st.markdown(f"""
+        <div style="padding-top:10px;">
+            <div class="admin-card">
+                <span class="admin-label">Conta VIP</span>
+                <span class="admin-name">{uname}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_sair_h:
+        st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # Esfera centralizada
+    # ── ESFERA centralizada — margem reduzida para ficar próxima do admin ─
     _, col_esfera, _ = st.columns([1, 2, 1])
     with col_esfera:
-        components.html(sphere_html_interactive, height=420, scrolling=False)
+        components.html(sphere_html_interactive, height=400, scrolling=False)
     # ═══════════════════════════════════════════════════════════════
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO
+    # TÍTULO CENTRALIZADO — maior e sem margin negativa excessiva
     st.markdown("""
-    <div style="text-align:center; margin-top:-60px; margin-bottom:12px;">
+    <div style="text-align:center; margin-top:-40px; margin-bottom:14px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
