@@ -39,7 +39,6 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* ===== BASE ===== */
 .stApp { 
     background-color: #050505; 
     font-family: 'Inter', sans-serif;
@@ -55,7 +54,6 @@ h1, h2, h3 {
     text-align: center;
 }
 
-/* ===== LOGIN ===== */
 .login-container {
     max-width: 450px;
     margin: 60px auto 0;
@@ -118,16 +116,13 @@ div[data-testid="stFormSubmitButton"] button:hover {
     100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
 }
 
-input[type="text"], input[type="password"], select, textarea {
+input[type="text"], input[type="password"] {
     background-color: rgba(255,255,255,0.05) !important;
     border: 1px solid #444 !important;
     color: white !important;
     border-radius: 8px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
 }
 
-/* ===== MÉTRICAS ===== */
 [data-testid="stMetric"] {
     background-color: rgba(17, 17, 17, 0.6) !important;
     backdrop-filter: blur(10px) !important;
@@ -163,7 +158,6 @@ input[type="text"], input[type="password"], select, textarea {
     font-size: 0.8rem !important; 
 }
 
-/* ===== STATUS BOXES ===== */
 .status-box {
     padding: 12px; 
     border-radius: 8px; 
@@ -197,7 +191,6 @@ input[type="text"], input[type="password"], select, textarea {
     font-family: 'Orbitron', sans-serif; 
 }
 
-/* ===== BOT STATUS ===== */
 .bot-status-online {
     display: inline-flex;
     align-items: center;
@@ -231,7 +224,6 @@ input[type="text"], input[type="password"], select, textarea {
     font-size: 0.85em;
 }
 
-/* ===== TABELAS ===== */
 th { 
     color: #8A2BE2 !important; 
     background: #050505 !important; 
@@ -248,11 +240,9 @@ td {
 [data-testid="stDataFrame"] { 
     border-radius: 10px !important; 
     border: 1px solid #333 !important; 
-    overflow-x: auto !important;
-    overflow-y: visible !important;
+    overflow: hidden; 
 }
 
-/* ===== TERMINAL IA ===== */
 .thinking-box {
     background: #020202 !important;
     border: 1px solid #333 !important;
@@ -285,7 +275,6 @@ td {
     animation: slideIn 0.4s ease-out;
 }
 
-/* ===== BOTÕES ===== */
 .stButton > button {
     border-radius: 8px !important;
     border: 1px solid rgba(138,43,226,0.5) !important;
@@ -301,7 +290,6 @@ td {
     transform: translateY(-1px);
 }
 
-/* ===== TRADINGVIEW ===== */
 .tradingview-widget-container {
     border: 1px solid rgba(138,43,226,0.3) !important;
     border-radius: 12px !important; 
@@ -316,7 +304,6 @@ td {
     box-shadow: 0 0 30px rgba(138,43,226,0.3) !important;
 }
 
-/* ===== SEÇÕES CONFIG ===== */
 .config-section {
     background: rgba(17, 17, 17, 0.6);
     border: 1px solid rgba(138,43,226,0.3);
@@ -338,7 +325,6 @@ hr {
     margin: 20px 0;
 }
 
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 4px; }
@@ -346,11 +332,71 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ═══════════════════════════════════════════════════════════════
-   COMPONENTES ESPECÍFICOS
-   ═══════════════════════════════════════════════════════════════ */
+/* ══ RESPONSIVIDADE ══ */
+@media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
+}
+@media (max-width: 768px) {
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
+    .titulo-card { padding: 10px 12px !important; }
+    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
+    .admin-name { font-size: 11px !important; }
+    .admin-label { font-size: 9px !important; }
+    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    [data-testid="stMetric"] { padding: 10px !important; }
+    .status-value { font-size: 10px !important; }
+    .status-label { font-size: 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+    
+    /* Botão Sair no mobile - reposicionar */
+    .btn-sair-mobile {
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 9999 !important;
+        width: auto !important;
+        padding: 8px 16px !important;
+        font-size: 0.8rem !important;
+    }
+}
+@media (max-width: 480px) {
+    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
+    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
+    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
 
-/* ── CARD TÍTULO ── */
+    /* Título: margem menor no mobile */
+    .titulo-sair-wrap { margin-top: 10px !important; }
+    
+    /* Botão Sair ainda mais compacto no mobile pequeno */
+    .btn-sair-mobile {
+        padding: 6px 12px !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Esconde bloco mobile-sair em telas maiores */
+@media (min-width: 769px) {
+    .btn-sair-mobile { display: none !important; }
+}
+
+/* ── CARD TÍTULO (igual ao login) ── */
+@keyframes barPingPong {
+    0%   { transform: translateX(-100%); }
+    50%  { transform: translateX(200%); }
+    50.001% { transform: translateX(200%); }
+    100% { transform: translateX(-100%); }
+}
+@keyframes barPingPongRev {
+    0%   { transform: translateX(200%); }
+    50%  { transform: translateX(-100%); }
+    50.001% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
 .titulo-card {
     display: inline-block;
     background: rgba(13, 13, 13, 0.95);
@@ -365,30 +411,22 @@ hr {
 .titulo-card::after {
     content: '';
     position: absolute;
-    top: 0; left: 0;
-    width: 50%; height: 3px;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 3px;
     background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
     animation: barPingPong 2.8s ease-in-out infinite;
 }
 .titulo-card::before {
     content: '';
     position: absolute;
-    bottom: 0; left: 0;
-    width: 50%; height: 3px;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 3px;
     background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
     animation: barPingPongRev 2.8s ease-in-out infinite;
-}
-@keyframes barPingPong {
-    0% { transform: translateX(-100%); }
-    50% { transform: translateX(200%); }
-    50.001% { transform: translateX(200%); }
-    100% { transform: translateX(-100%); }
-}
-@keyframes barPingPongRev {
-    0% { transform: translateX(200%); }
-    50% { transform: translateX(-100%); }
-    50.001% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -402,7 +440,7 @@ hr {
     text-align: center;
 }
 
-/* ── CARD ADMIN ── */
+/* ── CARD ADMIN (esquerda) ── */
 .admin-card {
     background: rgba(26, 11, 46, 0.7);
     border: 1px solid rgba(138,43,226,0.4);
@@ -428,7 +466,7 @@ hr {
     letter-spacing: 1px;
 }
 
-/* ── TABS ── */
+/* ── TABS COM CARD ── */
 .tabs-card-wrap {
     background: rgba(17, 17, 17, 0.6);
     border: 1px solid rgba(138,43,226,0.3);
@@ -455,201 +493,6 @@ button[data-baseweb="tab"]:hover {
 button[data-baseweb="tab"][aria-selected="true"] {
     color: #fff !important;
     background: rgba(138,43,226,0.3) !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVIDADE — SMARTPHONE / TABLET / DESKTOP
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── TABLET (≤1024px) ── */
-@media (max-width: 1024px) {
-    .titulo-card-text { font-size: 1.3rem !important; letter-spacing: 2px !important; }
-    .titulo-card { padding: 12px 30px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.2rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
-    [data-testid="stMetric"] { padding: 15px !important; }
-    .status-value { font-size: 12px !important; }
-    .status-label { font-size: 9px !important; }
-    .status-box { padding: 10px 6px !important; }
-    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 10px !important; }
-    .admin-name { font-size: 13px !important; }
-    .admin-label { font-size: 9px !important; }
-    .m1-wrap svg { width: 140px !important; height: 140px !important; }
-    .m1-wrap text { font-size: 8px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 14px !important; }
-}
-
-/* ── MOBILE LANDSCAPE / SMALL TABLET (≤768px) ── */
-@media (max-width: 768px) {
-    /* Container principal */
-    .block-container { 
-        padding-left: 0.75rem !important; 
-        padding-right: 0.75rem !important; 
-        padding-top: 0.5rem !important; 
-    }
-    
-    /* Título */
-    .titulo-card { padding: 10px 20px !important; }
-    .titulo-card-text { 
-        font-size: clamp(0.9rem, 4vw, 1.2rem) !important; 
-        letter-spacing: 1.5px !important; 
-        white-space: nowrap !important; 
-    }
-    
-    /* Admin card */
-    .admin-card { padding: 8px 12px !important; }
-    .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 8px !important; }
-    
-    /* Métricas */
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
-    [data-testid="stMetric"] { padding: 12px !important; }
-    
-    /* Status boxes */
-    .status-value { font-size: 11px !important; }
-    .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 4px !important; }
-    
-    /* Tabs */
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
-    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-    
-    /* SVG Ring Equity */
-    .m1-wrap svg { width: 120px !important; height: 120px !important; }
-    .m1-wrap text { font-size: 7px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 13px !important; }
-    
-    /* Sphere 3D */
-    #equity-display, #status-bar, #task-text { font-size: 10px !important; }
-    
-    /* Tabelas */
-    [data-testid="stDataFrame"] { font-size: 11px !important; }
-    
-    /* Botões */
-    .stButton > button { font-size: 0.9rem !important; padding: 10px !important; }
-    
-    /* Forms */
-    input, select, textarea { font-size: 14px !important; padding: 10px !important; }
-}
-
-/* ── SMARTPHONE PORTRAIT (≤480px) ── */
-@media (max-width: 480px) {
-    /* Título */
-    .titulo-card-text { 
-        font-size: clamp(0.75rem, 3.5vw, 1rem) !important; 
-        white-space: nowrap !important; 
-        letter-spacing: 1px !important;
-    }
-    .titulo-card { padding: 8px 15px !important; border-radius: 12px !important; }
-    
-    /* Métricas — empilhar verticalmente via flex-wrap */
-    [data-testid="stMetric"] { 
-        width: 100% !important; 
-        margin-bottom: 8px !important; 
-        padding: 10px !important;
-    }
-    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
-    
-    /* Status boxes — empilhar */
-    .status-box { width: 100% !important; margin-bottom: 4px !important; }
-    .status-value { font-size: 10px !important; }
-    .status-label { font-size: 7px !important; }
-    
-    /* Tabs — scroll horizontal */
-    button[data-baseweb="tab"] { 
-        font-size: 8px !important; 
-        padding: 4px 6px !important; 
-        white-space: nowrap !important;
-    }
-    [data-testid="stTabs"] { overflow-x: auto !important; padding-bottom: 4px !important; }
-    
-    /* SVG Ring */
-    .m1-wrap svg { width: 100px !important; height: 100px !important; }
-    .m1-wrap text { font-size: 6px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
-    
-    /* Sphere 3D */
-    #equity-display, #status-bar, #task-text { font-size: 9px !important; }
-    
-    /* Tabelas — scroll horizontal */
-    [data-testid="stDataFrame"] { 
-        font-size: 10px !important; 
-        overflow-x: auto !important;
-        max-width: 100vw !important;
-    }
-    
-    /* Botões full width */
-    .stButton > button { 
-        width: 100% !important; 
-        font-size: 0.85rem !important; 
-        padding: 8px !important;
-    }
-    
-    /* Forms */
-    input, select, textarea { 
-        font-size: 13px !important; 
-        padding: 8px !important;
-    }
-    
-    /* Admin card */
-    .admin-name { font-size: 10px !important; }
-    .admin-label { font-size: 7px !important; }
-    
-    /* Seções de configuração */
-    .section-title-box { 
-        font-size: 13px !important; 
-        padding: 12px 15px !important;
-        letter-spacing: 1px !important;
-    }
-    
-    /* Histórico de trades */
-    .hist-item { 
-        font-size: 11px !important; 
-        padding: 6px 8px !important;
-        flex-wrap: wrap !important;
-    }
-    
-    /* Bot status */
-    .bot-status-online, .bot-status-offline { 
-        font-size: 10px !important; 
-        padding: 4px 10px !important;
-    }
-}
-
-/* ── SMARTPHONE MUITO PEQUENO (≤320px) ── */
-@media (max-width: 320px) {
-    .titulo-card-text { font-size: 0.7rem !important; }
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    .m1-wrap svg { width: 90px !important; height: 90px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 11px !important; }
-    button[data-baseweb="tab"] { font-size: 7px !important; padding: 3px 5px !important; }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   UTILITÁRIOS RESPONSIVOS STREAMLIT
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Forçar que colunas se ajustem no mobile */
-@media (max-width: 768px) {
-    .stColumns > div { 
-        flex: 1 1 100% !important; 
-        max-width: 100% !important; 
-        margin-bottom: 10px !important;
-    }
-}
-
-/* Garantir que gráficos Plotly sejam responsivos */
-.plotly-chart-container {
-    width: 100% !important;
-    max-width: 100vw !important;
-    overflow-x: auto !important;
-}
-
-/* Ajustar altura do TradingView no mobile */
-@media (max-width: 480px) {
-    .tradingview-widget-container { height: 400px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1064,7 +907,6 @@ def render_dashboard():
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
   #status-bar {{
@@ -1333,6 +1175,7 @@ def render_dashboard():
         padding: 8px 12px 0 12px !important;
         backdrop-filter: blur(8px);
     }
+    /* Remove borda inferior padrão do Streamlit nas tabs */
     [data-testid="stTabs"] > div:first-child {
         border-bottom: 1px solid rgba(138,43,226,0.2) !important;
         padding-bottom: 2px;
