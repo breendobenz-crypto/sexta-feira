@@ -1027,10 +1027,9 @@ def render_dashboard():
     with col_esfera:
         components.html(sphere_html_interactive, height=420, scrolling=False)
 
-    # ✅ FIX: BOTÃO SAIR NO MOBILE (FLUTUANTE)
     with col_sair:
-        st.markdown('<div class="btn-sair-mobile">', unsafe_allow_html=True)
-        if st.button("Sair", use_container_width=True, key="btn_sair"):
+        st.markdown('<div class="btn-sair-desktop" style="padding-top:20px;">', unsafe_allow_html=True)
+        if st.button("Sair", use_container_width=True, key="btn_sair_desk"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
@@ -1041,12 +1040,41 @@ def render_dashboard():
 
     # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin: -112px 0 18px;">
+    <style>
+    /* Mobile (≤768px):
+       - Esconde a coluna col_sair inteira (3ª coluna) que tem o botão desktop
+       - O botão abaixo do título fica visível normalmente */
+    @media (max-width: 768px) {
+        div[data-testid="column"]:nth-child(3) { visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
+        .btn-sair-below > div[data-testid="stButton"] { margin-top: 80px !important; }
+    }
+    /* Desktop (≥769px):
+       - Esconde o stButton que vem logo após o título (botão mobile) */
+    @media (min-width: 769px) {
+        div[data-testid="stVerticalBlock"] > div[data-testid="stButton"]:last-of-type { display: none !important; }
+    }
+    </style>
+    <div style="text-align:center; margin: 8px 0 0;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Espaçador visível apenas no mobile para empurrar o botão Sair para baixo
+    st.markdown("""
+    <div style="height: 80px;" class="spacer-mobile-sair"></div>
+    <style>
+    @media (min-width: 769px) { .spacer-mobile-sair { display: none !important; } }
+    </style>
+    """, unsafe_allow_html=True)
+    # Botão Sair abaixo do título — só aparece no mobile
+    st.markdown('<div class="btn-sair-below">', unsafe_allow_html=True)
+    if st.button("Sair", use_container_width=True, key="btn_sair"):
+        for k in ["logged_in", "user_id", "user_email", "user_name"]:
+            st.session_state.pop(k, None)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
