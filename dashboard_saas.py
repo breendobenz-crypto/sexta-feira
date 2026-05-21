@@ -33,12 +33,13 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES
+# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO
 # ==========================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
+/* ===== BASE ===== */
 .stApp { 
     background-color: #050505; 
     font-family: 'Inter', sans-serif;
@@ -54,6 +55,7 @@ h1, h2, h3 {
     text-align: center;
 }
 
+/* ===== LOGIN ===== */
 .login-container {
     max-width: 450px;
     margin: 60px auto 0;
@@ -96,26 +98,36 @@ div[data-testid="stFormSubmitButton"] button {
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     font-size: 1.1rem;
-    border-radius: 8px !important; 
+    border-radius: 8px !important;  
     width: 100% !important;
     padding: 12px !important;
     margin-top: 15px;
     border: none !important;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    animation: pulsePurple 2s infinite alternate;
 }
 
 div[data-testid="stFormSubmitButton"] button:hover {
-    background-color: #7c22cc !important;
-    transform: translateY(-1px);
+    background-color: #9d4edd !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px #8A2BE2;
 }
 
-input[type="text"], input[type="password"] {
+@keyframes pulsePurple {
+    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+}
+
+input[type="text"], input[type="password"], select, textarea {
     background-color: rgba(255,255,255,0.05) !important;
     border: 1px solid #444 !important;
     color: white !important;
     border-radius: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
+/* ===== MÉTRICAS ===== */
 [data-testid="stMetric"] {
     background-color: rgba(17, 17, 17, 0.6) !important;
     backdrop-filter: blur(10px) !important;
@@ -151,6 +163,7 @@ input[type="text"], input[type="password"] {
     font-size: 0.8rem !important; 
 }
 
+/* ===== STATUS BOXES ===== */
 .status-box {
     padding: 12px; 
     border-radius: 8px; 
@@ -184,6 +197,7 @@ input[type="text"], input[type="password"] {
     font-family: 'Orbitron', sans-serif; 
 }
 
+/* ===== BOT STATUS ===== */
 .bot-status-online {
     display: inline-flex;
     align-items: center;
@@ -217,6 +231,7 @@ input[type="text"], input[type="password"] {
     font-size: 0.85em;
 }
 
+/* ===== TABELAS ===== */
 th { 
     color: #8A2BE2 !important; 
     background: #050505 !important; 
@@ -233,9 +248,11 @@ td {
 [data-testid="stDataFrame"] { 
     border-radius: 10px !important; 
     border: 1px solid #333 !important; 
-    overflow: hidden; 
+    overflow-x: auto !important;
+    overflow-y: visible !important;
 }
 
+/* ===== TERMINAL IA ===== */
 .thinking-box {
     background: #020202 !important;
     border: 1px solid #333 !important;
@@ -268,6 +285,7 @@ td {
     animation: slideIn 0.4s ease-out;
 }
 
+/* ===== BOTÕES ===== */
 .stButton > button {
     border-radius: 8px !important;
     border: 1px solid rgba(138,43,226,0.5) !important;
@@ -283,6 +301,7 @@ td {
     transform: translateY(-1px);
 }
 
+/* ===== TRADINGVIEW ===== */
 .tradingview-widget-container {
     border: 1px solid rgba(138,43,226,0.3) !important;
     border-radius: 12px !important; 
@@ -297,6 +316,7 @@ td {
     box-shadow: 0 0 30px rgba(138,43,226,0.3) !important;
 }
 
+/* ===== SEÇÕES CONFIG ===== */
 .config-section {
     background: rgba(17, 17, 17, 0.6);
     border: 1px solid rgba(138,43,226,0.3);
@@ -318,6 +338,7 @@ hr {
     margin: 20px 0;
 }
 
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 4px; }
@@ -325,53 +346,11 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ══ RESPONSIVIDADE ══ */
-@media (max-width: 1024px) {
-    .titulo-card-text { font-size: 1.2rem !important; letter-spacing: 2px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 8px !important; }
-}
-@media (max-width: 768px) {
-    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
-    .titulo-card { padding: 10px 12px !important; }
-    .titulo-card-text { font-size: clamp(0.85rem, 4vw, 1.2rem) !important; letter-spacing: 1px !important; white-space: nowrap !important; }
-    .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 9px !important; }
-    [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
-    [data-testid="stMetric"] { padding: 10px !important; }
-    .status-value { font-size: 10px !important; }
-    .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 4px !important; }
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 6px !important; }
-    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-}
-@media (max-width: 480px) {
-    .titulo-card-text { font-size: clamp(0.75rem, 3.5vw, 1rem) !important; white-space: nowrap !important; }
-    [data-testid="stMetricValue"] { font-size: 0.8rem !important; }
-    button[data-baseweb="tab"] { font-size: 8px !important; padding: 4px 5px !important; }
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENTES ESPECÍFICOS
+   ═══════════════════════════════════════════════════════════════ */
 
-    /* Título: margem menor no mobile */
-    .titulo-sair-wrap { margin-top: 10px !important; }
-}
-
-/* Esconde bloco mobile-sair em telas maiores */
-@media (min-width: 481px) {
-}
-
-/* ── CARD TÍTULO (igual ao login) ── */
-@keyframes barPingPong {
-    0%   { transform: translateX(-100%); }
-    50%  { transform: translateX(200%); }
-    50.001% { transform: translateX(200%); }
-    100% { transform: translateX(-100%); }
-}
-@keyframes barPingPongRev {
-    0%   { transform: translateX(200%); }
-    50%  { transform: translateX(-100%); }
-    50.001% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
-}
+/* ── CARD TÍTULO ── */
 .titulo-card {
     display: inline-block;
     background: rgba(13, 13, 13, 0.95);
@@ -386,22 +365,30 @@ hr {
 .titulo-card::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
+    top: 0; left: 0;
+    width: 50%; height: 3px;
     background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
     animation: barPingPong 2.8s ease-in-out infinite;
 }
 .titulo-card::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
+    bottom: 0; left: 0;
+    width: 50%; height: 3px;
     background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
     animation: barPingPongRev 2.8s ease-in-out infinite;
+}
+@keyframes barPingPong {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(200%); }
+    50.001% { transform: translateX(200%); }
+    100% { transform: translateX(-100%); }
+}
+@keyframes barPingPongRev {
+    0% { transform: translateX(200%); }
+    50% { transform: translateX(-100%); }
+    50.001% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -415,7 +402,7 @@ hr {
     text-align: center;
 }
 
-/* ── CARD ADMIN (esquerda) ── */
+/* ── CARD ADMIN ── */
 .admin-card {
     background: rgba(26, 11, 46, 0.7);
     border: 1px solid rgba(138,43,226,0.4);
@@ -441,7 +428,7 @@ hr {
     letter-spacing: 1px;
 }
 
-/* ── TABS COM CARD ── */
+/* ── TABS ── */
 .tabs-card-wrap {
     background: rgba(17, 17, 17, 0.6);
     border: 1px solid rgba(138,43,226,0.3);
@@ -468,6 +455,201 @@ button[data-baseweb="tab"]:hover {
 button[data-baseweb="tab"][aria-selected="true"] {
     color: #fff !important;
     background: rgba(138,43,226,0.3) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVIDADE — SMARTPHONE / TABLET / DESKTOP
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── TABLET (≤1024px) ── */
+@media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.3rem !important; letter-spacing: 2px !important; }
+    .titulo-card { padding: 12px 30px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.2rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
+    [data-testid="stMetric"] { padding: 15px !important; }
+    .status-value { font-size: 12px !important; }
+    .status-label { font-size: 9px !important; }
+    .status-box { padding: 10px 6px !important; }
+    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 10px !important; }
+    .admin-name { font-size: 13px !important; }
+    .admin-label { font-size: 9px !important; }
+    .m1-wrap svg { width: 140px !important; height: 140px !important; }
+    .m1-wrap text { font-size: 8px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 14px !important; }
+}
+
+/* ── MOBILE LANDSCAPE / SMALL TABLET (≤768px) ── */
+@media (max-width: 768px) {
+    /* Container principal */
+    .block-container { 
+        padding-left: 0.75rem !important; 
+        padding-right: 0.75rem !important; 
+        padding-top: 0.5rem !important; 
+    }
+    
+    /* Título */
+    .titulo-card { padding: 10px 20px !important; }
+    .titulo-card-text { 
+        font-size: clamp(0.9rem, 4vw, 1.2rem) !important; 
+        letter-spacing: 1.5px !important; 
+        white-space: nowrap !important; 
+    }
+    
+    /* Admin card */
+    .admin-card { padding: 8px 12px !important; }
+    .admin-name { font-size: 11px !important; }
+    .admin-label { font-size: 8px !important; }
+    
+    /* Métricas */
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
+    [data-testid="stMetric"] { padding: 12px !important; }
+    
+    /* Status boxes */
+    .status-value { font-size: 11px !important; }
+    .status-label { font-size: 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+    
+    /* Tabs */
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+    
+    /* SVG Ring Equity */
+    .m1-wrap svg { width: 120px !important; height: 120px !important; }
+    .m1-wrap text { font-size: 7px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 13px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 10px !important; }
+    
+    /* Tabelas */
+    [data-testid="stDataFrame"] { font-size: 11px !important; }
+    
+    /* Botões */
+    .stButton > button { font-size: 0.9rem !important; padding: 10px !important; }
+    
+    /* Forms */
+    input, select, textarea { font-size: 14px !important; padding: 10px !important; }
+}
+
+/* ── SMARTPHONE PORTRAIT (≤480px) ── */
+@media (max-width: 480px) {
+    /* Título */
+    .titulo-card-text { 
+        font-size: clamp(0.75rem, 3.5vw, 1rem) !important; 
+        white-space: nowrap !important; 
+        letter-spacing: 1px !important;
+    }
+    .titulo-card { padding: 8px 15px !important; border-radius: 12px !important; }
+    
+    /* Métricas — empilhar verticalmente via flex-wrap */
+    [data-testid="stMetric"] { 
+        width: 100% !important; 
+        margin-bottom: 8px !important; 
+        padding: 10px !important;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    
+    /* Status boxes — empilhar */
+    .status-box { width: 100% !important; margin-bottom: 4px !important; }
+    .status-value { font-size: 10px !important; }
+    .status-label { font-size: 7px !important; }
+    
+    /* Tabs — scroll horizontal */
+    button[data-baseweb="tab"] { 
+        font-size: 8px !important; 
+        padding: 4px 6px !important; 
+        white-space: nowrap !important;
+    }
+    [data-testid="stTabs"] { overflow-x: auto !important; padding-bottom: 4px !important; }
+    
+    /* SVG Ring */
+    .m1-wrap svg { width: 100px !important; height: 100px !important; }
+    .m1-wrap text { font-size: 6px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 9px !important; }
+    
+    /* Tabelas — scroll horizontal */
+    [data-testid="stDataFrame"] { 
+        font-size: 10px !important; 
+        overflow-x: auto !important;
+        max-width: 100vw !important;
+    }
+    
+    /* Botões full width */
+    .stButton > button { 
+        width: 100% !important; 
+        font-size: 0.85rem !important; 
+        padding: 8px !important;
+    }
+    
+    /* Forms */
+    input, select, textarea { 
+        font-size: 13px !important; 
+        padding: 8px !important;
+    }
+    
+    /* Admin card */
+    .admin-name { font-size: 10px !important; }
+    .admin-label { font-size: 7px !important; }
+    
+    /* Seções de configuração */
+    .section-title-box { 
+        font-size: 13px !important; 
+        padding: 12px 15px !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* Histórico de trades */
+    .hist-item { 
+        font-size: 11px !important; 
+        padding: 6px 8px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    /* Bot status */
+    .bot-status-online, .bot-status-offline { 
+        font-size: 10px !important; 
+        padding: 4px 10px !important;
+    }
+}
+
+/* ── SMARTPHONE MUITO PEQUENO (≤320px) ── */
+@media (max-width: 320px) {
+    .titulo-card-text { font-size: 0.7rem !important; }
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    .m1-wrap svg { width: 90px !important; height: 90px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 11px !important; }
+    button[data-baseweb="tab"] { font-size: 7px !important; padding: 3px 5px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITÁRIOS RESPONSIVOS STREAMLIT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Forçar que colunas se ajustem no mobile */
+@media (max-width: 768px) {
+    .stColumns > div { 
+        flex: 1 1 100% !important; 
+        max-width: 100% !important; 
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Garantir que gráficos Plotly sejam responsivos */
+.plotly-chart-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+}
+
+/* Ajustar altura do TradingView no mobile */
+@media (max-width: 480px) {
+    .tradingview-widget-container { height: 400px !important; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -704,29 +886,20 @@ def render_login():
                 max-width: 450px;
                 margin: 50px auto;
                 text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
             ">
                 <h1 style="
-                    font-family: 'Orbitron', sans-serif !important;
-                    color: #8A2BE2 !important;
-                    font-size: clamp(0.75rem, 3.8vw, 2rem) !important;
-                    margin: 0 !important;
-                    font-weight: bold !important;
-                    letter-spacing: clamp(1px, 0.5vw, 3px) !important;
-                    text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
-                    white-space: nowrap !important;
-                    word-break: keep-all !important;
-                    overflow: hidden !important;
-                    text-overflow: ellipsis !important;
-                    width: 100% !important;
-                    text-align: center !important;
-                    display: block !important;
-                ">SEXTA&#8209;FEIRA</h1>
+                    font-family: 'Orbitron', sans-serif;
+                    color: #8A2BE2;
+                    font-size: 2rem;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    letter-spacing: 3px;
+                    text-shadow: 0 0 15px rgba(138,43,226,0.8);
+                    white-space: nowrap;
+                ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
+            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
@@ -863,34 +1036,35 @@ def render_dashboard():
             task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
             pulse_color = "'#444444'"
             status_text = "OFFLINE"
-            status_color = "#6b7280"      # cinza neutro — sem vermelho agressivo
+            status_color = "#6b7280"
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
-            task_list = "['Modo defensivo ativo...', 'Reduzindo exposição...', f'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
+            task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
             pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
-            status_color = "#a78bfa"      # roxo claro — alerta suave
+            status_color = "#a78bfa"
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
-            task_list = "['Performance excelente!', f'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', f'Score mínimo: {min_score}']"
+            task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
             pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
-            status_color = "#c4b5fd"      # lilás suave — positivo no tema
+            status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
-            task_list = "['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', f'Score mínimo: {min_score}', 'Aguardando sweep...']"
+            task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
             pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
-            status_color = "#c4b5fd"      # lilás suave — consistente com o tema
+            status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
 
         return f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
   #status-bar {{
@@ -931,6 +1105,12 @@ def render_dashboard():
     letter-spacing: 1px;
     min-height: 18px;
     transition: opacity 0.4s;
+  }}
+  @media (max-width: 768px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 10px !important; }}
+  }}
+  @media (max-width: 480px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 9px !important; }}
   }}
 </style>
 </head>
@@ -974,7 +1154,6 @@ def render_dashboard():
 
   camera.position.z = 150;
 
-  // Tarefas dinâmicas baseadas no estado do bot
   const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
@@ -994,18 +1173,13 @@ def render_dashboard():
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
-
-    // Rotações diferenciais
     core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
     mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
     outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
     halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
-
-    // Pulsação de opacidade
     core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
     mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
-
     renderer.render(scene, camera);
   }}
   animate();
@@ -1019,60 +1193,35 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # ── HEADER: admin esquerda | sair direita ──
-    st.markdown(f"""
-    <style>
-    /* Botão Sair fixo no canto superior direito em qualquer tela */
-    div[data-testid="stVerticalBlock"] button[kind="secondary"]#btn_sair_label,
-    button[data-testid="baseButton-secondary"]:has(+ *) {{
-        position: static;
-    }}
-    .sair-float {{
-        position: fixed;
-        top: 56px;
-        right: 16px;
-        z-index: 9999;
-        pointer-events: none;
-    }}
-    .admin-float {{
-        position: fixed;
-        top: 56px;
-        left: 16px;
-        z-index: 9998;
-        pointer-events: none;
-    }}
-    @media (max-width: 640px) {{
-        .sair-float {{ top: 52px; right: 10px; }}
-        .admin-float {{ top: 52px; left: 10px; }}
-    }}
-    </style>
-    <div class="admin-float">
-        <div class="admin-card">
-            <span class="admin-label">Conta VIP</span>
-            <span class="admin-name">{uname}</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_admin, col_esfera, col_sair = st.columns([1, 2, 1])
 
-    # Botão Sair — renderizado pelo Streamlit (funciona), empurrado pro canto pelo CSS
-    _, col_sair_btn = st.columns([5, 1])
-    with col_sair_btn:
+    with col_admin:
+        st.markdown(f"""
+        <div style="height:100%; display:flex; align-items:flex-start; padding-top:20px;">
+            <div class="admin-card">
+                <span class="admin-label">Conta VIP</span>
+                <span class="admin-name">{uname}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_esfera:
+        components.html(sphere_html_interactive, height=420, scrolling=False)
+
+    with col_sair:
+        st.markdown("<div style='padding-top:20px;'>", unsafe_allow_html=True)
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-
-    # Esfera centralizada
-    _, col_esfera, _ = st.columns([1, 2, 1])
-    with col_esfera:
-        components.html(sphere_html_interactive, height=420, scrolling=False)
+        st.markdown("</div>", unsafe_allow_html=True)
     # ═══════════════════════════════════════════════════════════════
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO
+    # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin-top:-60px; margin-bottom:12px;">
+    <div style="text-align:center; margin: -112px 0 18px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -1105,15 +1254,8 @@ def render_dashboard():
     # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
     _usage_pct = 0.0
     try:
-        if equity > 0 and available > 0:
-            # Calcula percentual alocado normalmente
+        if equity > 0 and available >= 0:
             _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
-        elif equity > 0 and available == 0 and len(positions) > 0:
-            # available=0 no Render (filesystem efêmero) mas há posições: estima pelo nocional
-            _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
-            if _pos_val > 0:
-                _usage_pct = max(0.0, min(95.0, (_pos_val / equity) * 100))
-        # equity=0 → círculo vazio (0%) — correto no ambiente local
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
@@ -1191,7 +1333,6 @@ def render_dashboard():
         padding: 8px 12px 0 12px !important;
         backdrop-filter: blur(8px);
     }
-    /* Remove borda inferior padrão do Streamlit nas tabs */
     [data-testid="stTabs"] > div:first-child {
         border-bottom: 1px solid rgba(138,43,226,0.2) !important;
         padding-bottom: 2px;
@@ -1220,7 +1361,7 @@ def render_dashboard():
     """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "📈 Mercado", "📊 Performance", "📌 Posições",
+        "📈 Mercado", "📊 Performance", "📌 Posições", 
         "📋 Histórico", "🧠 IA Terminal", "📰 Notícias", "⚙️ Configurações"
     ])
 
@@ -1476,7 +1617,6 @@ def render_dashboard():
                 try:
                     with open("bot_heartbeat.json") as f: hb = json.load(f)
                     last_scan = hb.get("last_scan", "N/A")
-                    bot_status_str = hb.get("status", "alive")
                     st.markdown(f"""
                     <div style="text-align:center; margin-top:8px;">
                         <div style="display:inline-flex; align-items:center; gap:6px;
