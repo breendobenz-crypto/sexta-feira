@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + LÓGICA DOS BOTÕES
+# CSS — GLASSMORPHISM + ANIMAÇÕES + LÓGICA DE BOTÕES RESPONSIVOS
 # ==========================================
 st.markdown("""
 <style>
@@ -54,52 +54,37 @@ h1, h2, h3 {
     text-align: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LÓGICA DOS BOTÕES "SAIR" (VERSÃO DEFINITIVA)
-   ═══════════════════════════════════════════════════════════════ */
+/* ==========================================
+   LÓGICA DOS BOTÕES "SAIR" (DESKTOP VS MOBILE)
+   ========================================== */
 
-/* BOTÃO TOP (Desktop) */
-.btn-sair-top {
-    position: relative;
-    z-index: 100;
-}
-
-/* BOTÃO BOTTOM (Mobile) */
-.btn-sair-bottom-wrapper {
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-
-/* --- NO DESKTOP (> 768px) --- */
+/* --- DESKTOP (Tela > 768px) --- */
 @media (min-width: 769px) {
-    /* Mostra botão do topo, esconde o de baixo */
-    .btn-sair-bottom-wrapper { display: none !important; visibility: hidden !important; height: 0 !important; margin: 0 !important; }
-    .btn-sair-top { display: block !important; }
+    /* Esconde o botão que fica abaixo do título (usado apenas no mobile) */
+    .btn-sair-mobile { display: none !important; }
+    /* Garante que o botão do topo (coluna direita) apareça */
+    .btn-sair-desktop { display: block !important; }
 }
 
-/* --- NO MOBILE (≤ 768px) --- */
+/* --- MOBILE (Tela <= 768px) --- */
 @media (max-width: 768px) {
     /* Esconde a coluna da direita inteira (onde está o botão do topo) */
     div[data-testid="column"]:nth-child(3) { display: none !important; }
     
-    /* Mostra o botão de baixo */
-    .btn-sair-bottom-wrapper { display: block !important; }
+    /* Mostra o botão que fica abaixo do título */
+    .btn-sair-mobile { display: block !important; margin-top: 10px !important; }
     
-    /* Ajustes extras de layout mobile */
+    /* Ajustes visuais extras para mobile */
     .titulo-card { padding: 10px 15px !important; }
     .titulo-card-text { font-size: 1.1rem !important; }
     .admin-card { padding: 8px 12px !important; }
-    .btn-sair-bottom-wrapper button {
+    .btn-sair-mobile button {
         width: 100% !important;
         background: rgba(255, 68, 68, 0.15) !important;
         border: 1px solid #ff4444 !important;
         color: #ff4444 !important;
     }
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   ESTILOS GERAIS
-   ═══════════════════════════════════════════════════════════════ */
 
 .login-container {
     max-width: 450px;
@@ -834,10 +819,12 @@ def render_dashboard():
             _bot_scan    = _hb.get("last_scan", "—")
         else:
             # ✅ FIX 4b: sem heartbeat, verifica se VIP tem credenciais cadastradas
+            # Se tiver, o bot está configurado mesmo que o arquivo não exista (filesystem efêmero)
             if _SAAS_DB_OK:
                 _creds = get_decrypted_credentials(uid)
                 if _creds:
                     _bot_status = "configured"
+                    # Tenta buscar equity da OKX para confirmar conectividade
                     try:
                         _live_check = fetch_live_account(uid)
                         if _live_check.get("equity", 0) > 0:
@@ -865,25 +852,34 @@ def render_dashboard():
             _bot_pnl     = float(_rs.get("daily_loss_pct", 0)) * 100
     except Exception: pass
 
-    # Gera HTML da esfera interativa
+    # Gera HTML da esfera interativa com injeção de dados via JS
     def _build_interactive_sphere(online, status, equity, scan, win_rate, min_score, risk_mode):
+        # Cor da esfera muda com estado do bot
         if not online:
             color1, color2, color3 = "0x444444", "0x555555", "0x666666"
+            task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
+            pulse_color = "'#444444'"
             status_text = "OFFLINE"
             status_color = "#6b7280"
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
+            task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
+            pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
             status_color = "#a78bfa"
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
+            task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
+            pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
             status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
+            task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
+            pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
             status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
@@ -894,9 +890,51 @@ def render_dashboard():
 <meta charset="UTF-8">
 <style>
   body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
-  #status-bar {{ font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {status_color}; text-align: center; padding: 6px 0 0; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 6px; }}
-  #status-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {status_color}; display: inline-block; }}
-  #equity-display {{ font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7280; text-align: center; padding: 3px 0 2px; letter-spacing: 1px; }}
+  #status-bar {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: {status_color};
+    text-align: center;
+    padding: 6px 0 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }}
+  #status-dot {{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: {status_color};
+    display: inline-block;
+    flex-shrink: 0;
+  }}
+  #equity-display {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    padding: 3px 0 2px;
+    letter-spacing: 1px;
+  }}
+  #task-text {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: #4b5563;
+    text-align: center;
+    padding: 2px 0 6px;
+    letter-spacing: 1px;
+    min-height: 18px;
+    transition: opacity 0.4s;
+  }}
+  @media (max-width: 768px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 10px !important; }}
+  }}
+  @media (max-width: 480px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 9px !important; }}
+  }}
 </style>
 </head>
 <body>
@@ -911,6 +949,7 @@ def render_dashboard():
   renderer.setSize(W, H);
   renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
+
   function makeLayer(count, radius, size, color, opacity) {{
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
@@ -918,30 +957,57 @@ def render_dashboard():
       const theta = Math.acos(1 - 2*((i/3)+0.5)/count);
       const phi = 2*Math.PI*(i/3)/count + Math.random()*0.5;
       const r = radius + Math.random()*(radius*0.18);
-      pos[i] = r*Math.sin(theta)*Math.cos(phi); pos[i+1] = r*Math.cos(theta); pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
+      pos[i]   = r*Math.sin(theta)*Math.cos(phi);
+      pos[i+1] = r*Math.cos(theta);
+      pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
     }}
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({{ size, color, transparent:true, opacity, blending: THREE.AdditiveBlending, depthWrite:false }});
+    const mat = new THREE.PointsMaterial({{
+      size, color, transparent:true, opacity,
+      blending: THREE.AdditiveBlending, depthWrite:false
+    }});
     return new THREE.Points(geo, mat);
   }}
-  const core = makeLayer(3000, 42, 2.0, {color1}, 0.95);
-  const mid = makeLayer(4000, 50, 1.2, {color2}, 0.70);
-  const outer = makeLayer(5000, 60, 0.8, {color3}, 0.50);
-  const halo = makeLayer(2000, 82, 0.5, {color3}, 0.28);
+
+  const core  = makeLayer(3000, 42, 2.0,   {color1}, 0.95);
+  const mid   = makeLayer(4000, 50, 1.2,   {color2}, 0.70);
+  const outer = makeLayer(5000, 60, 0.8,   {color3}, 0.50);
+  const halo  = makeLayer(2000, 82, 0.5,   {color3}, 0.28);
   scene.add(core); scene.add(mid); scene.add(outer); scene.add(halo);
+
   camera.position.z = 150;
+
+  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
+  let taskIdx = 0;
+  const taskEl = document.getElementById('task-text');
+  if(taskEl) {{ taskEl.textContent = tasks[0]; taskEl.style.opacity = '1'; }}
+  setInterval(() => {{
+    if(!taskEl) return;
+    taskEl.style.opacity = '0';
+    setTimeout(() => {{
+      taskIdx = (taskIdx+1) % tasks.length;
+      taskEl.textContent = tasks[taskIdx];
+      taskEl.style.opacity = '1';
+    }}, 400);
+  }}, 2200);
+
   let t = 0;
+
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
-    core.rotation.x += 0.002; core.rotation.y += 0.003; mid.rotation.x += 0.0015; mid.rotation.y += 0.0025;
-    outer.rotation.x += 0.001; outer.rotation.y += 0.002; halo.rotation.x += 0.0005; halo.rotation.y += 0.001;
-    core.material.opacity = 0.9 + Math.sin(t) * 0.05; mid.material.opacity = 0.65 + Math.sin(t*0.8) * 0.05;
+    core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
+    mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
+    outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
+    halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
+    core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
+    mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
     renderer.render(scene, camera);
   }}
   animate();
 </script>
+<div id="task-text"></div>
 </body>
 </html>"""
 
@@ -969,8 +1035,8 @@ def render_dashboard():
     # BOTÃO SAIR - DESKTOP (Coluna Direita)
     # ═══════════════════════════════════════════════════════════════
     with col_sair:
-        st.markdown('<div class="btn-sair-top">', unsafe_allow_html=True)
-        if st.button("Sair", use_container_width=True, key="btn_sair_top"):
+        st.markdown('<div class="btn-sair-desktop">', unsafe_allow_html=True)
+        if st.button("Sair", use_container_width=True, key="btn_sair_desktop"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
@@ -988,8 +1054,8 @@ def render_dashboard():
     # ═══════════════════════════════════════════════════════════════
     # BOTÃO SAIR - MOBILE (Abaixo do Título)
     # ═══════════════════════════════════════════════════════════════
-    st.markdown('<div class="btn-sair-bottom-wrapper">', unsafe_allow_html=True)
-    if st.button("Sair", use_container_width=True, key="btn_sair_bottom"):
+    st.markdown('<div class="btn-sair-mobile">', unsafe_allow_html=True)
+    if st.button("Sair", use_container_width=True, key="btn_sair_mobile"):
         for k in ["logged_in", "user_id", "user_email", "user_name"]:
             st.session_state.pop(k, None)
         st.rerun()
@@ -1032,21 +1098,52 @@ def render_dashboard():
     with m1:
         st.markdown(f"""
         <style>
-        @keyframes m1Pulse {{ 0%,100% {{ opacity:1; }} 50% {{ opacity:0.65; }} }}
+        @keyframes m1Pulse {{
+            0%,100% {{ opacity:1; }}
+            50%      {{ opacity:0.65; }}
+        }}
         .m1-arc {{ animation: m1Pulse 2.4s ease-in-out infinite; }}
-        .m1-wrap {{ text-align: center; display: flex; align-items: flex-start; justify-content: center; margin-top: -22px; animation: fadeIn 0.6s ease-out; cursor: default; }}
-        .m1-wrap svg {{ transition: transform 0.3s ease, filter 0.3s ease; }}
-        .m1-wrap:hover svg {{ transform: translateY(-2px); filter: drop-shadow(0 0 8px rgba(138,43,226,0.5)) drop-shadow(0 0 20px rgba(138,43,226,0.35)); }}
-        .m1-wrap:hover .m1-track {{ stroke: #8A2BE2; transition: stroke 0.3s ease; }}
+        .m1-wrap {{
+            text-align: center;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin-top: -22px;
+            animation: fadeIn 0.6s ease-out;
+            cursor: default;
+        }}
+        .m1-wrap svg {{
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }}
+        .m1-wrap:hover svg {{
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px rgba(138,43,226,0.5))
+                    drop-shadow(0 0 20px rgba(138,43,226,0.35));
+        }}
+        .m1-wrap:hover .m1-track {{
+            stroke: #8A2BE2;
+            transition: stroke 0.3s ease;
+        }}
         .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
         <div class="m1-wrap">
             <svg width="160" height="160" viewBox="0 0 160 160">
-                <circle class="m1-track" cx="80" cy="80" r="54" fill="none" stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
-                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none" stroke="#8A2BE2" stroke-width="12" stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}" stroke-linecap="round" transform="rotate(-90 80 80)"/>
-                <text x="80" y="64" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="9" opacity="0.6">$</text>
-                <text x="80" y="88" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="16" font-weight="700">{equity:.2f}</text>
-                <text x="80" y="104" text-anchor="middle" fill="#888" font-family="sans-serif" font-size="9">Patrimônio</text>
+                <circle class="m1-track" cx="80" cy="80" r="54" fill="none"
+                    stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
+                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none"
+                    stroke="#8A2BE2" stroke-width="12"
+                    stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}"
+                    stroke-linecap="round"
+                    transform="rotate(-90 80 80)"/>
+                <text x="80" y="64" text-anchor="middle"
+                    fill="#fff" font-family="Orbitron,sans-serif"
+                    font-size="9" opacity="0.6">$</text>
+                <text x="80" y="88" text-anchor="middle"
+                    fill="#fff" font-family="Orbitron,sans-serif"
+                    font-size="16" font-weight="700">{equity:.2f}</text>
+                <text x="80" y="104" text-anchor="middle"
+                    fill="#888" font-family="sans-serif"
+                    font-size="9">Patrimônio</text>
             </svg>
         </div>
         """, unsafe_allow_html=True)
@@ -1061,11 +1158,39 @@ def render_dashboard():
 
     st.markdown("""
     <style>
-    [data-testid="stTabs"] { background: rgba(17,17,17,0.6) !important; border: 1px solid rgba(138,43,226,0.3) !important; border-radius: 12px !important; padding: 8px 12px 0 12px !important; backdrop-filter: blur(8px); }
-    [data-testid="stTabs"] > div:first-child { border-bottom: 1px solid rgba(138,43,226,0.2) !important; padding-bottom: 2px; }
-    button[data-baseweb="tab"] { font-family: 'Orbitron', sans-serif !important; font-size: 11px !important; color: #aaa !important; background: transparent !important; border: none !important; border-radius: 8px !important; padding: 8px 12px !important; white-space: nowrap !important; transition: all 0.2s ease !important; }
-    button[data-baseweb="tab"]:hover { color: #fff !important; background: rgba(138,43,226,0.15) !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #fff !important; background: rgba(138,43,226,0.35) !important; border-bottom: 2px solid #8A2BE2 !important; }
+    /* CAIXA AO REDOR DAS TABS */
+    [data-testid="stTabs"] {
+        background: rgba(17,17,17,0.6) !important;
+        border: 1px solid rgba(138,43,226,0.3) !important;
+        border-radius: 12px !important;
+        padding: 8px 12px 0 12px !important;
+        backdrop-filter: blur(8px);
+    }
+    /* Remove borda inferior padrão do Streamlit nas tabs */
+    [data-testid="stTabs"] > div:first-child {
+        border-bottom: 1px solid rgba(138,43,226,0.2) !important;
+        padding-bottom: 2px;
+    }
+    button[data-baseweb="tab"] {
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 11px !important;
+        color: #aaa !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #fff !important;
+        background: rgba(138,43,226,0.15) !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #fff !important;
+        background: rgba(138,43,226,0.35) !important;
+        border-bottom: 2px solid #8A2BE2 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -1201,9 +1326,73 @@ def render_dashboard():
     with tab7:
         st.markdown("""
         <style>
-        .section-title-box { background: #0d0b1e; border: 2px solid #8A2BE2; border-radius: 10px; padding: 18px 30px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 12px rgba(138, 43, 226, 0.9), 0 0 25px rgba(138, 43, 226, 0.5); box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.05); margin-bottom: 16px; }
+        .section-title-box {
+            background: #0d0b1e; border: 2px solid #8A2BE2; border-radius: 10px;
+            padding: 18px 30px; text-align: center; font-family: 'Orbitron', sans-serif;
+            font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 3px;
+            text-transform: uppercase; text-shadow: 0 0 12px rgba(138, 43, 226, 0.9), 0 0 25px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.05); margin-bottom: 16px;
+        }
         .bot-status-online { background: #0a1f0a; border: 1px solid #00cc44; color: #00ff55; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
         .bot-status-offline { background: #1f0a0a; border: 1px solid #cc2200; color: #ff4422; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+
+        /* PAINEL BOT CONTROL */
+        .bot-control-panel {
+            background: rgba(13,13,26,0.95);
+            border: 1px solid rgba(138,43,226,0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .equity-ring-wrap {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .equity-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .equity-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        .bot-ctrl-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .bot-ctrl-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: #fff;
+            background: rgba(138,43,226,0.1);
+            border: 1px solid rgba(138,43,226,0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .hist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .hist-win  { color: #00ff88; font-weight: 700; font-size: 11px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); padding: 2px 8px; border-radius: 4px; }
+        .hist-loss { color: #ff4444; font-weight: 700; font-size: 11px; background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); padding: 2px 8px; border-radius: 4px; }
         </style>
         """, unsafe_allow_html=True)
 
