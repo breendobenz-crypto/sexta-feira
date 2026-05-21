@@ -58,21 +58,23 @@ h1, h2, h3 {
    LÓGICA DOS BOTÕES "SAIR" (DESKTOP VS MOBILE)
    ========================================== */
 
-/* --- DESKTOP (Tela > 768px) --- */
-@media (min-width: 769px) {
-    /* Esconde o botão que fica abaixo do título (usado apenas no mobile) */
-    .btn-sair-mobile { display: none !important; }
-    /* Garante que o botão do topo (coluna direita) apareça */
-    .btn-sair-desktop { display: block !important; }
-}
-
 /* --- MOBILE (Tela <= 768px) --- */
 @media (max-width: 768px) {
-    /* Esconde a coluna da direita inteira (onde está o botão do topo) */
-    div[data-testid="column"]:nth-child(3) { display: none !important; }
+    /* Esconde a 3ª coluna inteira (botão desktop) */
+    div[data-testid="column"]:nth-of-type(3) { 
+        display: none !important; 
+    }
     
-    /* Mostra o botão que fica abaixo do título */
-    .btn-sair-mobile { display: block !important; margin-top: 10px !important; }
+    /* Mostra botão mobile */
+    .btn-sair-mobile { 
+        display: block !important; 
+        margin: 10px 0 20px 0 !important;
+    }
+    
+    /* Esconde botão desktop */
+    .btn-sair-desktop { 
+        display: none !important; 
+    }
     
     /* Ajustes visuais extras para mobile */
     .titulo-card { padding: 10px 15px !important; }
@@ -83,6 +85,19 @@ h1, h2, h3 {
         background: rgba(255, 68, 68, 0.15) !important;
         border: 1px solid #ff4444 !important;
         color: #ff4444 !important;
+    }
+}
+
+/* --- DESKTOP (Tela > 768px) --- */
+@media (min-width: 769px) {
+    /* Esconde botão mobile */
+    .btn-sair-mobile { 
+        display: none !important; 
+    }
+    
+    /* Mostra botão desktop */
+    .btn-sair-desktop { 
+        display: block !important; 
     }
 }
 
