@@ -340,16 +340,10 @@ hr {
     gap: 12px;
 }
 .sf-navbar-logo {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, #8A2BE2, #5b21b6);
-    border-radius: 8px;
+    width: 36px; height: 36px;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px; font-weight: 700;
-    color: #fff;
-    letter-spacing: 0;
-    box-shadow: 0 0 12px rgba(138,43,226,0.5);
     flex-shrink: 0;
+    filter: drop-shadow(0 0 8px rgba(138,43,226,0.9));
 }
 .sf-navbar-name {
     font-family: 'Orbitron', sans-serif;
@@ -382,10 +376,9 @@ hr {
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif !important;
     color: #8A2BE2 !important;
-    font-size: 2rem !important;
+    font-size: 2.8rem !important;
     font-weight: 700 !important;
-    letter-spacing: 4px !important;
-    text-shadow: 0 0 15px rgba(138,43,226,0.7) !important;
+    letter-spacing: 6px !important;
     margin: 0 !important;
     white-space: nowrap !important;
     text-align: center !important;
@@ -479,6 +472,22 @@ hr {
     animation: slideIn 0.5s ease-out;
     position: relative;
     overflow: hidden;
+}
+.titulo-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%; height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: barPingPong 2.8s ease-in-out infinite;
+}
+.titulo-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 50%; height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: barPingPongRev 2.8s ease-in-out infinite;
 }
 
 /* ── CARD ADMIN (esquerda) ── */
@@ -1087,7 +1096,25 @@ def render_dashboard():
     _nav_status    = "ONLINE" if _bot_online else "OFFLINE"
     st.markdown(f"""
     <div class="sf-navbar">
-        <div class="sf-navbar-logo">SF</div>
+        <div class="sf-navbar-logo">
+            <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="sfLG" x1="4" y1="44" x2="44" y2="4" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#5b21b6"/>
+                        <stop offset="55%" stop-color="#8A2BE2"/>
+                        <stop offset="100%" stop-color="#c084fc"/>
+                    </linearGradient>
+                </defs>
+                <!-- Triângulo externo -->
+                <polygon points="24,4 44,42 4,42" fill="none" stroke="url(#sfLG)" stroke-width="3" stroke-linejoin="round"/>
+                <!-- Triângulo interno invertido -->
+                <polygon points="24,16 36,38 12,38" fill="rgba(138,43,226,0.18)" stroke="url(#sfLG)" stroke-width="1.5" stroke-linejoin="round"/>
+                <!-- Ponto central -->
+                <circle cx="24" cy="33" r="2.8" fill="#c084fc"/>
+                <!-- Linha horizontal central -->
+                <line x1="14" y1="27" x2="34" y2="27" stroke="url(#sfLG)" stroke-width="1" opacity="0.5"/>
+            </svg>
+        </div>
         <span class="sf-navbar-name">SEXTA&#8209;FEIRA</span>
         <span class="sf-navbar-status">&nbsp;·&nbsp; {_nav_status}</span>
         <div class="sf-navbar-dot" style="background:{_nav_dot_color};
