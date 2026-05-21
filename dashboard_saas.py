@@ -33,7 +33,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + BOTÃO SAIR INTELIGENTE
+# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO
 # ==========================================
 st.markdown("""
 <style>
@@ -55,39 +55,211 @@ h1, h2, h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   BOTÃO SAIR — POSIÇÃO DINÂMICA (DESKTOP VS MOBILE)
+   RESPONSIVIDADE — SMARTPHONE / TABLET / DESKTOP
    ═══════════════════════════════════════════════════════════════ */
 
-/* Desktop: botão no canto superior direito */
-@media (min-width: 769px) {
-    .btn-sair-container {
-        position: fixed !important;
-        top: 20px !important;
-        right: 20px !important;
-        z-index: 9999 !important;
-        width: 120px !important;
+/* ── TABLET (≤1024px) ── */
+@media (max-width: 1024px) {
+    .titulo-card-text { font-size: 1.3rem !important; letter-spacing: 2px !important; }
+    .titulo-card { padding: 12px 30px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.2rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
+    [data-testid="stMetric"] { padding: 15px !important; }
+    .status-value { font-size: 12px !important; }
+    .status-label { font-size: 9px !important; }
+    .status-box { padding: 10px 6px !important; }
+    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 10px !important; }
+    .admin-name { font-size: 13px !important; }
+    .admin-label { font-size: 9px !important; }
+}
+
+/* ── MOBILE LANDSCAPE / SMALL TABLET (≤768px) ── */
+@media (max-width: 768px) {
+    /* Container principal */
+    .block-container { 
+        padding-left: 0.75rem !important; 
+        padding-right: 0.75rem !important; 
+        padding-top: 0.5rem !important; 
+    }
+    
+    /* Esconde coluna do botão desktop (3ª coluna) */
+    div[data-testid="column"]:nth-child(3) { 
+        display: none !important; 
+    }
+    
+    /* Mostra botão mobile abaixo do título */
+    .btn-sair-mobile { 
+        display: block !important; 
+        margin: 15px 0 25px 0 !important;
+    }
+    
+    /* Esconde botão desktop */
+    .btn-sair-desktop { 
+        display: none !important; 
+    }
+    
+    /* Título */
+    .titulo-card { padding: 10px 20px !important; }
+    .titulo-card-text { 
+        font-size: clamp(0.9rem, 4vw, 1.2rem) !important; 
+        letter-spacing: 1.5px !important; 
+        white-space: nowrap !important; 
+    }
+    
+    /* Admin card */
+    .admin-card { padding: 8px 12px !important; }
+    .admin-name { font-size: 11px !important; }
+    .admin-label { font-size: 8px !important; }
+    
+    /* Métricas */
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
+    [data-testid="stMetric"] { padding: 12px !important; }
+    
+    /* Status boxes */
+    .status-value { font-size: 11px !important; }
+    .status-label { font-size: 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+    
+    /* Tabs */
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+    
+    /* SVG Ring Equity */
+    .m1-wrap svg { width: 120px !important; height: 120px !important; }
+    .m1-wrap text { font-size: 7px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 13px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 10px !important; }
+    
+    /* Tabelas */
+    [data-testid="stDataFrame"] { font-size: 11px !important; }
+    
+    /* Botões */
+    .stButton > button { font-size: 0.9rem !important; padding: 10px !important; }
+    
+    /* Forms */
+    input, select, textarea { font-size: 14px !important; padding: 10px !important; }
+}
+
+/* ── SMARTPHONE PORTRAIT (≤480px) ── */
+@media (max-width: 480px) {
+    /* Título */
+    .titulo-card-text { 
+        font-size: clamp(0.75rem, 3.5vw, 1rem) !important; 
+        white-space: nowrap !important; 
+        letter-spacing: 1px !important;
+    }
+    .titulo-card { padding: 8px 15px !important; border-radius: 12px !important; }
+    
+    /* Métricas — empilhar verticalmente via flex-wrap */
+    [data-testid="stMetric"] { 
+        width: 100% !important; 
+        margin-bottom: 8px !important; 
+        padding: 10px !important;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    
+    /* Status boxes — empilhar */
+    .status-box { width: 100% !important; margin-bottom: 4px !important; }
+    .status-value { font-size: 10px !important; }
+    .status-label { font-size: 7px !important; }
+    
+    /* Tabs — scroll horizontal */
+    button[data-baseweb="tab"] { 
+        font-size: 8px !important; 
+        padding: 4px 6px !important; 
+        white-space: nowrap !important;
+    }
+    [data-testid="stTabs"] { overflow-x: auto !important; padding-bottom: 4px !important; }
+    
+    /* SVG Ring */
+    .m1-wrap svg { width: 100px !important; height: 100px !important; }
+    .m1-wrap text { font-size: 6px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 9px !important; }
+    
+    /* Tabelas — scroll horizontal */
+    [data-testid="stDataFrame"] { 
+        font-size: 10px !important; 
+        overflow-x: auto !important;
+        max-width: 100vw !important;
+    }
+    
+    /* Botões full width */
+    .stButton > button { 
+        width: 100% !important; 
+        font-size: 0.85rem !important; 
+        padding: 8px !important;
+    }
+    
+    /* Forms */
+    input, select, textarea { 
+        font-size: 13px !important; 
+        padding: 8px !important;
+    }
+    
+    /* Admin card */
+    .admin-name { font-size: 10px !important; }
+    .admin-label { font-size: 7px !important; }
+    
+    /* Seções de configuração */
+    .section-title-box { 
+        font-size: 13px !important; 
+        padding: 12px 15px !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* Histórico de trades */
+    .hist-item { 
+        font-size: 11px !important; 
+        padding: 6px 8px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    /* Bot status */
+    .bot-status-online, .bot-status-offline { 
+        font-size: 10px !important; 
+        padding: 4px 10px !important;
     }
 }
 
-/* Mobile: botão abaixo do título */
+/* ── SMARTPHONE MUITO PEQUENO (≤320px) ── */
+@media (max-width: 320px) {
+    .titulo-card-text { font-size: 0.7rem !important; }
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    .m1-wrap svg { width: 90px !important; height: 90px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 11px !important; }
+    button[data-baseweb="tab"] { font-size: 7px !important; padding: 3px 5px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITÁRIOS RESPONSIVOS STREAMLIT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Forçar que colunas se ajustem no mobile */
 @media (max-width: 768px) {
-    .btn-sair-container {
-        position: relative !important;
-        top: 0 !important;
-        right: auto !important;
-        z-index: 1 !important;
-        width: 100% !important;
-        margin: 15px 0 25px 0 !important;
+    .stColumns > div { 
+        flex: 1 1 100% !important; 
+        max-width: 100% !important; 
+        margin-bottom: 10px !important;
     }
-    .btn-sair-container button {
-        background: rgba(255, 68, 68, 0.15) !important;
-        border: 1px solid #ff4444 !important;
-        color: #ff4444 !important;
-        width: 100% !important;
-    }
-    .titulo-card { padding: 10px 15px !important; }
-    .titulo-card-text { font-size: 1.1rem !important; }
-    .admin-card { padding: 8px 12px !important; }
+}
+
+/* Garantir que gráficos Plotly sejam responsivos */
+.plotly-chart-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+}
+
+/* Ajustar altura do TradingView no mobile */
+@media (max-width: 480px) {
+    .tradingview-widget-container { height: 400px !important; }
 }
 
 .login-container {
@@ -798,7 +970,7 @@ def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
     # ═══════════════════════════════════════════════════════════════
-    # ESFERA 3D INTERATIVA + ADMIN ESQUERDA
+    # ESFERA 3D INTERATIVA + ADMIN ESQUERDA + SAIR DIREITA
     # ═══════════════════════════════════════════════════════════════
     import streamlit.components.v1 as components
 
@@ -822,10 +994,13 @@ def render_dashboard():
             _bot_equity  = float(_hb.get("equity") or 0)
             _bot_scan    = _hb.get("last_scan", "—")
         else:
+            # ✅ FIX 4b: sem heartbeat, verifica se VIP tem credenciais cadastradas
+            # Se tiver, o bot está configurado mesmo que o arquivo não exista (filesystem efêmero)
             if _SAAS_DB_OK:
                 _creds = get_decrypted_credentials(uid)
                 if _creds:
                     _bot_status = "configured"
+                    # Tenta buscar equity da OKX para confirmar conectividade
                     try:
                         _live_check = fetch_live_account(uid)
                         if _live_check.get("equity", 0) > 0:
@@ -853,25 +1028,34 @@ def render_dashboard():
             _bot_pnl     = float(_rs.get("daily_loss_pct", 0)) * 100
     except Exception: pass
 
-    # Gera HTML da esfera interativa
+    # Gera HTML da esfera interativa com injeção de dados via JS
     def _build_interactive_sphere(online, status, equity, scan, win_rate, min_score, risk_mode):
+        # Cor da esfera muda com estado do bot
         if not online:
             color1, color2, color3 = "0x444444", "0x555555", "0x666666"
+            task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
+            pulse_color = "'#444444'"
             status_text = "OFFLINE"
             status_color = "#6b7280"
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
+            task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
+            pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
             status_color = "#a78bfa"
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
+            task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
+            pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
             status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
+            task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
+            pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
             status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
@@ -882,9 +1066,51 @@ def render_dashboard():
 <meta charset="UTF-8">
 <style>
   body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
-  #status-bar {{ font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {status_color}; text-align: center; padding: 6px 0 0; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 6px; }}
-  #status-dot {{ width: 7px; height: 7px; border-radius: 50%; background: {status_color}; display: inline-block; }}
-  #equity-display {{ font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7280; text-align: center; padding: 3px 0 2px; letter-spacing: 1px; }}
+  #status-bar {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: {status_color};
+    text-align: center;
+    padding: 6px 0 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }}
+  #status-dot {{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: {status_color};
+    display: inline-block;
+    flex-shrink: 0;
+  }}
+  #equity-display {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    padding: 3px 0 2px;
+    letter-spacing: 1px;
+  }}
+  #task-text {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    color: #4b5563;
+    text-align: center;
+    padding: 2px 0 6px;
+    letter-spacing: 1px;
+    min-height: 18px;
+    transition: opacity 0.4s;
+  }}
+  @media (max-width: 768px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 10px !important; }}
+  }}
+  @media (max-width: 480px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 9px !important; }}
+  }}
 </style>
 </head>
 <body>
@@ -899,6 +1125,7 @@ def render_dashboard():
   renderer.setSize(W, H);
   renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
+
   function makeLayer(count, radius, size, color, opacity) {{
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
@@ -906,30 +1133,57 @@ def render_dashboard():
       const theta = Math.acos(1 - 2*((i/3)+0.5)/count);
       const phi = 2*Math.PI*(i/3)/count + Math.random()*0.5;
       const r = radius + Math.random()*(radius*0.18);
-      pos[i] = r*Math.sin(theta)*Math.cos(phi); pos[i+1] = r*Math.cos(theta); pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
+      pos[i]   = r*Math.sin(theta)*Math.cos(phi);
+      pos[i+1] = r*Math.cos(theta);
+      pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
     }}
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({{ size, color, transparent:true, opacity, blending: THREE.AdditiveBlending, depthWrite:false }});
+    const mat = new THREE.PointsMaterial({{
+      size, color, transparent:true, opacity,
+      blending: THREE.AdditiveBlending, depthWrite:false
+    }});
     return new THREE.Points(geo, mat);
   }}
-  const core = makeLayer(3000, 42, 2.0, {color1}, 0.95);
-  const mid = makeLayer(4000, 50, 1.2, {color2}, 0.70);
-  const outer = makeLayer(5000, 60, 0.8, {color3}, 0.50);
-  const halo = makeLayer(2000, 82, 0.5, {color3}, 0.28);
+
+  const core  = makeLayer(3000, 42, 2.0,   {color1}, 0.95);
+  const mid   = makeLayer(4000, 50, 1.2,   {color2}, 0.70);
+  const outer = makeLayer(5000, 60, 0.8,   {color3}, 0.50);
+  const halo  = makeLayer(2000, 82, 0.5,   {color3}, 0.28);
   scene.add(core); scene.add(mid); scene.add(outer); scene.add(halo);
+
   camera.position.z = 150;
+
+  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
+  let taskIdx = 0;
+  const taskEl = document.getElementById('task-text');
+  if(taskEl) {{ taskEl.textContent = tasks[0]; taskEl.style.opacity = '1'; }}
+  setInterval(() => {{
+    if(!taskEl) return;
+    taskEl.style.opacity = '0';
+    setTimeout(() => {{
+      taskIdx = (taskIdx+1) % tasks.length;
+      taskEl.textContent = tasks[taskIdx];
+      taskEl.style.opacity = '1';
+    }}, 400);
+  }}, 2200);
+
   let t = 0;
+
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
-    core.rotation.x += 0.002; core.rotation.y += 0.003; mid.rotation.x += 0.0015; mid.rotation.y += 0.0025;
-    outer.rotation.x += 0.001; outer.rotation.y += 0.002; halo.rotation.x += 0.0005; halo.rotation.y += 0.001;
-    core.material.opacity = 0.9 + Math.sin(t) * 0.05; mid.material.opacity = 0.65 + Math.sin(t*0.8) * 0.05;
+    core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
+    mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
+    outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
+    halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
+    core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
+    mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
     renderer.render(scene, camera);
   }}
   animate();
 </script>
+<div id="task-text"></div>
 </body>
 </html>"""
 
@@ -954,7 +1208,7 @@ def render_dashboard():
         components.html(sphere_html_interactive, height=420, scrolling=False)
 
     # ═══════════════════════════════════════════════════════════════
-    # BOTÃO SAIR - COLUNA DIREITA (Desktop)
+    # BOTÃO SAIR - DESKTOP (Coluna Direita)
     # ═══════════════════════════════════════════════════════════════
     with col_sair:
         st.markdown('<div class="btn-sair-desktop">', unsafe_allow_html=True)
@@ -974,7 +1228,7 @@ def render_dashboard():
     """, unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # BOTÃO SAIR - ABAIXO DO TÍTULO (Mobile)
+    # BOTÃO SAIR - MOBILE (Abaixo do Título)
     # ═══════════════════════════════════════════════════════════════
     st.markdown('<div class="btn-sair-mobile">', unsafe_allow_html=True)
     if st.button("Sair", use_container_width=True, key="btn_sair_mobile"):
@@ -1020,21 +1274,52 @@ def render_dashboard():
     with m1:
         st.markdown(f"""
         <style>
-        @keyframes m1Pulse {{ 0%,100% {{ opacity:1; }} 50% {{ opacity:0.65; }} }}
+        @keyframes m1Pulse {{
+            0%,100% {{ opacity:1; }}
+            50%      {{ opacity:0.65; }}
+        }}
         .m1-arc {{ animation: m1Pulse 2.4s ease-in-out infinite; }}
-        .m1-wrap {{ text-align: center; display: flex; align-items: flex-start; justify-content: center; margin-top: -22px; animation: fadeIn 0.6s ease-out; cursor: default; }}
-        .m1-wrap svg {{ transition: transform 0.3s ease, filter 0.3s ease; }}
-        .m1-wrap:hover svg {{ transform: translateY(-2px); filter: drop-shadow(0 0 8px rgba(138,43,226,0.5)) drop-shadow(0 0 20px rgba(138,43,226,0.35)); }}
-        .m1-wrap:hover .m1-track {{ stroke: #8A2BE2; transition: stroke 0.3s ease; }}
+        .m1-wrap {{
+            text-align: center;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin-top: -22px;
+            animation: fadeIn 0.6s ease-out;
+            cursor: default;
+        }}
+        .m1-wrap svg {{
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }}
+        .m1-wrap:hover svg {{
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px rgba(138,43,226,0.5))
+                    drop-shadow(0 0 20px rgba(138,43,226,0.35));
+        }}
+        .m1-wrap:hover .m1-track {{
+            stroke: #8A2BE2;
+            transition: stroke 0.3s ease;
+        }}
         .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
         <div class="m1-wrap">
             <svg width="160" height="160" viewBox="0 0 160 160">
-                <circle class="m1-track" cx="80" cy="80" r="54" fill="none" stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
-                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none" stroke="#8A2BE2" stroke-width="12" stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}" stroke-linecap="round" transform="rotate(-90 80 80)"/>
-                <text x="80" y="64" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="9" opacity="0.6">$</text>
-                <text x="80" y="88" text-anchor="middle" fill="#fff" font-family="Orbitron,sans-serif" font-size="16" font-weight="700">{equity:.2f}</text>
-                <text x="80" y="104" text-anchor="middle" fill="#888" font-family="sans-serif" font-size="9">Patrimônio</text>
+                <circle class="m1-track" cx="80" cy="80" r="54" fill="none"
+                    stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
+                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none"
+                    stroke="#8A2BE2" stroke-width="12"
+                    stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}"
+                    stroke-linecap="round"
+                    transform="rotate(-90 80 80)"/>
+                <text x="80" y="64" text-anchor="middle"
+                    fill="#fff" font-family="Orbitron,sans-serif"
+                    font-size="9" opacity="0.6">$</text>
+                <text x="80" y="88" text-anchor="middle"
+                    fill="#fff" font-family="Orbitron,sans-serif"
+                    font-size="16" font-weight="700">{equity:.2f}</text>
+                <text x="80" y="104" text-anchor="middle"
+                    fill="#888" font-family="sans-serif"
+                    font-size="9">Patrimônio</text>
             </svg>
         </div>
         """, unsafe_allow_html=True)
@@ -1049,11 +1334,39 @@ def render_dashboard():
 
     st.markdown("""
     <style>
-    [data-testid="stTabs"] { background: rgba(17,17,17,0.6) !important; border: 1px solid rgba(138,43,226,0.3) !important; border-radius: 12px !important; padding: 8px 12px 0 12px !important; backdrop-filter: blur(8px); }
-    [data-testid="stTabs"] > div:first-child { border-bottom: 1px solid rgba(138,43,226,0.2) !important; padding-bottom: 2px; }
-    button[data-baseweb="tab"] { font-family: 'Orbitron', sans-serif !important; font-size: 11px !important; color: #aaa !important; background: transparent !important; border: none !important; border-radius: 8px !important; padding: 8px 12px !important; white-space: nowrap !important; transition: all 0.2s ease !important; }
-    button[data-baseweb="tab"]:hover { color: #fff !important; background: rgba(138,43,226,0.15) !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #fff !important; background: rgba(138,43,226,0.35) !important; border-bottom: 2px solid #8A2BE2 !important; }
+    /* CAIXA AO REDOR DAS TABS */
+    [data-testid="stTabs"] {
+        background: rgba(17,17,17,0.6) !important;
+        border: 1px solid rgba(138,43,226,0.3) !important;
+        border-radius: 12px !important;
+        padding: 8px 12px 0 12px !important;
+        backdrop-filter: blur(8px);
+    }
+    /* Remove borda inferior padrão do Streamlit nas tabs */
+    [data-testid="stTabs"] > div:first-child {
+        border-bottom: 1px solid rgba(138,43,226,0.2) !important;
+        padding-bottom: 2px;
+    }
+    button[data-baseweb="tab"] {
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 11px !important;
+        color: #aaa !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #fff !important;
+        background: rgba(138,43,226,0.15) !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #fff !important;
+        background: rgba(138,43,226,0.35) !important;
+        border-bottom: 2px solid #8A2BE2 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -1189,9 +1502,73 @@ def render_dashboard():
     with tab7:
         st.markdown("""
         <style>
-        .section-title-box { background: #0d0b1e; border: 2px solid #8A2BE2; border-radius: 10px; padding: 18px 30px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 12px rgba(138, 43, 226, 0.9), 0 0 25px rgba(138, 43, 226, 0.5); box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.05); margin-bottom: 16px; }
+        .section-title-box {
+            background: #0d0b1e; border: 2px solid #8A2BE2; border-radius: 10px;
+            padding: 18px 30px; text-align: center; font-family: 'Orbitron', sans-serif;
+            font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 3px;
+            text-transform: uppercase; text-shadow: 0 0 12px rgba(138, 43, 226, 0.9), 0 0 25px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.05); margin-bottom: 16px;
+        }
         .bot-status-online { background: #0a1f0a; border: 1px solid #00cc44; color: #00ff55; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
         .bot-status-offline { background: #1f0a0a; border: 1px solid #cc2200; color: #ff4422; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+
+        /* PAINEL BOT CONTROL */
+        .bot-control-panel {
+            background: rgba(13,13,26,0.95);
+            border: 1px solid rgba(138,43,226,0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .equity-ring-wrap {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .equity-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .equity-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        .bot-ctrl-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .bot-ctrl-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            color: #fff;
+            background: rgba(138,43,226,0.1);
+            border: 1px solid rgba(138,43,226,0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .hist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .hist-win  { color: #00ff88; font-weight: 700; font-size: 11px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); padding: 2px 8px; border-radius: 4px; }
+        .hist-loss { color: #ff4444; font-weight: 700; font-size: 11px; background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); padding: 2px 8px; border-radius: 4px; }
         </style>
         """, unsafe_allow_html=True)
 
