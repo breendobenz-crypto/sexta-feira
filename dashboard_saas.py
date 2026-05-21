@@ -82,22 +82,6 @@ h1, h2, h3 {
         padding-top: 0.5rem !important; 
     }
     
-    /* Esconde coluna do botão desktop (3ª coluna) */
-    div[data-testid="column"]:nth-child(3) { 
-        display: none !important; 
-    }
-    
-    /* Mostra botão mobile abaixo do título */
-    .btn-sair-mobile { 
-        display: block !important; 
-        margin: 15px 0 25px 0 !important;
-    }
-    
-    /* Esconde botão desktop */
-    .btn-sair-desktop { 
-        display: none !important; 
-    }
-    
     /* Título */
     .titulo-card { padding: 10px 20px !important; }
     .titulo-card-text { 
@@ -970,7 +954,7 @@ def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
     # ═══════════════════════════════════════════════════════════════
-    # ESFERA 3D INTERATIVA + ADMIN ESQUERDA + SAIR DIREITA
+    # ESFERA 3D INTERATIVA + ADMIN ESQUERDA
     # ═══════════════════════════════════════════════════════════════
     import streamlit.components.v1 as components
 
@@ -1192,7 +1176,7 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    col_admin, col_esfera, col_sair = st.columns([1, 2, 1])
+    col_admin, col_esfera = st.columns([1, 2])
 
     with col_admin:
         st.markdown(f"""
@@ -1207,17 +1191,6 @@ def render_dashboard():
     with col_esfera:
         components.html(sphere_html_interactive, height=420, scrolling=False)
 
-    # ═══════════════════════════════════════════════════════════════
-    # BOTÃO SAIR - DESKTOP (Coluna Direita)
-    # ═══════════════════════════════════════════════════════════════
-    with col_sair:
-        st.markdown('<div class="btn-sair-desktop">', unsafe_allow_html=True)
-        if st.button("Sair", use_container_width=True, key="btn_sair_desktop"):
-            for k in ["logged_in", "user_id", "user_email", "user_name"]:
-                st.session_state.pop(k, None)
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
     # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
     <div style="text-align:center; margin: 8px 0 0;">
@@ -1226,16 +1199,6 @@ def render_dashboard():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # BOTÃO SAIR - MOBILE (Abaixo do Título)
-    # ═══════════════════════════════════════════════════════════════
-    st.markdown('<div class="btn-sair-mobile">', unsafe_allow_html=True)
-    if st.button("Sair", use_container_width=True, key="btn_sair_mobile"):
-        for k in ["logged_in", "user_id", "user_email", "user_name"]:
-            st.session_state.pop(k, None)
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
