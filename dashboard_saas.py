@@ -32,6 +32,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# ── FAVICON PERSONALIZADO (logo SF hexágono + S) ───────────────────────────
+st.markdown("""
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0OCA0OCcgZmlsbD0nbm9uZSc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nNCcgeTE9JzQ0JyB4Mj0nNDQnIHkyPSc0JyBncmFkaWVudFVuaXRzPSd1c2VyU3BhY2VPblVzZSc+PHN0b3Agb2Zmc2V0PScwJScgc3RvcC1jb2xvcj0nIzViMjFiNicvPjxzdG9wIG9mZnNldD0nNTUlJyBzdG9wLWNvbG9yPScjOEEyQkUyJy8+PHN0b3Agb2Zmc2V0PScxMDAlJyBzdG9wLWNvbG9yPScjYzA4NGZjJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzQ4JyBoZWlnaHQ9JzQ4JyByeD0nMTInIGZpbGw9JyMwYTBhMGEnLz48cG9seWdvbiBwb2ludHM9JzI0LDMgNDMsMTMuNSA0MywzNC41IDI0LDQ1IDUsMzQuNSA1LDEzLjUnIGZpbGw9J25vbmUnIHN0cm9rZT0ndXJsKCNnKScgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTTE4IDMwIFExOCAzNCAyNCAzNCBRMzAgMzQgMzAgMjkgUTMwIDI1IDI0IDI0IFExOCAyMyAxOCAxOCBRMTggMTQgMjQgMTQgUTMwIDE0IDMwIDE4JyBmaWxsPSdub25lJyBzdHJva2U9J3VybCgjZyknIHN0cm9rZS13aWR0aD0nMi44JyBzdHJva2UtbGluZWNhcD0ncm91bmQnLz48Y2lyY2xlIGN4PScyNCcgY3k9JzI0JyByPScxLjgnIGZpbGw9JyNjMDg0ZmMnLz48L3N2Zz4=">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0OCA0OCcgZmlsbD0nbm9uZSc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nNCcgeTE9JzQ0JyB4Mj0nNDQnIHkyPSc0JyBncmFkaWVudFVuaXRzPSd1c2VyU3BhY2VPblVzZSc+PHN0b3Agb2Zmc2V0PScwJScgc3RvcC1jb2xvcj0nIzViMjFiNicvPjxzdG9wIG9mZnNldD0nNTUlJyBzdG9wLWNvbG9yPScjOEEyQkUyJy8+PHN0b3Agb2Zmc2V0PScxMDAlJyBzdG9wLWNvbG9yPScjYzA4NGZjJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzQ4JyBoZWlnaHQ9JzQ4JyByeD0nMTInIGZpbGw9JyMwYTBhMGEnLz48cG9seWdvbiBwb2ludHM9JzI0LDMgNDMsMTMuNSA0MywzNC41IDI0LDQ1IDUsMzQuNSA1LDEzLjUnIGZpbGw9J25vbmUnIHN0cm9rZT0ndXJsKCNnKScgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTTE4IDMwIFExOCAzNCAyNCAzNCBRMzAgMzQgMzAgMjkgUTMwIDI1IDI0IDI0IFExOCAyMyAxOCAxOCBRMTggMTQgMjQgMTQgUTMwIDE0IDMwIDE4JyBmaWxsPSdub25lJyBzdHJva2U9J3VybCgjZyknIHN0cm9rZS13aWR0aD0nMi44JyBzdHJva2UtbGluZWNhcD0ncm91bmQnLz48Y2lyY2xlIGN4PScyNCcgY3k9JzI0JyByPScxLjgnIGZpbGw9JyNjMDg0ZmMnLz48L3N2Zz4=">
+""", unsafe_allow_html=True)
+
 # ==========================================
 # CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO COMPLETO
 # ==========================================
@@ -300,7 +306,7 @@ h1, h2, h3 {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 9999;
-    height: 52px;
+    height: 62px;
     background: rgba(5,5,5,0.92);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(138,43,226,0.35);
@@ -339,7 +345,7 @@ h1, h2, h3 {
 
 /* Empurra o conteúdo abaixo da navbar */
 .block-container {
-    padding-top: 68px !important;
+    padding-top: 78px !important;
 }
 
 .login-container {
@@ -973,16 +979,19 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.9rem, 5vw, 2rem) !important;
+                    font-size: clamp(1.2rem, 7cqw, 2rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: clamp(1px, 1vw, 3px) !important;
+                    letter-spacing: 1px !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
+                    word-break: keep-all !important;
+                    overflow: hidden !important;
                     width: 100% !important;
                     text-align: center !important;
                     display: block !important;
-                ">SEXTA-FEIRA</h1>
+                    container-type: inline-size !important;
+                ">SEXTA&#8209;FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
             st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
@@ -1272,24 +1281,28 @@ def render_dashboard():
     st.markdown(f"""
     <div class="sf-navbar">
         <div class="sf-navbar-logo">
-            <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="38" height="38" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="sfLG" x1="4" y1="44" x2="44" y2="4" gradientUnits="userSpaceOnUse">
                         <stop offset="0%" stop-color="#5b21b6"/>
                         <stop offset="55%" stop-color="#8A2BE2"/>
                         <stop offset="100%" stop-color="#c084fc"/>
                     </linearGradient>
+                    <filter id="sfGlow">
+                        <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
                 </defs>
-                <polygon points="24,4 44,42 4,42" fill="none" stroke="url(#sfLG)" stroke-width="3" stroke-linejoin="round"/>
-                <polygon points="24,16 36,38 12,38" fill="rgba(138,43,226,0.18)" stroke="url(#sfLG)" stroke-width="1.5" stroke-linejoin="round"/>
-                <circle cx="24" cy="33" r="2.8" fill="#c084fc"/>
-                <line x1="14" y1="27" x2="34" y2="27" stroke="url(#sfLG)" stroke-width="1" opacity="0.5"/>
+                <polygon points="24,3 43,13.5 43,34.5 24,45 5,34.5 5,13.5"
+                    fill="none" stroke="url(#sfLG)" stroke-width="2" stroke-linejoin="round" filter="url(#sfGlow)"/>
+                <path d="M18 30 Q18 34 24 34 Q30 34 30 29 Q30 25 24 24 Q18 23 18 18 Q18 14 24 14 Q30 14 30 18"
+                    fill="none" stroke="url(#sfLG)" stroke-width="2.8" stroke-linecap="round" filter="url(#sfGlow)"/>
+                <circle cx="24" cy="24" r="1.8" fill="#c084fc" opacity="0.7"/>
             </svg>
         </div>
         <span class="sf-navbar-name">SEXTA&#8209;FEIRA</span>
-        <span class="sf-navbar-status">&nbsp;·&nbsp; {_nav_status}</span>
         <div class="sf-navbar-dot" style="background:{_nav_dot_color};
-            box-shadow:0 0 6px {_nav_dot_color};"></div>
+            box-shadow:0 0 6px {_nav_dot_color}; margin-left:auto;"></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1382,16 +1395,13 @@ def render_dashboard():
             cursor: default;
         }}
         .m1-wrap svg {{
-            transition: transform 0.3s ease, filter 0.3s ease;
+            transition: transform 0.3s ease;
         }}
         .m1-wrap:hover svg {{
             transform: translateY(-2px);
-            filter: drop-shadow(0 0 8px rgba(138,43,226,0.5))
-                    drop-shadow(0 0 20px rgba(138,43,226,0.35));
         }}
         .m1-wrap:hover .m1-track {{
-            stroke: #8A2BE2;
-            transition: stroke 0.3s ease;
+            stroke: rgba(138,43,226,0.30);
         }}
         .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
