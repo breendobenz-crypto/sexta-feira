@@ -987,7 +987,7 @@ def render_login():
                     width: 100% !important;
                     text-align: center !important;
                     display: block !important;
-                ">SEXTA&#8209;FEIRA</h1>
+                ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
             st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
