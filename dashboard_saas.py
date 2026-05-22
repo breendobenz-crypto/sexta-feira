@@ -972,25 +972,21 @@ def render_login():
                 max-width: 450px;
                 margin: 50px auto;
                 text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                display: block;
             ">
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(1.2rem, 7cqw, 2rem) !important;
+                    font-size: clamp(1.4rem, 10vw, 2.2rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: 1px !important;
+                    letter-spacing: 0px !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     word-break: keep-all !important;
-                    overflow: hidden !important;
                     width: 100% !important;
                     text-align: center !important;
                     display: block !important;
-                    container-type: inline-size !important;
                 ">SEXTA&#8209;FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
