@@ -23,90 +23,23 @@ def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
 
 # ==========================================
-# PAGE CONFIG - SEM ÍCONE ROTO
+# PAGE CONFIG
 # ==========================================
 st.set_page_config(
     page_title="Sexta-Feira Advanced — VIP",
     layout="wide",
+    page_icon="🟣",
     initial_sidebar_state="collapsed",
 )
 
-# ==========================================
-# FAVICON E NAVBAR FIXA COM LOGO SF
-# ==========================================
+# ── FAVICON PERSONALIZADO (logo SF hexágono + SF) ───────────────────────────
 st.markdown("""
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NiA0OCIgZmlsbD0ibm9uZSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iNCIgeTE9IjQ0IiB4Mj0iNTIiIHkyPSI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzViMjFiNiIvPjxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzA4NGZjIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJnbG93Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iYmx1ciIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0iIzBhMGEwYSIvPjxwb2x5Z29uIHBvaW50cz0iMjgsMyA1MSwxNSA1MSwzMyAyOCw0NSA1LDMzIDUsMTUiIGZpbGw9InJnYmEoMTAsMTAsMjAsMC45KSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjEwIiB5PSIzMiIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSItMSIgZmlsdGVyPSJ1cmwoI2dsb3cpIj5TRjwvdGV4dD48L3N2Zz4=">
-<style>
-/* NAVBAR FIXA NO TOPO */
-.sf-navbar-fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: rgba(5,5,5,0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(138,43,226,0.4);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 14px;
-    z-index: 99999;
-}
-.sf-navbar-logo {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #8A2BE2 100%);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -1px;
-    text-shadow: 0 0 10px rgba(255,255,255,0.6);
-    border: 1px solid rgba(192,132,252,0.4);
-    box-shadow: 0 0 18px rgba(138,43,226,0.55);
-}
-.sf-navbar-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #c4b5fd;
-    letter-spacing: 3px;
-}
-.sf-navbar-status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: #4ade80;
-}
-.sf-navbar-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4ade80;
-    box-shadow: 0 0 8px #4ade80;
-    animation: pulse 2s infinite;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-/* Empurrar conteúdo para baixo da navbar */
-.main .block-container {
-    padding-top: 70px !important;
-}
-</style>
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NiA0OCIgZmlsbD0ibm9uZSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iNCIgeTE9IjQ0IiB4Mj0iNTIiIHkyPSI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzViMjFiNiIvPjxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzA4NGZjIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJnbG93Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iYmx1ciIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0iIzBhMGEwYSIvPjxwb2x5Z29uIHBvaW50cz0iMjgsMyA1MSwxNSA1MSwzMyAyOCw0NSA1LDMzIDUsMTUiIGZpbGw9InJnYmEoMTAsMTAsMjAsMC45KSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjEwIiB5PSIzMiIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSItMSIgZmlsdGVyPSJ1cmwoI2dsb3cpIj5TRjwvdGV4dD48L3N2Zz4=">
 """, unsafe_allow_html=True)
 
 # ==========================================
-# CSS COMPLETO
+# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO COMPLETO
 # ==========================================
 st.markdown("""
 <style>
@@ -127,6 +60,303 @@ h1, h2, h3 {
     text-align: center;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVIDADE — DESKTOP / TABLET / SMARTPHONE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── DESKTOP LARGO (>1400px) ── */
+@media (min-width: 1400px) {
+    .block-container { max-width: 1400px !important; }
+    .titulo-card-text { font-size: 2rem !important; letter-spacing: 4px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.6rem !important; }
+}
+
+/* ── DESKTOP NORMAL (1024–1399px) ── */
+@media (max-width: 1399px) and (min-width: 1024px) {
+    .titulo-card-text { font-size: 1.7rem !important; letter-spacing: 3px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.3rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.85rem !important; }
+    button[data-baseweb="tab"] { font-size: 11px !important; padding: 8px 12px !important; }
+    .status-value { font-size: 13px !important; }
+    .status-label { font-size: 9px !important; }
+}
+
+/* ── TABLET LANDSCAPE (768–1023px) ── */
+@media (max-width: 1023px) and (min-width: 768px) {
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
+    .titulo-card-text { font-size: 1.4rem !important; letter-spacing: 2px !important; }
+    .titulo-card { padding: 12px 24px !important; }
+    .admin-name { font-size: 12px !important; }
+    .admin-label { font-size: 8px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
+    [data-testid="stMetric"] { padding: 15px !important; }
+    .status-value { font-size: 12px !important; }
+    .status-label { font-size: 9px !important; }
+    .status-box { padding: 10px 6px !important; }
+    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 10px !important; }
+    .section-title-box { font-size: 14px !important; padding: 14px 20px !important; }
+    .hist-item { font-size: 12px !important; }
+    .bot-ctrl-value { font-size: 12px !important; }
+}
+
+/* ── MOBILE LANDSCAPE / TABLET PORTRAIT (480–767px) ── */
+@media (max-width: 767px) and (min-width: 480px) {
+    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
+    
+    /* Navbar responsiva */
+    .sf-navbar { padding: 0 12px !important; height: 48px !important; }
+    .sf-navbar-logo { width: 32px !important; height: 32px !important; }
+    .sf-navbar-name { font-size: 12px !important; letter-spacing: 1px !important; }
+    .sf-navbar-status { font-size: 9px !important; }
+    
+    /* Título */
+    .titulo-card-text { font-size: 1.1rem !important; letter-spacing: 1.5px !important; }
+    .titulo-card { padding: 10px 20px !important; }
+    
+    /* Admin card */
+    .admin-card { padding: 8px 12px !important; }
+    .admin-name { font-size: 11px !important; }
+    .admin-label { font-size: 8px !important; }
+    
+    /* Métricas */
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
+    [data-testid="stMetric"] { padding: 12px !important; }
+    
+    /* Status boxes */
+    .status-value { font-size: 11px !important; }
+    .status-label { font-size: 8px !important; }
+    .status-box { padding: 8px 4px !important; }
+    
+    /* Tabs */
+    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
+    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
+    
+    /* SVG Ring Equity */
+    .m1-wrap svg { width: 120px !important; height: 120px !important; }
+    .m1-wrap text { font-size: 7px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 13px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 10px !important; }
+    
+    /* Tabelas */
+    [data-testid="stDataFrame"] { font-size: 11px !important; }
+    
+    /* Botões */
+    .stButton > button { font-size: 0.9rem !important; padding: 10px !important; }
+    
+    /* Forms */
+    input, select, textarea { font-size: 14px !important; padding: 10px !important; }
+    
+    /* Seções */
+    .section-title-box { font-size: 13px !important; padding: 12px 15px !important; }
+    .bot-ctrl-value { font-size: 11px !important; padding: 8px 10px !important; }
+    .hist-item { font-size: 11px !important; padding: 6px 8px !important; }
+}
+
+/* ── SMARTPHONE PORTRAIT (<480px) ── */
+@media (max-width: 479px) {
+    .block-container { padding-left: 0.4rem !important; padding-right: 0.4rem !important; padding-top: 0.3rem !important; }
+    
+    /* Navbar compacta */
+    .sf-navbar { padding: 0 8px !important; height: 44px !important; }
+    .sf-navbar-logo { width: 28px !important; height: 28px !important; }
+    .sf-navbar-name { display: none !important; }
+    .sf-navbar-status { font-size: 8px !important; }
+    
+    /* Título */
+    .titulo-card-text { 
+        font-size: clamp(0.85rem, 4.5vw, 1rem) !important; 
+        letter-spacing: 1px !important; 
+        white-space: nowrap !important; 
+    }
+    .titulo-card { padding: 8px 14px !important; border-radius: 12px !important; }
+    
+    /* Admin card */
+    .admin-card { padding: 6px 10px !important; }
+    .admin-name { font-size: 10px !important; }
+    .admin-label { font-size: 7px !important; }
+    
+    /* Métricas — empilhar verticalmente */
+    [data-testid="stMetric"] { 
+        width: 100% !important; 
+        margin-bottom: 8px !important; 
+        padding: 10px !important;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
+    
+    /* Status boxes — empilhar */
+    .status-box { 
+        width: 100% !important; 
+        margin-bottom: 4px !important; 
+    }
+    .status-value { font-size: 10px !important; }
+    .status-label { font-size: 7px !important; }
+    
+    /* Tabs — scroll horizontal */
+    button[data-baseweb="tab"] { 
+        font-size: 8px !important; 
+        padding: 4px 6px !important; 
+        white-space: nowrap !important;
+    }
+    [data-testid="stTabs"] { 
+        overflow-x: auto !important; 
+        padding-bottom: 4px !important; 
+    }
+    
+    /* SVG Ring */
+    .m1-wrap svg { width: 100px !important; height: 100px !important; }
+    .m1-wrap text { font-size: 6px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
+    
+    /* Sphere 3D */
+    #equity-display, #status-bar, #task-text { font-size: 9px !important; }
+    
+    /* Tabelas — scroll horizontal */
+    [data-testid="stDataFrame"] { 
+        font-size: 10px !important; 
+        overflow-x: auto !important;
+        max-width: 100vw !important;
+    }
+    
+    /* Botões full width */
+    .stButton > button { 
+        width: 100% !important; 
+        font-size: 0.85rem !important; 
+        padding: 8px !important;
+    }
+    
+    /* Forms */
+    input, select, textarea { 
+        font-size: 13px !important; 
+        padding: 8px !important;
+    }
+    
+    /* Seções de configuração */
+    .section-title-box { 
+        font-size: 11px !important; 
+        padding: 10px 12px !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* Histórico de trades */
+    .hist-item { 
+        font-size: 10px !important; 
+        padding: 5px 6px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    
+    /* Bot status */
+    .bot-status-online, .bot-status-offline { 
+        font-size: 9px !important; 
+        padding: 4px 10px !important;
+    }
+    
+    /* Controles do bot */
+    .bot-ctrl-label { font-size: 9px !important; }
+    .bot-ctrl-value { font-size: 10px !important; padding: 6px 8px !important; }
+    
+    /* Colunas de controle — empilhar */
+    [data-testid="stVerticalBlock"] > div[data-testid="stColumn"] {
+        margin-bottom: 12px !important;
+    }
+}
+
+/* ── SMARTPHONE MUITO PEQUENO (<320px) ── */
+@media (max-width: 319px) {
+    .titulo-card-text { font-size: 0.75rem !important; }
+    [data-testid="stMetricValue"] { font-size: 1rem !important; }
+    .m1-wrap svg { width: 90px !important; height: 90px !important; }
+    .m1-wrap text[font-size="16"] { font-size: 11px !important; }
+    button[data-baseweb="tab"] { font-size: 7px !important; padding: 3px 5px !important; }
+    .sf-navbar-dot { width: 5px !important; height: 5px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITÁRIOS RESPONSIVOS STREAMLIT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Forçar que colunas se ajustem no mobile */
+@media (max-width: 768px) {
+    .stColumns > div { 
+        flex: 1 1 100% !important; 
+        max-width: 100% !important; 
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Garantir que gráficos Plotly sejam responsivos */
+.plotly-chart-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: auto !important;
+}
+
+/* Ajustar altura do TradingView no mobile */
+@media (max-width: 480px) {
+    .tradingview-widget-container { height: 400px !important; }
+}
+
+/* Navbar fixa no topo */
+.sf-navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    height: 72px;
+    background: rgba(5,5,5,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(138,43,226,0.4);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 14px;
+}
+.sf-navbar-logo {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #8A2BE2 100%);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(192,132,252,0.4);
+    box-shadow: 0 0 18px rgba(138,43,226,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.6);
+}
+.sf-navbar-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #c4b5fd;
+    letter-spacing: 3px;
+    white-space: nowrap;
+}
+.sf-navbar-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.sf-navbar-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+/* Empurra o conteúdo abaixo da navbar */
+.block-container {
+    padding-top: 78px !important;
+}
+
 .login-container {
     max-width: 450px;
     margin: 60px auto 0;
@@ -144,23 +374,49 @@ h1, h2, h3 {
     to { opacity: 1; transform: translateY(0); }
 }
 
+.login-title {
+    text-align: center;
+    color: #8A2BE2;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(138,43,226,0.8);
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
 div[data-testid="stFormSubmitButton"] button {
     background-color: #8A2BE2 !important;
     color: white !important;
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
     font-size: 1.1rem;
-    border-radius: 8px !important;
+    border-radius: 8px !important;  
     width: 100% !important;
     padding: 12px !important;
     margin-top: 15px;
     border: none !important;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    animation: pulsePurple 2s infinite alternate;
 }
 
 div[data-testid="stFormSubmitButton"] button:hover {
-    background-color: #7c22cc !important;
-    transform: translateY(-1px);
+    background-color: #9d4edd !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px #8A2BE2;
+}
+
+@keyframes pulsePurple {
+    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
 }
 
 input[type="text"], input[type="password"] {
@@ -324,16 +580,17 @@ td {
 
 .stButton > button {
     border-radius: 8px !important;
-    border: 1px solid rgba(138,43,226,0.5) !important;
-    background: rgba(138,43,226,0.08) !important;
+    border: 1px solid #8A2BE2 !important;
+    background: rgba(138,43,226,0.1) !important;
     color: #fff !important;
     font-family: 'Orbitron', sans-serif !important;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-out;
 }
 
 .stButton > button:hover {
-    background: rgba(138,43,226,0.25) !important;
-    border-color: #8A2BE2 !important;
+    background: #8A2BE2 !important;
+    box-shadow: 0 0 15px #8A2BE2 !important;
     transform: translateY(-1px);
 }
 
@@ -379,6 +636,7 @@ hr {
 
 #MainMenu, footer, header { visibility: hidden; }
 
+/* ── CARD TÍTULO (igual ao login) ── */
 .titulo-card {
     display: inline-block;
     background: rgba(13, 13, 13, 0.95);
@@ -387,6 +645,40 @@ hr {
     padding: 14px 40px;
     box-shadow: 0 0 30px rgba(138,43,226,0.25);
     animation: slideIn 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+.titulo-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: barPingPong 2.8s ease-in-out infinite;
+}
+.titulo-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
+    animation: barPingPongRev 2.8s ease-in-out infinite;
+}
+@keyframes barPingPong {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(200%); }
+    50.001% { transform: translateX(200%); }
+    100% { transform: translateX(-100%); }
+}
+@keyframes barPingPongRev {
+    0% { transform: translateX(200%); }
+    50% { transform: translateX(-100%); }
+    50.001% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -400,6 +692,7 @@ hr {
     text-align: center;
 }
 
+/* ── CARD ADMIN (esquerda) ── */
 .admin-card {
     background: rgba(26, 11, 46, 0.7);
     border: 1px solid rgba(138,43,226,0.4);
@@ -425,6 +718,16 @@ hr {
     letter-spacing: 1px;
 }
 
+/* ── TABS COM CARD ── */
+.tabs-card-wrap {
+    background: rgba(17, 17, 17, 0.6);
+    border: 1px solid rgba(138,43,226,0.3);
+    border-radius: 12px;
+    padding: 8px 12px 0 12px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.5s ease-out;
+}
 button[data-baseweb="tab"] {
     font-family: 'Orbitron', sans-serif !important;
     font-size: 11px !important;
@@ -673,25 +976,31 @@ def render_login():
                 background: rgba(13, 13, 13, 0.95);
                 border: 2px solid #8A2BE2;
                 border-radius: 16px;
-                padding: 40px 30px;
+                padding: 30px 20px;
                 box-shadow: 0 0 50px rgba(138,43,226,0.3);
                 max-width: 450px;
                 margin: 50px auto;
                 text-align: center;
+                display: block;
+                overflow: hidden;
             ">
                 <h1 style="
-                    font-family: 'Orbitron', sans-serif;
-                    color: #8A2BE2;
-                    font-size: 2rem;
-                    margin-bottom: 10px;
-                    font-weight: bold;
-                    letter-spacing: 3px;
-                    text-shadow: 0 0 15px rgba(138,43,226,0.8);
-                    white-space: nowrap;
+                    font-family: 'Orbitron', sans-serif !important;
+                    color: #8A2BE2 !important;
+                    font-size: clamp(1rem, 5vw, 1.8rem) !important;
+                    margin: 0 !important;
+                    font-weight: bold !important;
+                    letter-spacing: 2px !important;
+                    text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
+                    white-space: nowrap !important;
+                    width: 100% !important;
+                    text-align: center !important;
+                    display: block !important;
+                    line-height: 1.2 !important;
                 ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
+            st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
@@ -761,37 +1070,30 @@ def fetch_news_rss(max_items: int = 10):
 def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
-    # NAVBAR FIXA COM LOGO SF
-    st.markdown(f"""
-    <div class="sf-navbar-fixed">
-        <div class="sf-navbar-logo">SF</div>
-        <span class="sf-navbar-title">SEXTA-FEIRA</span>
-        <div class="sf-navbar-status">
-            <span>ONLINE</span>
-            <div class="sf-navbar-dot"></div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    # ═══════════════════════════════════════════════════════════════
+    # ESFERA 3D INTERATIVA + NAVBAR + ADMIN + SAIR
+    # ═══════════════════════════════════════════════════════════════
     import streamlit.components.v1 as components
 
-    # Lê estado do bot
-    _bot_online = False
-    _bot_status = "offline"
-    _bot_equity = 0.0
-    _bot_scan = "—"
+    # Lê estado do bot para passar para a esfera
+    _bot_online   = False
+    _bot_status   = "offline"
+    _bot_equity   = 0.0
+    _bot_scan     = "—"
+    _bot_positions = 0
+    _bot_pnl      = 0.0
     _win_rate_bot = 0.0
-    _min_score = 70
-    _risk_mode = "NORMAL"
+    _min_score    = 70
+    _risk_mode    = "NORMAL"
 
     try:
         if os.path.exists("bot_heartbeat.json"):
             with open("bot_heartbeat.json") as _f:
                 _hb = json.load(_f)
-            _bot_online = True
-            _bot_status = _hb.get("status", "alive")
-            _bot_equity = float(_hb.get("equity") or 0)
-            _bot_scan = _hb.get("last_scan", "—")
+            _bot_online  = True
+            _bot_status  = _hb.get("status", "alive")
+            _bot_equity  = float(_hb.get("equity") or 0)
+            _bot_scan    = _hb.get("last_scan", "—")
         else:
             if _SAAS_DB_OK:
                 _creds = get_decrypted_credentials(uid)
@@ -800,9 +1102,9 @@ def render_dashboard():
                     try:
                         _live_check = fetch_live_account(uid)
                         if _live_check.get("equity", 0) > 0:
-                            _bot_online = True
-                            _bot_equity = _live_check["equity"]
-                            _bot_scan = datetime.now().strftime("%H:%M:%S")
+                            _bot_online  = True
+                            _bot_equity  = _live_check["equity"]
+                            _bot_scan    = datetime.now().strftime("%H:%M:%S")
                     except Exception:
                         pass
     except Exception: pass
@@ -812,7 +1114,7 @@ def render_dashboard():
             with open("brain_memory.json") as _f:
                 _bm = json.load(_f)
             _win_rate_bot = float(_bm.get("win_rate", 0)) * 100
-            _min_score = int(_bm.get("optimized_min_score", 70))
+            _min_score    = int(_bm.get("optimized_min_score", 70))
     except Exception: pass
 
     try:
@@ -820,166 +1122,210 @@ def render_dashboard():
         if not os.path.exists(_rfile): _rfile = "risk_state.json"
         if os.path.exists(_rfile):
             with open(_rfile) as _f: _rs = json.load(_f)
-            _risk_mode = "DEFENSIVO" if _rs.get("modo_reducao") else "NORMAL"
+            _risk_mode   = "DEFENSIVO" if _rs.get("modo_reducao") else "NORMAL"
+            _bot_pnl     = float(_rs.get("daily_loss_pct", 0)) * 100
     except Exception: pass
 
-    # Gera HTML da esfera interativa - FUNDO TRANSPARENTE CORRETO
+    # Gera HTML da esfera interativa
     def _build_interactive_sphere(online, status, equity, scan, win_rate, min_score, risk_mode):
         if not online:
             color1, color2, color3 = "0x444444", "0x555555", "0x666666"
             status_text = "OFFLINE"
             status_color = "#6b7280"
+            status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
             status_text = "DEFENSIVO"
             status_color = "#a78bfa"
+            status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
             status_text = "OTIMIZADO"
             status_color = "#c4b5fd"
+            status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
             status_text = "ONLINE"
             status_color = "#c4b5fd"
+            status_dot   = "#8A2BE2"
 
         return f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
-body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
-#status-bar {{
-    font-family: 'JetBrains Mono', monospace;
+  body {{ margin:0; overflow:hidden; background:transparent; display:flex; flex-direction:column; align-items:center; height:100vh; }}
+  #status-bar {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 11px;
     color: {status_color};
     text-align: center;
     padding: 6px 0 0;
     letter-spacing: 2px;
     text-transform: uppercase;
-}}
-#equity-display {{
-    font-family: 'JetBrains Mono', monospace;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }}
+  #status-dot {{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: {status_color};
+    display: inline-block;
+    flex-shrink: 0;
+  }}
+  #equity-display {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 11px;
     color: #6b7280;
     text-align: center;
     padding: 3px 0 2px;
-}}
-#task-text {{
-    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }}
+  #task-text {{
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 11px;
     color: #4b5563;
     text-align: center;
     padding: 2px 0 6px;
+    letter-spacing: 1px;
     min-height: 18px;
-}}
+    transition: opacity 0.4s;
+  }}
+  @media (max-width: 768px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 10px !important; }}
+  }}
+  @media (max-width: 480px) {{
+    #status-bar, #equity-display, #task-text {{ font-size: 9px !important; }}
+  }}
 </style>
 </head>
 <body>
-<div id="status-bar">SEXTA-FEIRA · {status_text}</div>
-<div id="equity-display">Equity: ${equity:.2f} · Scan: {scan}</div>
+<div id="status-bar"><span id="status-dot"></span>SEXTA&#8209;FEIRA &nbsp;·&nbsp; {status_text}</div>
+<div id="equity-display">Equity: ${equity:.2f} &nbsp;·&nbsp; Scan: {scan}</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const scene = new THREE.Scene();
-const W = window.innerWidth, H = window.innerHeight - 70;
-const camera = new THREE.PerspectiveCamera(75, W/H, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({{ antialias:true, alpha:true }});
-renderer.setSize(W, H);
-renderer.setPixelRatio(window.devicePixelRatio);
-document.body.appendChild(renderer.domElement);
+  const scene = new THREE.Scene();
+  const W = window.innerWidth, H = window.innerHeight - 70;
+  const camera = new THREE.PerspectiveCamera(75, W/H, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({{ antialias:true, alpha:true }});
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  document.body.appendChild(renderer.domElement);
 
-function makeLayer(count, radius, size, color, opacity) {{
+  function makeLayer(count, radius, size, color, opacity) {{
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     for(let i=0; i<count*3; i+=3) {{
-        const theta = Math.acos(1 - 2*((i/3)+0.5)/count);
-        const phi = 2*Math.PI*(i/3)/count + Math.random()*0.5;
-        const r = radius + Math.random()*(radius*0.18);
-        pos[i] = r*Math.sin(theta)*Math.cos(phi);
-        pos[i+1] = r*Math.cos(theta);
-        pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
+      const theta = Math.acos(1 - 2*((i/3)+0.5)/count);
+      const phi = 2*Math.PI*(i/3)/count + Math.random()*0.5;
+      const r = radius + Math.random()*(radius*0.18);
+      pos[i]   = r*Math.sin(theta)*Math.cos(phi);
+      pos[i+1] = r*Math.cos(theta);
+      pos[i+2] = r*Math.sin(theta)*Math.sin(phi);
     }}
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     const mat = new THREE.PointsMaterial({{
-        size, color, transparent:true, opacity,
-        blending: THREE.AdditiveBlending, depthWrite:false
+      size, color, transparent:true, opacity,
+      blending: THREE.AdditiveBlending, depthWrite:false
     }});
     return new THREE.Points(geo, mat);
-}}
+  }}
 
-const core = makeLayer(3000, 42, 2.0, {color1}, 0.95);
-const mid = makeLayer(4000, 50, 1.2, {color2}, 0.70);
-const outer = makeLayer(5000, 60, 0.8, {color3}, 0.50);
-const halo = makeLayer(2000, 82, 0.5, {color3}, 0.28);
-scene.add(core); scene.add(mid); scene.add(outer); scene.add(halo);
-camera.position.z = 150;
+  const core  = makeLayer(3000, 42, 2.0,   {color1}, 0.95);
+  const mid   = makeLayer(4000, 50, 1.2,   {color2}, 0.70);
+  const outer = makeLayer(5000, 60, 0.8,   {color3}, 0.50);
+  const halo  = makeLayer(2000, 82, 0.5,   {color3}, 0.28);
+  scene.add(core); scene.add(mid); scene.add(outer); scene.add(halo);
 
-const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score: {min_score}', 'Win: {win_rate:.1f}%', 'Modo: {risk_mode}'];
-let taskIdx = 0;
-const taskEl = document.getElementById('task-text');
-if(taskEl) {{ taskEl.textContent = tasks[0]; }}
-setInterval(() => {{
+  camera.position.z = 150;
+
+  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
+  let taskIdx = 0;
+  const taskEl = document.getElementById('task-text');
+  if(taskEl) {{ taskEl.textContent = tasks[0]; taskEl.style.opacity = '1'; }}
+  setInterval(() => {{
     if(!taskEl) return;
-    taskIdx = (taskIdx+1) % tasks.length;
-    taskEl.textContent = tasks[taskIdx];
-}}, 2200);
+    taskEl.style.opacity = '0';
+    setTimeout(() => {{
+      taskIdx = (taskIdx+1) % tasks.length;
+      taskEl.textContent = tasks[taskIdx];
+      taskEl.style.opacity = '1';
+    }}, 400);
+  }}, 2200);
 
-let t = 0;
-function animate() {{
+  let t = 0;
+
+  function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
-    core.rotation.x += 0.002; core.rotation.y += 0.003;
-    mid.rotation.x += 0.0015; mid.rotation.y += 0.0025;
-    outer.rotation.x += 0.001; outer.rotation.y += 0.002;
-    core.material.opacity = 0.9 + Math.sin(t) * 0.05;
-    mid.material.opacity = 0.65 + Math.sin(t*0.8) * 0.05;
+    core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
+    mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
+    outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
+    halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
+    core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
+    mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
     renderer.render(scene, camera);
-}}
-animate();
+  }}
+  animate();
 </script>
 <div id="task-text"></div>
 </body>
 </html>"""
 
-    sphere_html = _build_interactive_sphere(
+    sphere_html_interactive = _build_interactive_sphere(
         _bot_online, _bot_status, _bot_equity, _bot_scan,
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # Layout com admin, esfera e botão sair
-    col_admin, col_esfera, col_sair = st.columns([1, 2, 1])
+    # ── NAVBAR FIXA (logo SF + nome + status online) ─────────────────
+    _nav_dot_color = "#4ade80" if _bot_online else "#6b7280"
+    _nav_status    = "ONLINE" if _bot_online else "OFFLINE"
+    st.markdown(f"""
+    <div class="sf-navbar">
+        <div class="sf-navbar-logo">SF</div>
+        <span class="sf-navbar-name">SEXTA&#8209;FEIRA</span>
+        <div class="sf-navbar-dot" style="background:{_nav_dot_color};
+            box-shadow:0 0 6px {_nav_dot_color}; margin-left:auto;"></div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col_admin:
+    # ── HEADER: admin esquerda | sair direita ─
+    col_admin_h, col_sair_h = st.columns([3, 1])
+    with col_admin_h:
         st.markdown(f"""
-        <div style="padding-top:20px;">
+        <div style="padding-top:10px;">
             <div class="admin-card">
                 <span class="admin-label">Conta VIP</span>
                 <span class="admin-name">{uname}</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-    with col_esfera:
-        components.html(sphere_html, height=420, scrolling=False)
-
-    with col_sair:
-        st.markdown('<div style="padding-top:20px;">', unsafe_allow_html=True)
+    with col_sair_h:
+        st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # TÍTULO
+    # ── ESFERA centralizada ─
+    _, col_esfera, _ = st.columns([1, 2, 1])
+    with col_esfera:
+        components.html(sphere_html_interactive, height=400, scrolling=False)
+
+    # TÍTULO CENTRALIZADO
     st.markdown("""
-    <div style="text-align:center; margin: -112px 0 18px;">
+    <div style="text-align:center; margin-top:-40px; margin-bottom:14px;">
         <div class="titulo-card">
-            <span class="titulo-card-text">SEXTA-FEIRA ADVANCED</span>
+            <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Status boxes
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
                                     ("OKX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
@@ -987,7 +1333,6 @@ animate();
 
     st.divider()
 
-    # Carregar dados
     with st.spinner("Carregando dados..."):
         live = fetch_live_account(uid) if _SAAS_DB_OK else {"equity": 0, "available": 0, "positions": [], "error": None}
         stats = get_user_stats(uid) if _SAAS_DB_OK else {"win_rate": 0, "total_pnl": 0, "total_trades": 0, "wins": 0, "losses": 0, "avg_pct": 0, "worst_loss": 0, "best_win": 0}
@@ -1002,23 +1347,30 @@ animate();
     equity, available, positions = live.get("equity", 0), live.get("available", 0), live.get("positions", [])
     win_rate, total_pnl, total_tr = stats.get("win_rate", 0) * 100, stats.get("total_pnl", 0), stats.get("total_trades", 0)
 
-    # Métricas
     m1, m2, m3, m4, m5 = st.columns(5)
 
+    # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
     _usage_pct = 0.0
     try:
-        if equity > 0 and available >= 0:
+        if equity > 0 and available > 0:
             _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
+        elif equity > 0 and available == 0 and len(positions) > 0:
+            _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
+            if _pos_val > 0:
+                _usage_pct = max(0.0, min(95.0, (_pos_val / equity) * 100))
     except Exception:
         _usage_pct = 0.0
-    _circ = 2 * 3.14159 * 54
+    _circ     = 2 * 3.14159 * 54
     _dash_val = _circ * (_usage_pct / 100)
-    _gap_val = _circ - _dash_val
+    _gap_val  = _circ - _dash_val
 
     with m1:
         st.markdown(f"""
         <style>
-        @keyframes m1Pulse {{ 0%,100% {{ opacity:1; }} 50% {{ opacity:0.65; }} }}
+        @keyframes m1Pulse {{
+            0%,100% {{ opacity:1; }}
+            50%      {{ opacity:0.65; }}
+        }}
         .m1-arc {{ animation: m1Pulse 2.4s ease-in-out infinite; }}
         .m1-wrap {{
             text-align: center;
@@ -1027,15 +1379,24 @@ animate();
             justify-content: center;
             margin-top: -22px;
             animation: fadeIn 0.6s ease-out;
+            cursor: default;
         }}
-        .m1-wrap svg {{ transition: transform 0.3s ease; }}
-        .m1-wrap:hover svg {{ transform: translateY(-2px); }}
+        .m1-wrap svg {{
+            transition: transform 0.3s ease;
+        }}
+        .m1-wrap:hover svg {{
+            transform: translateY(-2px);
+        }}
+        .m1-wrap:hover .m1-track {{
+            stroke: rgba(138,43,226,0.30);
+        }}
+        .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
         <div class="m1-wrap">
             <svg width="160" height="160" viewBox="0 0 160 160">
-                <circle cx="80" cy="80" r="54" fill="none"
+                <circle class="m1-track" cx="80" cy="80" r="54" fill="none"
                     stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
-                <circle cx="80" cy="80" r="54" fill="none"
+                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none"
                     stroke="#8A2BE2" stroke-width="12"
                     stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}"
                     stroke-linecap="round"
@@ -1061,7 +1422,6 @@ animate();
     st.caption(f"🔄 Última atualização: {datetime.now().strftime('%H:%M:%S')}")
     st.divider()
 
-    # Tabs
     st.markdown("""
     <style>
     [data-testid="stTabs"] {
@@ -1070,6 +1430,10 @@ animate();
         border-radius: 12px !important;
         padding: 8px 12px 0 12px !important;
         backdrop-filter: blur(8px);
+    }
+    [data-testid="stTabs"] > div:first-child {
+        border-bottom: 1px solid rgba(138,43,226,0.2) !important;
+        padding-bottom: 2px;
     }
     button[data-baseweb="tab"] {
         font-family: 'Orbitron', sans-serif !important;
@@ -1124,7 +1488,7 @@ animate();
     with tab2:
         col_refresh, _ = st.columns([1, 4])
         with col_refresh:
-            if st.button("🔄 Atualizar", key="refresh_perf"):
+             if st.button("🔄 Atualizar", key="refresh_perf"):
                 st.cache_data.clear()
                 st.rerun()
         c_chart, c_bars = st.columns([3, 2])
@@ -1196,7 +1560,7 @@ animate();
         st.subheader("💻 Processamento da IA — Modo Terminal")
         logs = "\n".join([pensamento_ia() for _ in range(10)])
         st.code(logs, language="bash")
-        st.markdown('<div style="text-align:center; margin:10px 0;"><span style="color:#00ff88; font-family:\'Orbitron\';">IA Ativa — Processando</span></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center; margin:10px 0;"><span class="ia-heart"></span><span style="color:#00ff88; font-family:\'Orbitron\';">IA Ativa — Processando</span></div>', unsafe_allow_html=True)
         brain_file = "brain_memory.json"
         if os.path.exists(brain_file):
             try:
@@ -1235,6 +1599,30 @@ animate();
         }
         .bot-status-online { background: #0a1f0a; border: 1px solid #00cc44; color: #00ff55; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
         .bot-status-offline { background: #1f0a0a; border: 1px solid #cc2200; color: #ff4422; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+        .bot-control-panel {
+            background: rgba(13,13,26,0.95);
+            border: 1px solid rgba(138,43,226,0.4);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .equity-ring-wrap {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .equity-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .equity-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
         .bot-ctrl-label {
             font-size: 11px;
             color: #888;
@@ -1392,8 +1780,8 @@ animate();
                 try:
                     with open(risk_file) as f: rs = json.load(f)
                     loss_streak = rs.get("loss_streak", 0)
-                    daily_loss = rs.get("daily_loss_pct", 0) * 100
-                    modo_def = rs.get("modo_reducao", False)
+                    daily_loss  = rs.get("daily_loss_pct", 0) * 100
+                    modo_def    = rs.get("modo_reducao", False)
                     col_ls, col_dl = st.columns(2)
                     col_ls.metric("Loss Streak", loss_streak)
                     col_dl.metric("Loss Diário", f"{daily_loss:.2f}%")
