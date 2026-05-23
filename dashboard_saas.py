@@ -39,7 +39,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO COMPLETO
+# CSS — GLASSMORPHISM + ANIMAÇÕES + MOBILE FIX
 # ==========================================
 st.markdown("""
 <style>
@@ -60,301 +60,32 @@ h1, h2, h3 {
     text-align: center;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVIDADE — DESKTOP / TABLET / SMARTPHONE
-   ═══════════════════════════════════════════════════════════════ */
+/* ==========================================
+CORREÇÃO MOBILE: BOTÃO SAIR FLUTUANTE
+========================================== */
+@media (max-width: 600px) {
+    .btn-sair-mobile {
+        position: fixed !important;
+        top: 65px !important;
+        right: 15px !important;
+        z-index: 99999 !important;
+        width: auto !important;
+    }
+    .btn-sair-mobile button {
+        background: rgba(255, 68, 68, 0.15) !important;
+        border: 1px solid #ff4444 !important;
+        color: #ff4444 !important;
+        padding: 6px 15px !important;
+        font-size: 11px !important;
+        border-radius: 20px !important;
+        font-family: 'Orbitron', sans-serif !important;
+        font-weight: bold !important;
+    }
 
-/* ── DESKTOP LARGO (>1400px) ── */
-@media (min-width: 1400px) {
-    .block-container { max-width: 1400px !important; }
-    .titulo-card-text { font-size: 2rem !important; letter-spacing: 4px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.6rem !important; }
-}
-
-/* ── DESKTOP NORMAL (1024–1399px) ── */
-@media (max-width: 1399px) and (min-width: 1024px) {
-    .titulo-card-text { font-size: 1.7rem !important; letter-spacing: 3px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.3rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.85rem !important; }
-    button[data-baseweb="tab"] { font-size: 11px !important; padding: 8px 12px !important; }
-    .status-value { font-size: 13px !important; }
-    .status-label { font-size: 9px !important; }
-}
-
-/* ── TABLET LANDSCAPE (768–1023px) ── */
-@media (max-width: 1023px) and (min-width: 768px) {
-    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
-    .titulo-card-text { font-size: 1.4rem !important; letter-spacing: 2px !important; }
-    .titulo-card { padding: 12px 24px !important; }
-    .admin-name { font-size: 12px !important; }
-    .admin-label { font-size: 8px !important; }
-    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.75rem !important; }
-    [data-testid="stMetric"] { padding: 15px !important; }
-    .status-value { font-size: 12px !important; }
-    .status-label { font-size: 9px !important; }
-    .status-box { padding: 10px 6px !important; }
-    button[data-baseweb="tab"] { font-size: 10px !important; padding: 6px 10px !important; }
-    .section-title-box { font-size: 14px !important; padding: 14px 20px !important; }
-    .hist-item { font-size: 12px !important; }
-    .bot-ctrl-value { font-size: 12px !important; }
-}
-
-/* ── MOBILE LANDSCAPE / TABLET PORTRAIT (480–767px) ── */
-@media (max-width: 767px) and (min-width: 480px) {
-    .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
-    
-    /* Navbar responsiva */
-    .sf-navbar { padding: 0 12px !important; height: 48px !important; }
-    .sf-navbar-logo { width: 32px !important; height: 32px !important; }
-    .sf-navbar-name { font-size: 12px !important; letter-spacing: 1px !important; }
-    .sf-navbar-status { font-size: 9px !important; }
-    
-    /* Título */
-    .titulo-card-text { font-size: 1.1rem !important; letter-spacing: 1.5px !important; }
-    .titulo-card { padding: 10px 20px !important; }
-    
-    /* Admin card */
+    /* Ajustes extras para mobile */
+    .titulo-card { padding: 10px 15px !important; }
+    .titulo-card-text { font-size: 1.1rem !important; }
     .admin-card { padding: 8px 12px !important; }
-    .admin-name { font-size: 11px !important; }
-    .admin-label { font-size: 8px !important; }
-    
-    /* Métricas */
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.7rem !important; }
-    [data-testid="stMetric"] { padding: 12px !important; }
-    
-    /* Status boxes */
-    .status-value { font-size: 11px !important; }
-    .status-label { font-size: 8px !important; }
-    .status-box { padding: 8px 4px !important; }
-    
-    /* Tabs */
-    button[data-baseweb="tab"] { font-size: 9px !important; padding: 5px 8px !important; }
-    [data-testid="stTabs"] { padding: 4px 6px 0 6px !important; }
-    
-    /* SVG Ring Equity */
-    .m1-wrap svg { width: 120px !important; height: 120px !important; }
-    .m1-wrap text { font-size: 7px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 13px !important; }
-    
-    /* Sphere 3D */
-    #equity-display, #status-bar, #task-text { font-size: 10px !important; }
-    
-    /* Tabelas */
-    [data-testid="stDataFrame"] { font-size: 11px !important; }
-    
-    /* Botões */
-    .stButton > button { font-size: 0.9rem !important; padding: 10px !important; }
-    
-    /* Forms */
-    input, select, textarea { font-size: 14px !important; padding: 10px !important; }
-    
-    /* Seções */
-    .section-title-box { font-size: 13px !important; padding: 12px 15px !important; }
-    .bot-ctrl-value { font-size: 11px !important; padding: 8px 10px !important; }
-    .hist-item { font-size: 11px !important; padding: 6px 8px !important; }
-}
-
-/* ── SMARTPHONE PORTRAIT (<480px) ── */
-@media (max-width: 479px) {
-    .block-container { padding-left: 0.4rem !important; padding-right: 0.4rem !important; padding-top: 0.3rem !important; }
-    
-    /* Navbar compacta */
-    .sf-navbar { padding: 0 8px !important; height: 44px !important; }
-    .sf-navbar-logo { width: 28px !important; height: 28px !important; }
-    .sf-navbar-name { display: none !important; }
-    .sf-navbar-status { font-size: 8px !important; }
-    
-    /* Título */
-    .titulo-card-text { 
-        font-size: clamp(0.85rem, 4.5vw, 1rem) !important; 
-        letter-spacing: 1px !important; 
-        white-space: nowrap !important; 
-    }
-    .titulo-card { padding: 8px 14px !important; border-radius: 12px !important; }
-    
-    /* Admin card */
-    .admin-card { padding: 6px 10px !important; }
-    .admin-name { font-size: 10px !important; }
-    .admin-label { font-size: 7px !important; }
-    
-    /* Métricas — empilhar verticalmente */
-    [data-testid="stMetric"] { 
-        width: 100% !important; 
-        margin-bottom: 8px !important; 
-        padding: 10px !important;
-    }
-    [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
-    [data-testid="stMetricLabel"] { font-size: 0.65rem !important; }
-    
-    /* Status boxes — empilhar */
-    .status-box { 
-        width: 100% !important; 
-        margin-bottom: 4px !important; 
-    }
-    .status-value { font-size: 10px !important; }
-    .status-label { font-size: 7px !important; }
-    
-    /* Tabs — scroll horizontal */
-    button[data-baseweb="tab"] { 
-        font-size: 8px !important; 
-        padding: 4px 6px !important; 
-        white-space: nowrap !important;
-    }
-    [data-testid="stTabs"] { 
-        overflow-x: auto !important; 
-        padding-bottom: 4px !important; 
-    }
-    
-    /* SVG Ring */
-    .m1-wrap svg { width: 100px !important; height: 100px !important; }
-    .m1-wrap text { font-size: 6px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 12px !important; }
-    
-    /* Sphere 3D */
-    #equity-display, #status-bar, #task-text { font-size: 9px !important; }
-    
-    /* Tabelas — scroll horizontal */
-    [data-testid="stDataFrame"] { 
-        font-size: 10px !important; 
-        overflow-x: auto !important;
-        max-width: 100vw !important;
-    }
-    
-    /* Botões full width */
-    .stButton > button { 
-        width: 100% !important; 
-        font-size: 0.85rem !important; 
-        padding: 8px !important;
-    }
-    
-    /* Forms */
-    input, select, textarea { 
-        font-size: 13px !important; 
-        padding: 8px !important;
-    }
-    
-    /* Seções de configuração */
-    .section-title-box { 
-        font-size: 11px !important; 
-        padding: 10px 12px !important;
-        letter-spacing: 1px !important;
-    }
-    
-    /* Histórico de trades */
-    .hist-item { 
-        font-size: 10px !important; 
-        padding: 5px 6px !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-    }
-    
-    /* Bot status */
-    .bot-status-online, .bot-status-offline { 
-        font-size: 9px !important; 
-        padding: 4px 10px !important;
-    }
-    
-    /* Controles do bot */
-    .bot-ctrl-label { font-size: 9px !important; }
-    .bot-ctrl-value { font-size: 10px !important; padding: 6px 8px !important; }
-    
-    /* Colunas de controle — empilhar */
-    [data-testid="stVerticalBlock"] > div[data-testid="stColumn"] {
-        margin-bottom: 12px !important;
-    }
-}
-
-/* ── SMARTPHONE MUITO PEQUENO (<320px) ── */
-@media (max-width: 319px) {
-    .titulo-card-text { font-size: 0.75rem !important; }
-    [data-testid="stMetricValue"] { font-size: 1rem !important; }
-    .m1-wrap svg { width: 90px !important; height: 90px !important; }
-    .m1-wrap text[font-size="16"] { font-size: 11px !important; }
-    button[data-baseweb="tab"] { font-size: 7px !important; padding: 3px 5px !important; }
-    .sf-navbar-dot { width: 5px !important; height: 5px !important; }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   UTILITÁRIOS RESPONSIVOS STREAMLIT
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Forçar que colunas se ajustem no mobile */
-@media (max-width: 768px) {
-    .stColumns > div { 
-        flex: 1 1 100% !important; 
-        max-width: 100% !important; 
-        margin-bottom: 10px !important;
-    }
-}
-
-/* Garantir que gráficos Plotly sejam responsivos */
-.plotly-chart-container {
-    width: 100% !important;
-    max-width: 100vw !important;
-    overflow-x: auto !important;
-}
-
-/* Ajustar altura do TradingView no mobile */
-@media (max-width: 480px) {
-    .tradingview-widget-container { height: 400px !important; }
-}
-
-/* Navbar fixa no topo */
-.sf-navbar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 9999;
-    height: 72px;
-    background: rgba(5,5,5,0.95);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(138,43,226,0.4);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    gap: 14px;
-}
-.sf-navbar-logo {
-    width: 46px; height: 46px;
-    background: linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #8A2BE2 100%);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    border: 1px solid rgba(192,132,252,0.4);
-    box-shadow: 0 0 18px rgba(138,43,226,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -1px;
-    text-shadow: 0 0 10px rgba(255,255,255,0.6);
-}
-.sf-navbar-name {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: #c4b5fd;
-    letter-spacing: 3px;
-    white-space: nowrap;
-}
-.sf-navbar-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #4ade80;
-    margin-left: auto;
-    flex-shrink: 0;
-}
-.sf-navbar-status {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: #6b7280;
-    white-space: nowrap;
-}
-
-/* Empurra o conteúdo abaixo da navbar */
-.block-container {
-    padding-top: 78px !important;
 }
 
 .login-container {
@@ -976,31 +707,25 @@ def render_login():
                 background: rgba(13, 13, 13, 0.95);
                 border: 2px solid #8A2BE2;
                 border-radius: 16px;
-                padding: 30px 20px;
+                padding: 40px 30px;
                 box-shadow: 0 0 50px rgba(138,43,226,0.3);
                 max-width: 450px;
                 margin: 50px auto;
                 text-align: center;
-                display: block;
-                overflow: hidden;
             ">
                 <h1 style="
-                    font-family: 'Orbitron', sans-serif !important;
-                    color: #8A2BE2 !important;
-                    font-size: clamp(1rem, 5vw, 1.8rem) !important;
-                    margin: 0 !important;
-                    font-weight: bold !important;
-                    letter-spacing: 2px !important;
-                    text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
-                    white-space: nowrap !important;
-                    width: 100% !important;
-                    text-align: center !important;
-                    display: block !important;
-                    line-height: 1.2 !important;
+                    font-family: 'Orbitron', sans-serif;
+                    color: #8A2BE2;
+                    font-size: 2rem;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    letter-spacing: 3px;
+                    text-shadow: 0 0 15px rgba(138,43,226,0.8);
+                    white-space: nowrap;
                 ">SEXTA-FEIRA</h1>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
+            st.markdown('<p style="color: #fff; font-family: \'Orbitron\', sans-serif; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px;">Autenticação</p>', unsafe_allow_html=True)
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
@@ -1071,7 +796,7 @@ def render_dashboard():
     uid, uname = st.session_state["user_id"], st.session_state["user_name"]
     
     # ═══════════════════════════════════════════════════════════════
-    # ESFERA 3D INTERATIVA + NAVBAR + ADMIN + SAIR
+    # ESFERA 3D INTERATIVA + ADMIN ESQUERDA + SAIR DIREITA
     # ═══════════════════════════════════════════════════════════════
     import streamlit.components.v1 as components
 
@@ -1095,10 +820,13 @@ def render_dashboard():
             _bot_equity  = float(_hb.get("equity") or 0)
             _bot_scan    = _hb.get("last_scan", "—")
         else:
+            # ✅ FIX 4b: sem heartbeat, verifica se VIP tem credenciais cadastradas
+            # Se tiver, o bot está configurado mesmo que o arquivo não exista (filesystem efêmero)
             if _SAAS_DB_OK:
                 _creds = get_decrypted_credentials(uid)
                 if _creds:
                     _bot_status = "configured"
+                    # Tenta buscar equity da OKX para confirmar conectividade
                     try:
                         _live_check = fetch_live_account(uid)
                         if _live_check.get("equity", 0) > 0:
@@ -1126,27 +854,36 @@ def render_dashboard():
             _bot_pnl     = float(_rs.get("daily_loss_pct", 0)) * 100
     except Exception: pass
 
-    # Gera HTML da esfera interativa
+    # Gera HTML da esfera interativa com injeção de dados via JS
     def _build_interactive_sphere(online, status, equity, scan, win_rate, min_score, risk_mode):
+        # Cor da esfera muda com estado do bot
         if not online:
             color1, color2, color3 = "0x444444", "0x555555", "0x666666"
+            task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
+            pulse_color = "'#444444'"
             status_text = "OFFLINE"
-            status_color = "#6b7280"
+            status_color = "#6b7280"      # cinza neutro — sem vermelho agressivo
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
+            task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
+            pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
-            status_color = "#a78bfa"
+            status_color = "#a78bfa"      # roxo claro — alerta suave
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
+            task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
+            pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
-            status_color = "#c4b5fd"
+            status_color = "#c4b5fd"      # lilás suave — positivo no tema
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
+            task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
+            pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
-            status_color = "#c4b5fd"
+            status_color = "#c4b5fd"      # lilás suave — consistente com o tema
             status_dot   = "#8A2BE2"
 
         return f"""<!DOCTYPE html>
@@ -1242,6 +979,7 @@ def render_dashboard():
 
   camera.position.z = 150;
 
+  // Tarefas dinâmicas baseadas no estado do bot
   const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
@@ -1261,13 +999,18 @@ def render_dashboard():
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
+
+    // Rotações diferenciais
     core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
     mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
     outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
     halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
+
+    // Pulsação de opacidade
     core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
     mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
+
     renderer.render(scene, camera);
   }}
   animate();
@@ -1281,45 +1024,35 @@ def render_dashboard():
         _win_rate_bot, _min_score, _risk_mode
     )
 
-    # ── NAVBAR FIXA (logo SF + nome + status online) ─────────────────
-    _nav_dot_color = "#4ade80" if _bot_online else "#6b7280"
-    _nav_status    = "ONLINE" if _bot_online else "OFFLINE"
-    st.markdown(f"""
-    <div class="sf-navbar">
-        <div class="sf-navbar-logo">SF</div>
-        <span class="sf-navbar-name">SEXTA&#8209;FEIRA</span>
-        <div class="sf-navbar-dot" style="background:{_nav_dot_color};
-            box-shadow:0 0 6px {_nav_dot_color}; margin-left:auto;"></div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_admin, col_esfera, col_sair = st.columns([1, 2, 1])
 
-    # ── HEADER: admin esquerda | sair direita ─
-    col_admin_h, col_sair_h = st.columns([3, 1])
-    with col_admin_h:
+    with col_admin:
         st.markdown(f"""
-        <div style="padding-top:10px;">
+        <div style="height:100%; display:flex; align-items:flex-start; padding-top:20px;">
             <div class="admin-card">
                 <span class="admin-label">Conta VIP</span>
                 <span class="admin-name">{uname}</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
-    with col_sair_h:
-        st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
+
+    with col_esfera:
+        components.html(sphere_html_interactive, height=420, scrolling=False)
+
+    with col_sair:
+        st.markdown('<div style="padding-top:20px;">', unsafe_allow_html=True)
         if st.button("Sair", use_container_width=True, key="btn_sair"):
             for k in ["logged_in", "user_id", "user_email", "user_name"]:
                 st.session_state.pop(k, None)
             st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    # ═══════════════════════════════════════════════════════════════
+    # FIM DA ESFERA 3D INTERATIVA
+    # ═══════════════════════════════════════════════════════════════
 
-    # ── ESFERA centralizada ─
-    _, col_esfera, _ = st.columns([1, 2, 1])
-    with col_esfera:
-        components.html(sphere_html_interactive, height=400, scrolling=False)
-
-    # TÍTULO CENTRALIZADO
+    # TÍTULO CENTRALIZADO COM CARD — MOVIDO MAIS PARA CIMA
     st.markdown("""
-    <div style="text-align:center; margin-top:-40px; margin-bottom:14px;">
+    <div style="text-align:center; margin: -120px 0 18px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -1352,12 +1085,8 @@ def render_dashboard():
     # ── PATRIMÔNIO: anel idêntico ao da aba Configurações ──
     _usage_pct = 0.0
     try:
-        if equity > 0 and available > 0:
+        if equity > 0 and available >= 0:
             _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
-        elif equity > 0 and available == 0 and len(positions) > 0:
-            _pos_val = sum(abs(p.get("size", 0) * p.get("entry", 0)) for p in positions)
-            if _pos_val > 0:
-                _usage_pct = max(0.0, min(95.0, (_pos_val / equity) * 100))
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
@@ -1382,13 +1111,16 @@ def render_dashboard():
             cursor: default;
         }}
         .m1-wrap svg {{
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, filter 0.3s ease;
         }}
         .m1-wrap:hover svg {{
             transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px rgba(138,43,226,0.5))
+                    drop-shadow(0 0 20px rgba(138,43,226,0.35));
         }}
         .m1-wrap:hover .m1-track {{
-            stroke: rgba(138,43,226,0.30);
+            stroke: #8A2BE2;
+            transition: stroke 0.3s ease;
         }}
         .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
@@ -1424,6 +1156,7 @@ def render_dashboard():
 
     st.markdown("""
     <style>
+    /* CAIXA AO REDOR DAS TABS */
     [data-testid="stTabs"] {
         background: rgba(17,17,17,0.6) !important;
         border: 1px solid rgba(138,43,226,0.3) !important;
@@ -1431,6 +1164,7 @@ def render_dashboard():
         padding: 8px 12px 0 12px !important;
         backdrop-filter: blur(8px);
     }
+    /* Remove borda inferior padrão do Streamlit nas tabs */
     [data-testid="stTabs"] > div:first-child {
         border-bottom: 1px solid rgba(138,43,226,0.2) !important;
         padding-bottom: 2px;
@@ -1599,6 +1333,8 @@ def render_dashboard():
         }
         .bot-status-online { background: #0a1f0a; border: 1px solid #00cc44; color: #00ff55; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
         .bot-status-offline { background: #1f0a0a; border: 1px solid #cc2200; color: #ff4422; padding: 10px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+
+        /* PAINEL BOT CONTROL */
         .bot-control-panel {
             background: rgba(13,13,26,0.95);
             border: 1px solid rgba(138,43,226,0.4);
@@ -1658,14 +1394,18 @@ def render_dashboard():
         </style>
         """, unsafe_allow_html=True)
 
+        # ── PAINEL DE CONTROLE DO BOT ──────────────────────────────
         st.markdown('<div class="section-title-box">🤖 CONTROLE DO ROBÔ</div>', unsafe_allow_html=True)
 
+        # Linha: equity ring + status + histórico
         ctrl1, ctrl2, ctrl3 = st.columns([1, 1, 1])
 
         with ctrl1:
+            # Equity em ring visual
             eq_display = f"${equity:.2f}" if 'equity' in dir() else "$0.00"
             avail_display = f"${available:.2f}" if 'available' in dir() else "$0.00"
 
+            # Calcula % de uso da conta
             usage_pct = 0
             try:
                 if equity > 0 and available >= 0:
@@ -1673,6 +1413,7 @@ def render_dashboard():
             except Exception:
                 usage_pct = 0
 
+            # SVG ring de equity
             circumference = 2 * 3.14159 * 54
             dash_val = circumference * (usage_pct / 100)
             gap_val = circumference - dash_val
@@ -1703,10 +1444,12 @@ def render_dashboard():
             </div>
             """, unsafe_allow_html=True)
 
+            # Status do bot
             if os.path.exists("bot_heartbeat.json"):
                 try:
                     with open("bot_heartbeat.json") as f: hb = json.load(f)
                     last_scan = hb.get("last_scan", "N/A")
+                    bot_status_str = hb.get("status", "alive")
                     st.markdown(f"""
                     <div style="text-align:center; margin-top:8px;">
                         <div style="display:inline-flex; align-items:center; gap:6px;
@@ -1737,9 +1480,11 @@ def render_dashboard():
                 """, unsafe_allow_html=True)
 
         with ctrl2:
+            # Parâmetros do bot
             st.markdown('<span class="bot-ctrl-label">Estratégia</span>', unsafe_allow_html=True)
             st.markdown('<span class="bot-ctrl-value">Liquidity Sweep + EMA Cross</span>', unsafe_allow_html=True)
 
+            # Lê brain memory para score e risk
             min_score_val = "70"
             risk_level_val = "NORMAL"
             win_rate_brain = "—"
@@ -1773,6 +1518,7 @@ def render_dashboard():
             col_sc.metric("Min Score", min_score_val)
             col_rl.metric("Modo Risco", risk_level_val)
 
+            # Lê risk state para loss streak
             risk_file = f"risk_state_{uid}.json"
             if not os.path.exists(risk_file):
                 risk_file = "risk_state.json"
@@ -1791,6 +1537,7 @@ def render_dashboard():
                     pass
 
         with ctrl3:
+            # Histórico recente de trades (estilo Auks)
             st.markdown('<span class="bot-ctrl-label">Histórico de Operações</span>', unsafe_allow_html=True)
             recent = get_closed_trades(uid, limit=8) if _SAAS_DB_OK else []
             if recent:
@@ -1815,6 +1562,7 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
+        # ── SENHA DE ACESSO ───────────────────────────────────────
         st.markdown('<div class="section-title-box">🔑 &nbsp; SENHA DE ACESSO</div>', unsafe_allow_html=True)
         with st.form("change_pass_form"):
             current_pass = st.text_input("Senha Atual", type="password")
@@ -1839,6 +1587,7 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
+        # ── CHAVES API OKX ────────────────────────────────────────
         st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA OKX</div>', unsafe_allow_html=True)
         st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
         with st.form("okx_keys_form"):
@@ -1865,6 +1614,7 @@ def render_dashboard():
                 elif _SAAS_DB_OK:
                     try:
                         update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
+                        # ✅ FIX 4: invalida cache do cliente OKX para usar as novas chaves imediatamente
                         st.cache_resource.clear()
                         st.success("✅ Chaves salvas com segurança!")
                         st.info("ℹ️ O bot começará a operar em até 1 minuto.")
@@ -1873,6 +1623,7 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
+        # ── ATIVIDADES RECENTES ───────────────────────────────────
         st.markdown('<div class="section-title-box">📋 &nbsp; ATIVIDADES RECENTES</div>', unsafe_allow_html=True)
         activity_log = get_real_bot_activity(uid, limit=5)
         for log in activity_log:
