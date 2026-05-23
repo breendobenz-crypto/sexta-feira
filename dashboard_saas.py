@@ -32,11 +32,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Injeta favicon SVG da logo SA via link tag
-st.markdown("""
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%235b21b6'/%3E%3Cstop offset='100%25' stop-color='%23c084fc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='48' height='48' rx='10' fill='%23050505'/%3E%3Cpolygon points='24,3 43,13.5 43,34.5 24,45 5,34.5 5,13.5' fill='none' stroke='url(%23g)' stroke-width='2'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-family='Orbitron,sans-serif' font-size='14' font-weight='700' fill='url(%23g)'%3ESA%3C/text%3E%3C/svg%3E">
-""", unsafe_allow_html=True)
-
 # ── FAVICON PERSONALIZADO (logo SF hexágono + S) ───────────────────────────
 st.markdown("""
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0OCA0OCcgZmlsbD0nbm9uZSc+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSdnJyB4MT0nNCcgeTE9JzQ0JyB4Mj0nNDQnIHkyPSc0JyBncmFkaWVudFVuaXRzPSd1c2VyU3BhY2VPblVzZSc+PHN0b3Agb2Zmc2V0PScwJScgc3RvcC1jb2xvcj0nIzViMjFiNicvPjxzdG9wIG9mZnNldD0nNTUlJyBzdG9wLWNvbG9yPScjOEEyQkUyJy8+PHN0b3Agb2Zmc2V0PScxMDAlJyBzdG9wLWNvbG9yPScjYzA4NGZjJy8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9JzQ4JyBoZWlnaHQ9JzQ4JyByeD0nMTInIGZpbGw9JyMwYTBhMGEnLz48cG9seWdvbiBwb2ludHM9JzI0LDMgNDMsMTMuNSA0MywzNC41IDI0LDQ1IDUsMzQuNSA1LDEzLjUnIGZpbGw9J25vbmUnIHN0cm9rZT0ndXJsKCNnKScgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJy8+PHBhdGggZD0nTTE4IDMwIFExOCAzNCAyNCAzNCBRMzAgMzQgMzAgMjkgUTMwIDI1IDI0IDI0IFExOCAyMyAxOCAxOCBRMTggMTQgMjQgMTQgUTMwIDE0IDMwIDE4JyBmaWxsPSdub25lJyBzdHJva2U9J3VybCgjZyknIHN0cm9rZS13aWR0aD0nMi44JyBzdHJva2UtbGluZWNhcD0ncm91bmQnLz48Y2lyY2xlIGN4PScyNCcgY3k9JzI0JyByPScxLjgnIGZpbGw9JyNjMDg0ZmMnLz48L3N2Zz4=">
@@ -311,31 +306,40 @@ h1, h2, h3 {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 9999;
-    height: 62px;
-    background: rgba(5,5,5,0.92);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(138,43,226,0.35);
+    height: 72px;
+    background: rgba(5,5,5,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(138,43,226,0.4);
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    gap: 12px;
+    padding: 0 24px;
+    gap: 14px;
 }
 .sf-navbar-logo {
-    width: 36px; height: 36px;
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, #3b0764 0%, #6d28d9 50%, #8A2BE2 100%);
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 8px rgba(138,43,226,0.9));
+    border: 1px solid rgba(192,132,252,0.4);
+    box-shadow: 0 0 18px rgba(138,43,226,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
 .sf-navbar-name {
     font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: #c4b5fd;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     white-space: nowrap;
 }
 .sf-navbar-dot {
-    width: 7px; height: 7px;
+    width: 8px; height: 8px;
     border-radius: 50%;
     background: #4ade80;
     margin-left: auto;
@@ -982,10 +986,10 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.95rem, 5.5vw, 1.8rem) !important;
+                    font-size: clamp(0.9rem, 5vw, 1.8rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: clamp(1px, 1vw, 3px) !important;
+                    letter-spacing: clamp(1px, 1.5vw, 3px) !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     word-break: keep-all !important;
