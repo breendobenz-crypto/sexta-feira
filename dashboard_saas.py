@@ -39,7 +39,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# CSS — GLASSMORPHISM + ANIMAÇÕES + MOBILE FIX
+# CSS — GLASSMORPHISM + ANIMAÇÕES
 # ==========================================
 st.markdown("""
 <style>
@@ -58,34 +58,6 @@ h1, h2, h3 {
     font-weight: 700 !important;
     text-shadow: 0 0 10px rgba(138,43,226,0.5);
     text-align: center;
-}
-
-/* ==========================================
-CORREÇÃO MOBILE: BOTÃO SAIR FLUTUANTE
-========================================== */
-@media (max-width: 600px) {
-    .btn-sair-mobile {
-        position: fixed !important;
-        top: 65px !important;
-        right: 15px !important;
-        z-index: 99999 !important;
-        width: auto !important;
-    }
-    .btn-sair-mobile button {
-        background: rgba(255, 68, 68, 0.15) !important;
-        border: 1px solid #ff4444 !important;
-        color: #ff4444 !important;
-        padding: 6px 15px !important;
-        font-size: 11px !important;
-        border-radius: 20px !important;
-        font-family: 'Orbitron', sans-serif !important;
-        font-weight: bold !important;
-    }
-
-    /* Ajustes extras para mobile */
-    .titulo-card { padding: 10px 15px !important; }
-    .titulo-card-text { font-size: 1.1rem !important; }
-    .admin-card { padding: 8px 12px !important; }
 }
 
 .login-container {
@@ -135,19 +107,12 @@ div[data-testid="stFormSubmitButton"] button {
     padding: 12px !important;
     margin-top: 15px;
     border: none !important;
-    transition: all 0.3s ease;
-    animation: pulsePurple 2s infinite alternate;
+    transition: all 0.2s ease;
 }
 
 div[data-testid="stFormSubmitButton"] button:hover {
-    background-color: #9d4edd !important;
-    transform: scale(1.02);
-    box-shadow: 0 0 20px #8A2BE2;
-}
-
-@keyframes pulsePurple {
-    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+    background-color: #7c22cc !important;
+    transform: translateY(-1px);
 }
 
 input[type="text"], input[type="password"] {
@@ -311,17 +276,16 @@ td {
 
 .stButton > button {
     border-radius: 8px !important;
-    border: 1px solid #8A2BE2 !important;
-    background: rgba(138,43,226,0.1) !important;
+    border: 1px solid rgba(138,43,226,0.5) !important;
+    background: rgba(138,43,226,0.08) !important;
     color: #fff !important;
     font-family: 'Orbitron', sans-serif !important;
-    transition: all 0.3s ease;
-    animation: fadeIn 0.5s ease-out;
+    transition: all 0.2s ease;
 }
 
 .stButton > button:hover {
-    background: #8A2BE2 !important;
-    box-shadow: 0 0 15px #8A2BE2 !important;
+    background: rgba(138,43,226,0.25) !important;
+    border-color: #8A2BE2 !important;
     transform: translateY(-1px);
 }
 
@@ -376,40 +340,6 @@ hr {
     padding: 14px 40px;
     box-shadow: 0 0 30px rgba(138,43,226,0.25);
     animation: slideIn 0.5s ease-out;
-    position: relative;
-    overflow: hidden;
-}
-.titulo-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
-    animation: barPingPong 2.8s ease-in-out infinite;
-}
-.titulo-card::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #8A2BE2, #c084fc, #8A2BE2, transparent);
-    animation: barPingPongRev 2.8s ease-in-out infinite;
-}
-@keyframes barPingPong {
-    0% { transform: translateX(-100%); }
-    50% { transform: translateX(200%); }
-    50.001% { transform: translateX(200%); }
-    100% { transform: translateX(-100%); }
-}
-@keyframes barPingPongRev {
-    0% { transform: translateX(200%); }
-    50% { transform: translateX(-100%); }
-    50.001% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
 }
 .titulo-card-text {
     font-family: 'Orbitron', sans-serif;
@@ -862,28 +792,28 @@ def render_dashboard():
             task_list = "['Bot offline...', 'Aguardando inicialização...', 'Sem conexão com OKX...']"
             pulse_color = "'#444444'"
             status_text = "OFFLINE"
-            status_color = "#6b7280"      # cinza neutro — sem vermelho agressivo
+            status_color = "#6b7280"
             status_dot   = "#4b5563"
         elif risk_mode == "DEFENSIVO":
             color1, color2, color3 = "0x7c3aed", "0x6d28d9", "0x5b21b6"
             task_list = f"['Modo defensivo ativo...', 'Reduzindo exposição...', 'Win rate: {win_rate:.1f}%', 'Aguardando setup de qualidade...']"
             pulse_color = "'#7c3aed'"
             status_text = "DEFENSIVO"
-            status_color = "#a78bfa"      # roxo claro — alerta suave
+            status_color = "#a78bfa"
             status_dot   = "#7c3aed"
         elif win_rate > 60:
             color1, color2, color3 = "0x8A2BE2", "0x7c3aed", "0xa855f7"
             task_list = f"['Performance excelente!', 'Win rate: {win_rate:.1f}%', 'Buscando novos setups...', 'Score mínimo: {min_score}']"
             pulse_color = "'#8A2BE2'"
             status_text = "OTIMIZADO"
-            status_color = "#c4b5fd"      # lilás suave — positivo no tema
+            status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
         else:
             color1, color2, color3 = "0x8A2BE2", "0xA855F7", "0xC084FC"
             task_list = f"['Analisando liquidez...', 'Calculando EMA 9/21/50...', 'Verificando HTF 1H...', 'Score mínimo: {min_score}', 'Aguardando sweep...']"
             pulse_color = "'#8A2BE2'"
             status_text = "ONLINE"
-            status_color = "#c4b5fd"      # lilás suave — consistente com o tema
+            status_color = "#c4b5fd"
             status_dot   = "#8A2BE2"
 
         return f"""<!DOCTYPE html>
@@ -931,12 +861,6 @@ def render_dashboard():
     min-height: 18px;
     transition: opacity 0.4s;
   }}
-  @media (max-width: 768px) {{
-    #status-bar, #equity-display, #task-text {{ font-size: 10px !important; }}
-  }}
-  @media (max-width: 480px) {{
-    #status-bar, #equity-display, #task-text {{ font-size: 9px !important; }}
-  }}
 </style>
 </head>
 <body>
@@ -979,7 +903,6 @@ def render_dashboard():
 
   camera.position.z = 150;
 
-  // Tarefas dinâmicas baseadas no estado do bot
   const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
@@ -999,18 +922,13 @@ def render_dashboard():
   function animate() {{
     requestAnimationFrame(animate);
     t += 0.005;
-
-    // Rotações diferenciais
     core.rotation.x  += 0.002;  core.rotation.y  += 0.003;
     mid.rotation.x   += 0.0015; mid.rotation.y   += 0.0025;
     outer.rotation.x += 0.001;  outer.rotation.y += 0.002;
     halo.rotation.x  += 0.0005; halo.rotation.y  += 0.001;
-
-    // Pulsação de opacidade
     core.material.opacity  = 0.9  + Math.sin(t)     * 0.05;
     mid.material.opacity   = 0.65 + Math.sin(t*0.8) * 0.05;
     outer.material.opacity = 0.45 + Math.sin(t*0.6) * 0.05;
-
     renderer.render(scene, camera);
   }}
   animate();
@@ -1050,9 +968,9 @@ def render_dashboard():
     # FIM DA ESFERA 3D INTERATIVA
     # ═══════════════════════════════════════════════════════════════
 
-    # TÍTULO CENTRALIZADO COM CARD — MOVIDO MAIS PARA CIMA
+    # TÍTULO CENTRALIZADO COM CARD
     st.markdown("""
-    <div style="text-align:center; margin: -120px 0 18px;">
+    <div style="text-align:center; margin: -112px 0 18px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
