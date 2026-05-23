@@ -33,24 +33,28 @@ st.set_page_config(
 )
 
 # ── FAVICON PERSONALIZADO (logo SF hexágono + SF) ───────────────────────────
-_SF_FAVICON_B64 = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NiA0OCIgZmlsbD0ibm9uZSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iNCIgeTE9IjQ0IiB4Mj0iNTIiIHkyPSI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzViMjFiNiIvPjxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzA4NGZjIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJnbG93Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iYmx1ciIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0iIzBhMGEwYSIvPjxwb2x5Z29uIHBvaW50cz0iMjgsMyA1MSwxNSA1MSwzMyAyOCw0NSA1LDMzIDUsMTUiIGZpbGw9InJnYmEoMTAsMTAsMjAsMC45KSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjEwIiB5PSIzMiIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSItMSIgZmlsdGVyPSJ1cmwoI2dsb3cpIj5TRjwvdGV4dD48L3N2Zz4="
+_SF_ICO = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NiA0OCIgZmlsbD0ibm9uZSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iNCIgeTE9IjQ0IiB4Mj0iNTIiIHkyPSI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzViMjFiNiIvPjxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzA4NGZjIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJnbG93Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iYmx1ciIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0iIzBhMGEwYSIvPjxwb2x5Z29uIHBvaW50cz0iMjgsMyA1MSwxNSA1MSwzMyAyOCw0NSA1LDMzIDUsMTUiIGZpbGw9InJnYmEoMTAsMTAsMjAsMC45KSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjEwIiB5PSIzMiIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSItMSIgZmlsdGVyPSJ1cmwoI2dsb3cpIj5TRjwvdGV4dD48L3N2Zz4="
 st.markdown(f"""
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,{_SF_FAVICON_B64}">
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,{_SF_FAVICON_B64}">
 <script>
-(function forceFavicon() {{
-    var href = "data:image/svg+xml;base64,{_SF_FAVICON_B64}";
-    function setFav() {{
-        var links = document.querySelectorAll("link[rel*='icon']");
-        links.forEach(function(l) {{ l.parentNode.removeChild(l); }});
-        var lnk = document.createElement('link');
-        lnk.rel = 'icon'; lnk.type = 'image/svg+xml'; lnk.href = href;
-        document.head.appendChild(lnk);
-    }}
-    if (document.readyState === 'loading') {{ document.addEventListener('DOMContentLoaded', setFav); }}
-    else {{ setFav(); }}
-    setTimeout(setFav, 500);
-    setTimeout(setFav, 1500);
+(function() {{
+  var href = "data:image/svg+xml;base64,{_SF_ICO}";
+  function applyFavicon() {{
+    document.querySelectorAll("link[rel*='icon']").forEach(function(el) {{ el.remove(); }});
+    var l = document.createElement("link");
+    l.id = "sf-favicon"; l.rel = "icon"; l.type = "image/svg+xml"; l.href = href;
+    document.head.appendChild(l);
+  }}
+  applyFavicon();
+  var obs = new MutationObserver(function(muts) {{
+    muts.forEach(function(m) {{
+      m.addedNodes.forEach(function(n) {{
+        if (n.nodeName === "LINK" && n.rel && n.rel.includes("icon") && n.id !== "sf-favicon") {{
+          n.remove(); applyFavicon();
+        }}
+      }});
+    }});
+  }});
+  obs.observe(document.head, {{ childList: true }});
 }})();
 </script>
 """, unsafe_allow_html=True)
@@ -1171,8 +1175,7 @@ def render_dashboard():
 <head>
 <meta charset="UTF-8">
 <style>
-  html, body {{ margin:0; padding:0; background:transparent !important; }}
-  body {{ overflow:hidden; display:flex; flex-direction:column; align-items:center; height:100vh; }}
+  html, body {{ margin:0; padding:0; overflow:hidden; background:#050505 !important; display:flex; flex-direction:column; align-items:center; height:100vh; }}
   #status-bar {{
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 11px;
@@ -1229,6 +1232,7 @@ def render_dashboard():
   const W = window.innerWidth, H = window.innerHeight - 70;
   const camera = new THREE.PerspectiveCamera(75, W/H, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({{ antialias:true, alpha:true }});
+  renderer.setClearColor(0x000000, 0);
   renderer.setSize(W, H);
   renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
@@ -1337,7 +1341,7 @@ def render_dashboard():
 
     # TÍTULO CENTRALIZADO
     st.markdown("""
-    <div style="text-align:center; margin-top:-70px; margin-bottom:14px;">
+    <div style="text-align:center; margin-top:-40px; margin-bottom:14px;">
         <div class="titulo-card">
             <span class="titulo-card-text">SEXTA&#8209;FEIRA ADVANCED</span>
         </div>
@@ -1385,57 +1389,54 @@ def render_dashboard():
     with m1:
         st.markdown(f"""
         <style>
+        @keyframes m1Pulse {{
+            0%,100% {{ opacity:1; }}
+            50%      {{ opacity:0.75; }}
+        }}
+        .m1-arc {{ animation: m1Pulse 2.4s ease-in-out infinite; }}
         .m1-wrap {{
             text-align: center;
-            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin-top: -22px;
             animation: fadeIn 0.6s ease-out;
+            cursor: default;
         }}
-        .m1-label {{
-            font-family: 'Orbitron', sans-serif;
-            font-size: 9px;
-            color: #888;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }}
-        .m1-value {{
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 8px;
-        }}
-        .m1-bar-track {{
-            background: rgba(138,43,226,0.15);
-            border: 1px solid rgba(138,43,226,0.3);
-            border-radius: 6px;
-            height: 10px;
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-        }}
-        .m1-bar-fill {{
-            height: 100%;
-            border-radius: 6px;
-            background: linear-gradient(90deg, #5b21b6, #8A2BE2, #c084fc);
-            box-shadow: 0 0 8px rgba(138,43,226,0.6);
-            transition: width 1s ease;
-        }}
-        .m1-pct {{
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            color: #8A2BE2;
-            margin-top: 3px;
-            text-align: right;
-        }}
+        .m1-wrap svg {{ transition: transform 0.3s ease; }}
+        .m1-wrap:hover svg {{ transform: translateY(-2px); }}
+        .m1-wrap:hover .m1-track {{ stroke: rgba(138,43,226,0.30); }}
+        .m1-track {{ transition: stroke 0.3s ease; }}
         </style>
         <div class="m1-wrap">
-            <div class="m1-label">$ Patrimônio</div>
-            <div class="m1-value">{equity:.2f}</div>
-            <div class="m1-bar-track">
-                <div class="m1-bar-fill" style="width:{_usage_pct:.1f}%;"></div>
-            </div>
-            <div class="m1-pct">{_usage_pct:.1f}% alocado</div>
+            <svg width="160" height="160" viewBox="0 0 160 160">
+                <defs>
+                    <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#5b21b6"/>
+                        <stop offset="50%" stop-color="#8A2BE2"/>
+                        <stop offset="100%" stop-color="#c084fc"/>
+                    </linearGradient>
+                </defs>
+                <!-- Trilha de fundo -->
+                <circle class="m1-track" cx="80" cy="80" r="54" fill="none"
+                    stroke="rgba(138,43,226,0.15)" stroke-width="12"/>
+                <!-- Arco de progresso com gradiente -->
+                <circle class="m1-arc" cx="80" cy="80" r="54" fill="none"
+                    stroke="url(#arcGrad)" stroke-width="12"
+                    stroke-dasharray="{_dash_val:.1f} {_gap_val:.1f}"
+                    stroke-linecap="round"
+                    transform="rotate(-90 80 80)"/>
+                <!-- Textos internos -->
+                <text x="80" y="68" text-anchor="middle"
+                    fill="#888" font-family="sans-serif"
+                    font-size="9">Patrimônio</text>
+                <text x="80" y="86" text-anchor="middle"
+                    fill="#fff" font-family="Orbitron,sans-serif"
+                    font-size="15" font-weight="700">${equity:.2f}</text>
+                <text x="80" y="101" text-anchor="middle"
+                    fill="#8A2BE2" font-family="JetBrains Mono,monospace"
+                    font-size="9">{_usage_pct:.1f}% alocado</text>
+            </svg>
         </div>
         """, unsafe_allow_html=True)
 
