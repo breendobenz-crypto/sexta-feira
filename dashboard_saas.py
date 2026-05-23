@@ -26,23 +26,27 @@ def hash_password(password: str) -> str:
 # PAGE CONFIG
 # ==========================================
 st.set_page_config(
-    page_title="Sexta-Feira Advanced",
+    page_title="Sexta-Feira Advanced — VIP",
     layout="wide",
-    page_icon="",
+    page_icon="🟣",
     initial_sidebar_state="collapsed",
 )
 
 # ── FAVICON PERSONALIZADO (logo SF hexágono + SF) ───────────────────────────
 _SF_ICO = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NiA0OCIgZmlsbD0ibm9uZSI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iNCIgeTE9IjQ0IiB4Mj0iNTIiIHkyPSI0IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzViMjFiNiIvPjxzdG9wIG9mZnNldD0iNTUlIiBzdG9wLWNvbG9yPSIjOEEyQkUyIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjYzA4NGZjIi8+PC9saW5lYXJHcmFkaWVudD48ZmlsdGVyIGlkPSJnbG93Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxLjUiIHJlc3VsdD0iYmx1ciIvPjxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iYmx1ciIvPjxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPjwvZmVNZXJnPjwvZmlsdGVyPjwvZGVmcz48cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0iIzBhMGEwYSIvPjxwb2x5Z29uIHBvaW50cz0iMjgsMyA1MSwxNSA1MSwzMyAyOCw0NSA1LDMzIDUsMTUiIGZpbGw9InJnYmEoMTAsMTAsMjAsMC45KSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEuOCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjx0ZXh0IHg9IjEwIiB5PSIzMiIgZm9udC1mYW1pbHk9Ik9yYml0cm9uLHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI5MDAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InVybCgjZykiIGxldHRlci1zcGFjaW5nPSItMSIgZmlsdGVyPSJ1cmwoI2dsb3cpIj5TRjwvdGV4dD48L3N2Zz4="
 st.markdown(f"""
+<link id="sf-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,{_SF_ICO}">
+<link rel="shortcut icon" href="data:image/svg+xml;base64,{_SF_ICO}">
 <script>
 (function() {{
   var href = "data:image/svg+xml;base64,{_SF_ICO}";
   function applyFavicon() {{
-    document.querySelectorAll("link[rel*='icon']").forEach(function(el) {{ el.remove(); }});
-    var l = document.createElement("link");
-    l.id = "sf-favicon"; l.rel = "icon"; l.type = "image/svg+xml"; l.href = href;
-    document.head.appendChild(l);
+    document.querySelectorAll("link[rel*='icon']:not(#sf-favicon)").forEach(function(el) {{ el.remove(); }});
+    if (!document.getElementById("sf-favicon")) {{
+      var l = document.createElement("link");
+      l.id = "sf-favicon"; l.rel = "icon"; l.type = "image/svg+xml"; l.href = href;
+      document.head.appendChild(l);
+    }}
   }}
   applyFavicon();
   var obs = new MutationObserver(function(muts) {{
@@ -654,6 +658,9 @@ hr {
 ::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #8A2BE2; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #9d4edd; }
+@media (max-width: 768px) {
+    ::-webkit-scrollbar { width: 0px !important; height: 0px !important; }
+}
 
 #MainMenu, footer, header { visibility: hidden; }
 
@@ -1407,6 +1414,9 @@ def render_dashboard():
         .m1-wrap:hover svg {{ transform: translateY(-2px); }}
         .m1-wrap:hover .m1-track {{ stroke: rgba(138,43,226,0.30); }}
         .m1-track {{ transition: stroke 0.3s ease; }}
+        @media (max-width: 768px) {{
+            .m1-wrap svg {{ width: 220px !important; height: 220px !important; }}
+        }}
         </style>
         <div class="m1-wrap">
             <svg width="160" height="160" viewBox="0 0 160 160">
