@@ -26,9 +26,9 @@ def hash_password(password: str) -> str:
 # PAGE CONFIG
 # ==========================================
 st.set_page_config(
-    page_title="Sexta-Feira Advanced — VIP",
+    page_title="Sexta-Feira Advanced",
     layout="wide",
-    page_icon="🟣",
+    page_icon="",
     initial_sidebar_state="collapsed",
 )
 
