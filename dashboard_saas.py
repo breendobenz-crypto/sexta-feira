@@ -28,7 +28,7 @@ def hash_password(password: str) -> str:
 st.set_page_config(
     page_title="Sexta-Feira Advanced",
     layout="wide",
-    page_icon="",
+    page_icon="logo-sf.png",
     initial_sidebar_state="collapsed",
 )
 
@@ -1378,13 +1378,12 @@ def render_dashboard():
 
     m1, m2, m3, m4, m5 = st.columns(5)
 
-    # ── PATRIMÔNIO: anel — só calcula se equity > 0 E available > 0 ──
+    # ── PATRIMÔNIO: anel — NUNCA preenche quando equity=0 ou available=0 ──
     _usage_pct = 0.0
     try:
-        if equity > 0 and available > 0:
-            _usage_pct = max(0.0, min(100.0, ((equity - available) / equity) * 100))
-        # equity=0 OU available=0 sem posições → círculo vazio (0%)
-        # Nunca mostra 100% quando não há patrimônio alocado
+        if equity > 0 and available > 0 and available < equity:
+            _usage_pct = max(0.0, min(99.9, ((equity - available) / equity) * 100))
+        # Qualquer outro caso (equity=0, available=0, available>=equity) → vazio
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
