@@ -63,6 +63,47 @@ st.markdown(f"""
 </script>
 """, unsafe_allow_html=True)
 
+# ── META TAGS PWA — troca "Streamlit" pelo nome correto ──────────────────────
+st.markdown("""
+<meta name="application-name" content="Sexta-Feira Advanced">
+<meta name="apple-mobile-web-app-title" content="Sexta-Feira">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0a">
+<script>
+(function() {
+  var manifest = {
+    "name": "Sexta-Feira Advanced",
+    "short_name": "SF Advanced",
+    "description": "Sistema de Trading Autônomo VIP",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0a0a",
+    "theme_color": "#8A2BE2",
+    "orientation": "portrait-primary",
+    "icons": []
+  };
+  var blob = new Blob([JSON.stringify(manifest)], {type: "application/json"});
+  var url  = URL.createObjectURL(blob);
+  document.querySelectorAll("link[rel='manifest']").forEach(function(el) { el.remove(); });
+  var l = document.createElement("link");
+  l.rel = "manifest"; l.href = url;
+  document.head.appendChild(l);
+  var obs = new MutationObserver(function() {
+    var links = document.querySelectorAll("link[rel='manifest']");
+    if (links.length > 1 || (links.length === 1 && links[0].href !== url)) {
+      links.forEach(function(el) { el.remove(); });
+      var l2 = document.createElement("link");
+      l2.rel = "manifest"; l2.href = url;
+      document.head.appendChild(l2);
+    }
+  });
+  obs.observe(document.head, {childList: true});
+})();
+</script>
+""", unsafe_allow_html=True)
+
 # ==========================================
 # CSS — GLASSMORPHISM + ANIMAÇÕES + RESPONSIVO COMPLETO
 # ==========================================
@@ -130,8 +171,8 @@ h1, h2, h3 {
     .block-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; padding-top: 0.5rem !important; }
     
     /* Navbar responsiva */
-    .sf-navbar { padding: 0 12px !important; height: 48px !important; }
-    .sf-navbar-logo { width: 32px !important; height: 32px !important; }
+    .sf-navbar { padding: 0 12px !important; height: 58px !important; }
+    .sf-navbar-logo { width: 40px !important; height: 40px !important; border-radius: 10px !important; }
     .sf-navbar-name { font-size: 12px !important; letter-spacing: 1px !important; }
     .sf-navbar-status { font-size: 9px !important; }
     
@@ -186,8 +227,8 @@ h1, h2, h3 {
     .block-container { padding-left: 0.4rem !important; padding-right: 0.4rem !important; padding-top: 0.3rem !important; }
     
     /* Navbar compacta */
-    .sf-navbar { padding: 0 8px !important; height: 44px !important; }
-    .sf-navbar-logo { width: 28px !important; height: 28px !important; }
+    .sf-navbar { padding: 0 8px !important; height: 54px !important; }
+    .sf-navbar-logo { width: 38px !important; height: 38px !important; border-radius: 9px !important; }
     .sf-navbar-name { display: none !important; }
     .sf-navbar-status { font-size: 8px !important; }
     
@@ -1378,12 +1419,18 @@ def render_dashboard():
 
     m1, m2, m3, m4, m5 = st.columns(5)
 
-    # ── PATRIMÔNIO: anel — NUNCA preenche quando equity=0 ou available=0 ──
+    # ── PATRIMÔNIO: anel — só preenche com dados reais da OKX ──
     _usage_pct = 0.0
     try:
-        if equity > 0 and available > 0 and available < equity:
-            _usage_pct = max(0.0, min(99.9, ((equity - available) / equity) * 100))
-        # Qualquer outro caso (equity=0, available=0, available>=equity) → vazio
+        if equity > 0:
+            if available > 0 and available < equity:
+                # Normal: calcula % alocado
+                _usage_pct = max(0.0, min(99.9, ((equity - available) / equity) * 100))
+            elif available == 0 and len(positions) > 0:
+                # OKX retorna availBal=0 com posições abertas reais
+                _usage_pct = 99.9
+            # available==0 sem posições → 0% (nada alocado de fato)
+            # available>=equity ou equity==0 → 0%
     except Exception:
         _usage_pct = 0.0
     _circ     = 2 * 3.14159 * 54
