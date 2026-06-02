@@ -19,13 +19,16 @@ if USE_POSTGRES:
 SALT = "sexta-feira-advanced-vip-salt-2026"
 DB_NAME = "jarvis_saas.db"
 
+
 def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
+
 
 def get_db_connection():
     if USE_POSTGRES:
         return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return sqlite3.connect(DB_NAME)
+
 
 def init_saas_db():
     conn = get_db_connection()
@@ -116,6 +119,7 @@ def init_saas_db():
         cursor.close()
         conn.close()
 
+
 def _dictify(row, cursor=None):
     if row is None:
         return None
@@ -124,6 +128,7 @@ def _dictify(row, cursor=None):
     if cursor and hasattr(cursor, 'description'):
         return {desc[0]: row[i] for i, desc in enumerate(cursor.description)}
     return row
+
 
 # ==========================================
 # FUNÇÕES PRINCIPAIS
@@ -177,6 +182,7 @@ def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret:
         cursor.close()
         conn.close()
 
+
 def get_user_by_email(email: str):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -196,6 +202,7 @@ def get_user_by_email(email: str):
     finally:
         cursor.close()
         conn.close()
+
 
 def get_user_full(email: str):
     conn = get_db_connection()
@@ -217,6 +224,7 @@ def get_user_full(email: str):
         cursor.close()
         conn.close()
 
+
 def set_user_password(email: str, password: str):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -231,6 +239,7 @@ def set_user_password(email: str, password: str):
         cursor.close()
         conn.close()
 
+
 def verify_password(email: str, password: str) -> bool:
     user = get_user_full(email)
     if not user:
@@ -239,6 +248,7 @@ def verify_password(email: str, password: str) -> bool:
     if not stored_hash:
         return False
     return stored_hash == hash_password(password)
+
 
 def update_user_credentials(user_id: int, api_key: str, api_secret: str, passphrase: str) -> bool:
     conn = get_db_connection()
@@ -274,6 +284,7 @@ def update_user_credentials(user_id: int, api_key: str, api_secret: str, passphr
         cursor.close()
         conn.close()
 
+
 def get_decrypted_credentials(internal_user_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -307,6 +318,7 @@ def get_decrypted_credentials(internal_user_id: int):
         cursor.close()
         conn.close()
 
+
 def get_user_credentials(user_id):
     try:
         internal_id = int(user_id)
@@ -332,6 +344,7 @@ def get_user_credentials(user_id):
         cursor.close()
         conn.close()
 
+
 def update_last_login(internal_user_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -344,6 +357,7 @@ def update_last_login(internal_user_id: int):
     finally:
         cursor.close()
         conn.close()
+
 
 def get_all_users():
     conn = get_db_connection()
@@ -359,6 +373,7 @@ def get_all_users():
         cursor.close()
         conn.close()
 
+
 def update_user_status(user_id: str, status: str):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -371,6 +386,7 @@ def update_user_status(user_id: str, status: str):
     finally:
         cursor.close()
         conn.close()
+
 
 def save_trade(user_id: int, symbol: str, side: str, entry: float, qty: float, score: int, reasoning: str = ""):
     conn = get_db_connection()
@@ -391,6 +407,7 @@ def save_trade(user_id: int, symbol: str, side: str, entry: float, qty: float, s
         cursor.close()
         conn.close()
 
+
 def update_trade_exit(user_id: int, symbol: str, close_time: str, exit_price: float, pnl_usdt: float, pnl_pct: float):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -409,6 +426,7 @@ def update_trade_exit(user_id: int, symbol: str, close_time: str, exit_price: fl
     finally:
         cursor.close()
         conn.close()
+
 
 def get_closed_trades(internal_user_id: int, limit: int = 50):
     conn = get_db_connection()
@@ -430,6 +448,7 @@ def get_closed_trades(internal_user_id: int, limit: int = 50):
         cursor.close()
         conn.close()
 
+
 def get_open_trades(internal_user_id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -449,6 +468,7 @@ def get_open_trades(internal_user_id: int):
     finally:
         cursor.close()
         conn.close()
+
 
 def get_user_stats(internal_user_id: int):
     conn = get_db_connection()
@@ -487,6 +507,7 @@ def get_user_stats(internal_user_id: int):
         cursor.close()
         conn.close()
 
+
 def get_equity_curve(internal_user_id: int, days: int = 30):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -515,6 +536,7 @@ def get_equity_curve(internal_user_id: int, days: int = 30):
         cursor.close()
         conn.close()
 
+
 def get_active_users():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -541,6 +563,7 @@ def get_active_users():
     finally:
         cursor.close()
         conn.close()
+
 
 def _create_admin_if_needed():
     conn = get_db_connection()
@@ -579,6 +602,7 @@ def _create_admin_if_needed():
     finally:
         cursor.close()
         conn.close()
+
 
 # ==========================================
 # INICIALIZAÇÃO DO MÓDULO
