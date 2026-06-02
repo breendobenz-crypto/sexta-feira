@@ -2,15 +2,15 @@
 import os
 import hashlib
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from crypto_vault import encrypt_key, decrypt_key
 from cryptography.fernet import InvalidToken
 
 # ==========================================
 # DETECÇÃO AUTOMÁTICA DO BANCO
 # ==========================================
-USE_POSTGRES = os.getenv("USE_POSTGRES", "False").lower() == "true"
 DATABASE_URL = os.getenv("DATABASE_URL")
+USE_POSTGRES = bool(DATABASE_URL)
 
 if USE_POSTGRES:
     import psycopg2
@@ -19,13 +19,16 @@ if USE_POSTGRES:
 SALT = os.getenv("SALT", "sexta-feira-advanced-vip-salt-2026")
 DB_NAME = "jarvis_saas.db"
 
+
 def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
+
 
 def get_db_connection():
     if USE_POSTGRES:
         return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
     return sqlite3.connect(DB_NAME)
+
 
 def init_saas_db():
     conn = get_db_connection()
@@ -109,27 +112,21 @@ def init_saas_db():
                 ai_reasoning TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
-            # Adiciona colunas novas se não existirem
-            try: cursor.execute("ALTER TABLE users ADD COLUMN trial_end_date TIMESTAMP")
-            except: pass
-            try: cursor.execute("ALTER TABLE users ADD COLUMN telegram_chat_id TEXT")
-            except: pass
-            try: cursor.execute("ALTER TABLE users ADD COLUMN stripe_session_id TEXT")
-            except: pass
-            try: cursor.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
-            except: pass
         conn.commit()
     finally:
         cursor.close()
         conn.close()
 
+
 def _dictify(row, cursor=None):
-    if row is None: return None
+    if row is None:
+        return None
     if USE_POSTGRES:
         return dict(row) if hasattr(row, 'keys') else row
     if cursor and hasattr(cursor, 'description'):
         return {desc[0]: row[i] for i, desc in enumerate(cursor.description)}
     return row
+
 
 # ==========================================
 # FUNÇÕES PRINCIPAIS
@@ -144,7 +141,10 @@ def register_user_free(user_id: str, name: str, email: str, telegram_chat_id: st
             cursor.execute("""
                 INSERT INTO users (user_id, email, display_name, plan, status, telegram_chat_id, stripe_session_id)
                 VALUES (%s, %s, %s, 'FREE', 'ACTIVE', %s, %s)
-                ON CONFLICT (user_id) DO UPDATE SET email=EXCLUDED.email, telegram_chat_id=EXCLUDED.telegram_chat_id, stripe_session_id=EXCLUDED.stripe_session_id
+                ON CONFLICT (user_id) DO UPDATE SET 
+                    email=EXCLUDED.email, 
+                    telegram_chat_id=EXCLUDED.telegram_chat_id, 
+                    stripe_session_id=EXCLUDED.stripe_session_id
                 RETURNING id
             """, (user_id, email, name, telegram_chat_id, stripe_session_id))
         else:
@@ -162,28 +162,26 @@ def register_user_free(user_id: str, name: str, email: str, telegram_chat_id: st
         cursor.close()
         conn.close()
 
+
 def start_vip_trial(user_id: str, email: str, telegram_chat_id: str = None, trial_days: int = 7) -> bool:
     """Ativa trial VIP para usuário existente"""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        from datetime import timedelta
         trial_end = datetime.now(timezone.utc) + timedelta(days=trial_days)
         
         if USE_POSTGRES:
             cursor.execute("""
-                UPDATE users SET plan = 'TRIAL', trial_end_date = %s, status = 'ACTIVE'
+                UPDATE users SET plan = 'TRIAL', trial_end_date = %s, status = 'ACTIVE', telegram_chat_id = COALESCE(%s, telegram_chat_id)
                 WHERE user_id = %s OR email = %s
-            """, (trial_end, user_id, email))
+            """, (trial_end, telegram_chat_id, user_id, email))
         else:
             cursor.execute(
                 "UPDATE users SET plan = 'TRIAL', trial_end_date = ?, status = 'ACTIVE' WHERE user_id = ? OR email = ?",
                 (trial_end, user_id, email)
             )
-        
-        if telegram_chat_id:
-            if USE_POSTGRES:
-                cursor.execute("UPDATE users SET telegram_chat_id = %s WHERE user_id = %s", (telegram_chat_id, user_id))
-            else:
+            if telegram_chat_id:
                 cursor.execute("UPDATE users SET telegram_chat_id = ? WHERE user_id = ?", (telegram_chat_id, user_id))
         
         conn.commit()
@@ -195,6 +193,7 @@ def start_vip_trial(user_id: str, email: str, telegram_chat_id: str = None, tria
     finally:
         cursor.close()
         conn.close()
+
 
 def upgrade_to_lifetime(user_id: str) -> bool:
     """Atualiza usuário para plano Vitalício"""
@@ -214,6 +213,7 @@ def upgrade_to_lifetime(user_id: str) -> bool:
     finally:
         cursor.close()
         conn.close()
+
 
 def get_expired_trials():
     """Busca usuários com trial expirado que ainda não pagaram"""
@@ -237,6 +237,7 @@ def get_expired_trials():
         cursor.close()
         conn.close()
 
+
 def get_user_by_email(email: str):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -251,20 +252,21 @@ def get_user_by_email(email: str):
         cursor.close()
         conn.close()
 
-def get_user_by_stripe_session(session_id: str):
-    """Busca usuário pelo ID da sessão do Stripe"""
+
+def get_user_by_telegram_id(telegram_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         if USE_POSTGRES:
-            cursor.execute("SELECT * FROM users WHERE stripe_session_id = %s", (session_id,))
+            cursor.execute("SELECT * FROM users WHERE telegram_chat_id = %s", (telegram_id,))
         else:
-            cursor.execute("SELECT * FROM users WHERE stripe_session_id = ?", (session_id,))
+            cursor.execute("SELECT * FROM users WHERE telegram_chat_id = ?", (telegram_id,))
         row = cursor.fetchone()
         return _dictify(row, cursor) if row else None
     finally:
         cursor.close()
         conn.close()
+
 
 def set_user_password(email: str, password: str):
     conn = get_db_connection()
@@ -279,6 +281,21 @@ def set_user_password(email: str, password: str):
     finally:
         cursor.close()
         conn.close()
+
+
+def update_user_status(user_id: str, status: str):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        if USE_POSTGRES:
+            cursor.execute("UPDATE users SET status = %s WHERE user_id = %s", (status, user_id))
+        else:
+            cursor.execute("UPDATE users SET status = ? WHERE user_id = ?", (status, user_id))
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # Inicializa ao importar
 init_saas_db()
