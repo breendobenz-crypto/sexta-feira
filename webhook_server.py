@@ -10,16 +10,13 @@ import saas_db
 app = Flask(__name__)
 CORS(app)
 
-# Configurações
 MASTER_PASSWORD = os.getenv("MASTER_PASSWORD", "SextaFeira2026!")
 
-# Telegram
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_FREE_GROUP_ID = os.getenv("TELEGRAM_FREE_GROUP_ID", "")
 TELEGRAM_VIP_GROUP_ID = os.getenv("TELEGRAM_VIP_GROUP_ID", "")
 TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID", "")
 
-# Stripe
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_VIP_LINK = os.getenv("STRIPE_VIP_LINK", "https://buy.stripe.com/3cI3co2kl0dx1mZ6F408g00")
@@ -29,7 +26,7 @@ if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
 
 
-def send_telegram_message(chat_id: str, text: str) -> bool:
+def send_telegram_message(chat_id, text):
     if not TELEGRAM_BOT_TOKEN or not chat_id:
         return False
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -42,28 +39,10 @@ def send_telegram_message(chat_id: str, text: str) -> bool:
         }, timeout=10)
         return resp.json().get("ok", False)
     except Exception as e:
-        print(f"❌ Erro Telegram: {e}")
+        print(f"Erro Telegram: {e}")
         return False
 
 
-def generate_vip_invite_link():
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_VIP_GROUP_ID:
-        return f"https://t.me/+{TELEGRAM_VIP_GROUP_ID}"
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/createChatInviteLink"
-    try:
-        resp = requests.post(url, json={
-            "chat_id": TELEGRAM_VIP_GROUP_ID,
-            "member_limit": 1,
-            "name": f"VIP-{datetime.now().strftime('%d%m')}"
-        }, timeout=10).json()
-        if resp.get("ok"):
-            return resp["result"]["invite_link"]
-    except:
-        pass
-    return f"https://t.me/+{TELEGRAM_VIP_GROUP_ID}"
-
-
-# ROTA 1: TESTE
 @app.route('/webhook/test', methods=['GET'])
 def test_webhook():
     return jsonify({
@@ -81,20 +60,19 @@ def test_webhook():
     }), 200
 
 
-# ROTA 2: VERIFICAR ID
 @app.route('/webhook/verificar-id', methods=['POST'])
 def verificar_id():
     try:
         data = request.json
         bingx_uid = data.get('bingx_uid', '').strip()
-        print(f"📥 [RECEBIDO] UID: {bingx_uid}")
+        print(f"RECEBIDO UID: {bingx_uid}")
 
         if not bingx_uid:
-            return jsonify({"status": "error", "text": "❌ ID não informado."}), 400
+            return jsonify({"status": "error", "text": "ID nao informado"}), 400
         if not bingx_uid.isdigit():
-            return jsonify({"status": "error", "text": "❌ ID inválido. Apenas números."}), 400
+            return jsonify({"status": "error", "text": "ID invalido"}), 400
         if len(bingx_uid) < 6 or len(bingx_uid) > 12:
-            return jsonify({"status": "error", "text": "❌ ID deve ter 6 a 12 dígitos."}), 400
+            return jsonify({"status": "error", "text": "ID deve ter 6-12 digitos"}), 400
 
         conn = saas_db.get_db_connection()
         cursor = conn.cursor()
@@ -107,24 +85,14 @@ def verificar_id():
         conn.close()
 
         if count > 0:
-            return jsonify({
-                "status": "exists",
-                "text": f"⚠️ ID {bingx_uid} já cadastrado!",
-                "bingx_uid": bingx_uid
-            })
+            return jsonify({"status": "exists", "text": f"ID {bingx_uid} ja cadastrado", "bingx_uid": bingx_uid})
 
-        return jsonify({
-            "status": "success",
-            "text": f"✅ ID {bingx_uid} verificado!",
-            "bingx_uid": bingx_uid,
-            "is_new": True
-        })
+        return jsonify({"status": "success", "text": f"ID {bingx_uid} verificado!", "bingx_uid": bingx_uid, "is_new": True})
     except Exception as e:
-        print(f"❌ [ERRO] {e}")
+        print(f"ERRO: {e}")
         return jsonify({"status": "error", "text": str(e)}), 500
 
 
-# ROTA 3: ATIVAR USUÁRIO
 @app.route('/webhook/ativar-usuario-simples', methods=['POST'])
 def ativar_usuario_simples():
     try:
@@ -133,13 +101,13 @@ def ativar_usuario_simples():
         email = data.get('email', '').strip()
 
         if not bingx_uid or not bingx_uid.isdigit():
-            return jsonify({"status": "error", "text": "❌ ID inválido."}), 400
+            return jsonify({"status": "error", "text": "ID invalido"}), 400
         if not email or '@' not in email:
-            return jsonify({"status": "error", "text": "❌ Email inválido."}), 400
+            return jsonify({"status": "error", "text": "Email invalido"}), 400
 
         existing = saas_db.get_user_by_email(email)
         if existing:
-            return jsonify({"status": "already_exists", "text": "⚠️ Email já cadastrado!"}), 400
+            return jsonify({"status": "already_exists", "text": "Email ja cadastrado"}), 400
 
         temp_password = f"SF{bingx_uid[-4:]}2026!"
         success = saas_db.register_user(
@@ -150,25 +118,24 @@ def ativar_usuario_simples():
         )
 
         if not success:
-            return jsonify({"status": "error", "text": "❌ Erro ao cadastrar."}), 500
+            return jsonify({"status": "error", "text": "Erro ao cadastrar"}), 500
 
         saas_db.set_user_password(email, temp_password)
-        return jsonify({
-            "status": "success",
-            "text": f"🎉 Acesso liberado! Senha: {temp_password}",
-            "temp_password": temp_password
-        })
+        return jsonify({"status": "success", "text": f"Acesso liberado! Senha: {temp_password}", "temp_password": temp_password})
     except Exception as e:
-        print(f"❌ [ERRO] {e}")
+        print(f"ERRO: {e}")
         return jsonify({"status": "error", "text": str(e)}), 500
 
 
-# ROTA 4: ⭐ WEBHOOK DO STRIPE (VIP) - A QUE ESTÁ FALTANDO!
 @app.route('/webhook/stripe', methods=['POST'])
 def stripe_webhook():
-    """Recebe confirmação de pagamento do Stripe (VIP)"""
+    """
+    Webhook do Stripe - Atualiza usuário para VIP Vitalício
+    Usa apenas o email - NÃO precisa de bingx_uid
+    """
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
+    print("💰 [STRIPE] Webhook recebido!")
 
     try:
         if STRIPE_WEBHOOK_SECRET:
@@ -178,59 +145,83 @@ def stripe_webhook():
         else:
             event = request.json
     except Exception as e:
-        print(f"❌ Erro de assinatura: {e}")
+        print(f"Erro assinatura: {e}")
         return jsonify({"error": str(e)}), 400
 
-    if event.get('type') == 'checkout.session.completed':
+    event_type = event.get('type')
+    print(f"Evento: {event_type}")
+
+    if event_type == 'checkout.session.completed':
         session = event.get('data', {}).get('object', {})
-        bingx_uid = session.get('metadata', {}).get('bingx_uid')
         customer_email = session.get('customer_details', {}).get('email')
         payment_status = session.get('payment_status')
+        session_id = session.get('id')
 
-        print(f"💰 [STRIPE] Pagamento {payment_status} para {customer_email} (UID: {bingx_uid})")
+        print(f"💰 Pagamento {payment_status} - Email: {customer_email}")
 
-        if bingx_uid and payment_status == 'paid':
-            saas_db.upgrade_to_lifetime(bingx_uid)
-            print(f"✅ {bingx_uid} agora é VIP Vitalício!")
+        if customer_email and payment_status == 'paid':
+            try:
+                conn = saas_db.get_db_connection()
+                cursor = conn.cursor()
+                
+                if saas_db.USE_POSTGRES:
+                    cursor.execute(
+                        "UPDATE users SET plan = 'LIFETIME', status = 'ACTIVE' WHERE email = %s",
+                        (customer_email,)
+                    )
+                else:
+                    cursor.execute(
+                        "UPDATE users SET plan = 'LIFETIME', status = 'ACTIVE' WHERE email = ?",
+                        (customer_email,)
+                    )
+                
+                conn.commit()
+                cursor.close()
+                conn.close()
+                
+                print(f"✅ Usuário {customer_email} atualizado para LIFETIME!")
 
-            if customer_email:
                 user = saas_db.get_user_by_email(customer_email)
                 if user and user.get('telegram_chat_id'):
-                    send_telegram_message(user['telegram_chat_id'],
-                        f"🎉 *PAGAMENTO CONFIRMADO!*\n\nSeu acesso VIP agora é VITALÍCIO! 💎")
+                    send_telegram_message(
+                        user['telegram_chat_id'],
+                        f"🎉 *PAGAMENTO CONFIRMADO!*\n\nSeu acesso VIP agora é **VITALÍCIO**! 💎\n\nEmail: `{customer_email}`"
+                    )
+                    
+            except Exception as e:
+                print(f"❌ Erro ao atualizar usuário: {e}")
         else:
-            print(f" Pagamento pendente para {customer_email}")
+            print(f"⏳ Pagamento pendente para {customer_email}")
 
     return jsonify({"status": "success"}), 200
 
 
-# ROTA 5: SUCCESS FREE
 @app.route('/webhook/stripe-free-success', methods=['GET'])
 def stripe_free_success():
-    """Redireciona usuário ao grupo FREE após checkout gratuito"""
     session_id = request.args.get('session_id')
     user_id = request.args.get('user_id')
     telegram_chat_id = request.args.get('telegram_chat_id')
 
     if session_id and user_id:
-        saas_db.register_user_free(
-            user_id=user_id,
-            name=f"User_{user_id[-4:]}",
-            email=f"{user_id}@temp.com",
-            telegram_chat_id=telegram_chat_id,
-            stripe_session_id=session_id
-        )
+        try:
+            saas_db.register_user_free(
+                user_id=user_id,
+                name=f"User_{user_id[-4:]}",
+                email=f"{user_id}@temp.com",
+                telegram_chat_id=telegram_chat_id,
+                stripe_session_id=session_id
+            )
+        except Exception as e:
+            print(f"Erro ao registrar free: {e}")
 
         if telegram_chat_id:
             free_link = f"https://t.me/+{TELEGRAM_FREE_GROUP_ID}" if TELEGRAM_FREE_GROUP_ID else ""
-            send_telegram_message(telegram_chat_id,
-                f"🎉 *Bem-vindo ao Sexta-Feira FREE!*\n\nGrupo: {free_link}")
+            send_telegram_message(telegram_chat_id, f"Bem-vindo ao Sexta-Feira FREE! Grupo: {free_link}")
 
     redirect_url = f"https://t.me/+{TELEGRAM_FREE_GROUP_ID}" if TELEGRAM_FREE_GROUP_ID else "/"
     return redirect(redirect_url, code=302)
 
 
-# ROTA 6: NOTIFICAR EQUIPE
 @app.route('/webhook/notify-team', methods=['POST'])
 def notify_team():
     try:
