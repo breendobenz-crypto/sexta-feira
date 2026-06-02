@@ -1,31 +1,3 @@
-import os
-import hashlib
-import sqlite3
-from datetime import datetime, timezone, timedelta
-from crypto_vault import encrypt_key, decrypt_key
-from cryptography.fernet import InvalidToken
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-USE_POSTGRES = bool(DATABASE_URL)
-
-if USE_POSTGRES:
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-
-SALT = "sexta-feira-advanced-vip-salt-2026"
-DB_NAME = "jarvis_saas.db"
-
-
-def hash_password(password):
-    return hashlib.sha256((password + SALT).encode()).hexdigest()
-
-
-def get_db_connection():
-    if USE_POSTGRES:
-        return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-    return sqlite3.connect(DB_NAME)
-
-
 def init_saas_db():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -68,6 +40,16 @@ def init_saas_db():
                 close_time TIMESTAMP,
                 ai_reasoning TEXT
             )''')
+            
+            # ADICIONA COLUNAS FALTANTES EM TABELAS JÁ EXISTENTES
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_session_id TEXT")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'FREE'")
+            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT")
+            cursor.execute("ALTER TABLE api_credentials ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            cursor.execute("ALTER TABLE trades ADD COLUMN IF NOT EXISTS ai_reasoning TEXT")
+            cursor.execute("ALTER TABLE trades ADD COLUMN IF NOT EXISTS close_time TIMESTAMP")
         else:
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,158 +90,26 @@ def init_saas_db():
                 ai_reasoning TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
+            
+            # Adiciona colunas faltantes no SQLite também
+            try: cursor.execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'FREE'")
+            except: pass
+            try: cursor.execute("ALTER TABLE users ADD COLUMN trial_end_date TIMESTAMP")
+            except: pass
+            try: cursor.execute("ALTER TABLE users ADD COLUMN telegram_chat_id TEXT")
+            except: pass
+            try: cursor.execute("ALTER TABLE users ADD COLUMN stripe_session_id TEXT")
+            except: pass
+            try: cursor.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+            except: pass
+            try: cursor.execute("ALTER TABLE api_credentials ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+            except: pass
+            try: cursor.execute("ALTER TABLE trades ADD COLUMN ai_reasoning TEXT")
+            except: pass
+            try: cursor.execute("ALTER TABLE trades ADD COLUMN close_time TIMESTAMP")
+            except: pass
+        
         conn.commit()
     finally:
         cursor.close()
         conn.close()
-
-
-def _dictify(row, cursor=None):
-    if row is None:
-        return None
-    if USE_POSTGRES:
-        return dict(row) if hasattr(row, 'keys') else row
-    if cursor and hasattr(cursor, 'description'):
-        return {desc[0]: row[i] for i, desc in enumerate(cursor.description)}
-    return row
-
-
-def register_user(user_id, name, email, okx_key, okx_secret, okx_pass):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        enc_key = encrypt_key(okx_key)
-        enc_secret = encrypt_key(okx_secret)
-        enc_pass = encrypt_key(okx_pass)
-        if USE_POSTGRES:
-            cursor.execute("""
-                INSERT INTO users (user_id, email, display_name, status, plan)
-                VALUES (%s, %s, %s, 'ACTIVE', 'FREE')
-                ON CONFLICT (user_id) DO UPDATE
-                SET email=EXCLUDED.email, display_name=EXCLUDED.display_name, status='ACTIVE'
-                RETURNING id
-            """, (user_id, email, name))
-            internal_id = cursor.fetchone()['id']
-            cursor.execute("""
-                INSERT INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (user_id) DO UPDATE
-                SET api_key_enc=EXCLUDED.api_key_enc,
-                    api_secret_enc=EXCLUDED.api_secret_enc,
-                    passphrase_enc=EXCLUDED.passphrase_enc,
-                    updated_at=CURRENT_TIMESTAMP
-            """, (internal_id, enc_key, enc_secret, enc_pass))
-        else:
-            cursor.execute(
-                "INSERT OR REPLACE INTO users (user_id, email, display_name, status, plan) VALUES (?, ?, ?, 'ACTIVE', 'FREE')",
-                (user_id, email, name)
-            )
-            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
-            internal_id = cursor.fetchone()[0]
-            cursor.execute(
-                "INSERT OR REPLACE INTO api_credentials (user_id, api_key_enc, api_secret_enc, passphrase_enc) VALUES (?, ?, ?, ?)",
-                (internal_id, enc_key, enc_secret, enc_pass)
-            )
-        conn.commit()
-        return True
-    except Exception as e:
-        print(f"DB ERROR: {e}")
-        conn.rollback()
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def register_user_free(user_id, name, email, telegram_chat_id=None, stripe_session_id=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        if USE_POSTGRES:
-            cursor.execute("""
-                INSERT INTO users (user_id, email, display_name, plan, status, telegram_chat_id, stripe_session_id)
-                VALUES (%s, %s, %s, 'FREE', 'ACTIVE', %s, %s)
-                ON CONFLICT (user_id) DO UPDATE
-                SET email=EXCLUDED.email, telegram_chat_id=EXCLUDED.telegram_chat_id
-                RETURNING id
-            """, (user_id, email, name, telegram_chat_id, stripe_session_id))
-        else:
-            cursor.execute(
-                "INSERT OR REPLACE INTO users (user_id, email, display_name, plan, status, telegram_chat_id, stripe_session_id) VALUES (?, ?, ?, 'FREE', 'ACTIVE', ?, ?)",
-                (user_id, email, name, telegram_chat_id, stripe_session_id)
-            )
-        conn.commit()
-        return True
-    except Exception as e:
-        print(f"DB ERROR: {e}")
-        conn.rollback()
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def upgrade_to_lifetime(user_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        if USE_POSTGRES:
-            cursor.execute("UPDATE users SET plan = 'LIFETIME', trial_end_date = NULL WHERE user_id = %s", (user_id,))
-        else:
-            cursor.execute("UPDATE users SET plan = 'LIFETIME', trial_end_date = NULL WHERE user_id = ?", (user_id,))
-        conn.commit()
-        return True
-    except Exception as e:
-        print(f"DB ERROR: {e}")
-        conn.rollback()
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def get_user_by_email(email):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        if USE_POSTGRES:
-            cursor.execute("SELECT id, user_id, email, display_name, status, plan, telegram_chat_id FROM users WHERE email = %s", (email,))
-        else:
-            cursor.execute("SELECT id, user_id, email, display_name, status, plan, telegram_chat_id FROM users WHERE email = ?", (email,))
-        row = cursor.fetchone()
-        return _dictify(row, cursor) if row else None
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def set_user_password(email, password):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        pwd_hash = hash_password(password)
-        if USE_POSTGRES:
-            cursor.execute("UPDATE users SET password_hash = %s WHERE email = %s", (pwd_hash, email))
-        else:
-            cursor.execute("UPDATE users SET password_hash = ? WHERE email = ?", (pwd_hash, email))
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def update_user_status(user_id, status):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        if USE_POSTGRES:
-            cursor.execute("UPDATE users SET status = %s WHERE user_id = %s", (status, user_id))
-        else:
-            cursor.execute("UPDATE users SET status = ? WHERE user_id = ?", (status, user_id))
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
-
-
-init_saas_db()
