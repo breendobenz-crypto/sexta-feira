@@ -129,19 +129,13 @@ def ativar_usuario_simples():
 
 @app.route('/webhook/stripe', methods=['POST'])
 def stripe_webhook():
-    """
-    Webhook do Stripe - Atualiza usuário para VIP Vitalício
-    Usa apenas o email - NÃO precisa de bingx_uid
-    """
     payload = request.get_data(as_text=True)
     sig_header = request.headers.get('Stripe-Signature')
-    print("💰 [STRIPE] Webhook recebido!")
+    print("STRIPE Webhook recebido!")
 
     try:
         if STRIPE_WEBHOOK_SECRET:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, STRIPE_WEBHOOK_SECRET
-            )
+            event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
         else:
             event = request.json
     except Exception as e:
@@ -155,31 +149,14 @@ def stripe_webhook():
         session = event.get('data', {}).get('object', {})
         customer_email = session.get('customer_details', {}).get('email')
         payment_status = session.get('payment_status')
-        session_id = session.get('id')
 
-        print(f"💰 Pagamento {payment_status} - Email: {customer_email}")
+        print(f"Pagamento {payment_status} - Email: {customer_email}")
 
         if customer_email and payment_status == 'paid':
             try:
-                conn = saas_db.get_db_connection()
-                cursor = conn.cursor()
-                
-                if saas_db.USE_POSTGRES:
-                    cursor.execute(
-                        "UPDATE users SET plan = 'LIFETIME', status = 'ACTIVE' WHERE email = %s",
-                        (customer_email,)
-                    )
-                else:
-                    cursor.execute(
-                        "UPDATE users SET plan = 'LIFETIME', status = 'ACTIVE' WHERE email = ?",
-                        (customer_email,)
-                    )
-                
-                conn.commit()
-                cursor.close()
-                conn.close()
-                
-                print(f"✅ Usuário {customer_email} atualizado para LIFETIME!")
+                # Atualiza por EMAIL (não precisa de bingx_uid)
+                saas_db.upgrade_to_lifetime_by_email(customer_email)
+                print(f"Usuario {customer_email} atualizado para LIFETIME!")
 
                 user = saas_db.get_user_by_email(customer_email)
                 if user and user.get('telegram_chat_id'):
@@ -187,11 +164,8 @@ def stripe_webhook():
                         user['telegram_chat_id'],
                         f"🎉 *PAGAMENTO CONFIRMADO!*\n\nSeu acesso VIP agora é **VITALÍCIO**! 💎\n\nEmail: `{customer_email}`"
                     )
-                    
             except Exception as e:
-                print(f"❌ Erro ao atualizar usuário: {e}")
-        else:
-            print(f"⏳ Pagamento pendente para {customer_email}")
+                print(f"Erro ao atualizar usuario: {e}")
 
     return jsonify({"status": "success"}), 200
 
@@ -226,20 +200,20 @@ def stripe_free_success():
 def notify_team():
     try:
         data = request.json
-        print(f"🚨 [SUPORTE] {data}")
+        print(f"SUPORTE: {data}")
         return jsonify({"status": "notified"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == '__main__':
-    print("\n" + "="*60)
-    print("🤖 WEBHOOK SERVER - SEXTA-FEIRA")
     print("="*60)
-    print(f"💾 Banco: {'PostgreSQL' if saas_db.USE_POSTGRES else 'SQLite'}")
-    print(f"📱 Telegram: {'✅' if TELEGRAM_BOT_TOKEN else '❌'}")
-    print(f"💳 Stripe: {'✅' if STRIPE_SECRET_KEY else '❌'}")
-    print("="*60 + "\n")
+    print("WEBHOOK SERVER - SEXTA-FEIRA")
+    print("="*60)
+    print(f"Banco: {'PostgreSQL' if saas_db.USE_POSTGRES else 'SQLite'}")
+    print(f"Telegram: {'OK' if TELEGRAM_BOT_TOKEN else 'NAO'}")
+    print(f"Stripe: {'OK' if STRIPE_SECRET_KEY else 'NAO'}")
+    print("="*60)
 
     saas_db.init_saas_db()
     port = int(os.environ.get("PORT", 5000))
