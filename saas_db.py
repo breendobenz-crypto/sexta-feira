@@ -28,13 +28,32 @@ def hash_password(password: str) -> str:
 
 def get_db_connection():
     if USE_POSTGRES:
-        # ✅ FIX SSL: Adicionado sslmode='require' para resolver o erro
-        # "SSL connection has been closed unexpectedly" no Render
-        return psycopg2.connect(
-            DATABASE_URL,
-            cursor_factory=RealDictCursor,
-            sslmode='require'
-        )
+        # ✅ FIX DEFINITIVO: Tenta múltiplos modos SSL para compatibilidade com Render
+        # Render PostgreSQL interno funciona melhor com sslmode='disable'
+        # Mas tentamos 'require' primeiro por segurança
+        
+        # Tenta primeiro com sslmode='require'
+        try:
+            return psycopg2.connect(
+                DATABASE_URL,
+                cursor_factory=RealDictCursor,
+                sslmode='require',
+                connect_timeout=10
+            )
+        except psycopg2.OperationalError as e:
+            if "SSL" in str(e) or "connection" in str(e).lower():
+                # Se falhar SSL, tenta sem SSL (conexão interna do Render)
+                try:
+                    return psycopg2.connect(
+                        DATABASE_URL,
+                        cursor_factory=RealDictCursor,
+                        sslmode='disable',
+                        connect_timeout=10
+                    )
+                except Exception as e2:
+                    print(f"❌ Erro na conexão sem SSL: {e2}")
+                    raise
+            raise
     return sqlite3.connect(DB_NAME)
 
 
