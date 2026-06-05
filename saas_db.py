@@ -28,30 +28,31 @@ def hash_password(password: str) -> str:
 
 def get_db_connection():
     if USE_POSTGRES:
-        # ✅ FIX DEFINITIVO: Tenta múltiplos modos SSL para compatibilidade com Render
-        # Render PostgreSQL interno funciona melhor com sslmode='disable'
-        # Mas tentamos 'require' primeiro por segurança
-        
-        # Tenta primeiro com sslmode='require'
+        # Normaliza a URL adicionando sslmode se não estiver presente
+        url = DATABASE_URL
+        if "sslmode" not in url:
+            sep = "&" if "?" in url else "?"
+            url = url + sep + "sslmode=require"
+
         try:
             return psycopg2.connect(
-                DATABASE_URL,
+                url,
                 cursor_factory=RealDictCursor,
-                sslmode='require',
-                connect_timeout=10
+                connect_timeout=15
             )
         except psycopg2.OperationalError as e:
-            if "SSL" in str(e) or "connection" in str(e).lower():
-                # Se falhar SSL, tenta sem SSL (conexão interna do Render)
+            err = str(e)
+            # Se SSL falhou, tenta prefer (aceita com ou sem)
+            if "SSL" in err or "ssl" in err.lower():
+                url_prefer = url.replace("sslmode=require", "sslmode=prefer")
                 try:
                     return psycopg2.connect(
-                        DATABASE_URL,
+                        url_prefer,
                         cursor_factory=RealDictCursor,
-                        sslmode='disable',
-                        connect_timeout=10
+                        connect_timeout=15
                     )
                 except Exception as e2:
-                    print(f"❌ Erro na conexão sem SSL: {e2}")
+                    print(f"❌ Erro conexão SSL prefer: {e2}")
                     raise
             raise
     return sqlite3.connect(DB_NAME)
