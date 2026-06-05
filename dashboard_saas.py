@@ -808,12 +808,31 @@ button[data-baseweb="tab"] {
     transition: all 0.2s ease !important;
 }
 button[data-baseweb="tab"]:hover {
-    color: #fff !important;
+    color: #8A2BE2 !important;
     background: rgba(138,43,226,0.15) !important;
 }
 button[data-baseweb="tab"][aria-selected="true"] {
-    color: #fff !important;
+    color: #8A2BE2 !important;
     background: rgba(138,43,226,0.3) !important;
+    text-shadow: 0 0 8px rgba(138,43,226,0.6) !important;
+}
+
+/* Botão ACESSAR — mesma cor roxa do título */
+div[data-testid="stForm"] button[kind="primaryFormSubmit"],
+div[data-testid="stForm"] button[data-testid="stFormSubmitButton"],
+div[data-testid="stForm"] .stButton > button {
+    background: linear-gradient(135deg, #5b21b6, #8A2BE2) !important;
+    color: #fff !important;
+    border: 1px solid rgba(192,132,252,0.5) !important;
+    font-family: 'Orbitron', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    box-shadow: 0 0 20px rgba(138,43,226,0.4) !important;
+}
+div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover,
+div[data-testid="stForm"] .stButton > button:hover {
+    background: linear-gradient(135deg, #6d28d9, #9d4edd) !important;
+    box-shadow: 0 0 30px rgba(138,43,226,0.7) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1056,10 +1075,10 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(1rem, 5vw, 1.8rem) !important;
+                    font-size: clamp(0.9rem, 8vw, 1.8rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: 2px !important;
+                    letter-spacing: clamp(1px, 2vw, 4px) !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     width: 100% !important;
