@@ -23,22 +23,28 @@ def hash_password(password: str) -> str:
 def get_db_connection():
     if USE_POSTGRES:
         url = DATABASE_URL
-        # Garante sslmode=require (exigido pelo Supabase pooler)
-        if "sslmode" not in url:
-            sep = "&" if "?" in url else "?"
-            url = f"{url}{sep}sslmode=require"
-        try:
-            conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
-            return conn
-        except psycopg2.OperationalError as e:
-            print(f"❌ Erro conexão Supabase: {e}")
-            # Tenta sem SSL como fallback
+        # Render interno NÃO precisa de SSL — Supabase SIM
+        # Detecta pelo hostname: interno do Render tem "dpg-" no host
+        is_render_internal = "dpg-" in url or ".render.com" in url.split("@")[-1].split("/")[0]
+
+        if is_render_internal:
+            # Render interno: sem SSL, conexão direta
             try:
-                url_no_ssl = url.replace("sslmode=require", "sslmode=prefer")
-                conn = psycopg2.connect(url_no_ssl, cursor_factory=RealDictCursor, connect_timeout=15)
+                conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
                 return conn
-            except Exception as e2:
-                print(f"❌ Fallback também falhou: {e2}")
+            except Exception as e:
+                print(f"❌ Render internal DB error: {e}")
+                raise
+        else:
+            # Externo (Supabase, etc): precisa de SSL
+            if "sslmode" not in url:
+                sep = "&" if "?" in url else "?"
+                url = f"{url}{sep}sslmode=require"
+            try:
+                conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
+                return conn
+            except Exception as e:
+                print(f"❌ External DB error: {e}")
                 raise
     return sqlite3.connect(DB_NAME)
 
