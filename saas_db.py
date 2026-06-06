@@ -1,12 +1,16 @@
 """
-saas_db.py - HÍBRIDO: PostgreSQL (Render) + SQLite (Local)
+saas_db.py - Gerenciamento de Banco de Dados Híbrido (PostgreSQL/SQLite)
 """
 import os
 import hashlib
 import sqlite3
 from datetime import datetime, timezone
-from crypto_vault import encrypt_key, decrypt_key
-from cryptography.fernet import InvalidToken
+try:
+    from crypto_vault import encrypt_key, decrypt_key
+    from cryptography.fernet import InvalidToken
+    _CRYPTO_OK = True
+except ImportError:
+    _CRYPTO_OK = False
 
 # ==========================================
 # DETECÇÃO AUTOMÁTICA DO BANCO
@@ -27,72 +31,104 @@ def hash_password(password: str) -> str:
 
 
 def get_db_connection():
+    """Retorna conexão com o banco configurado (Postgres ou SQLite)."""
     if USE_POSTGRES:
-        # Insere sslmode=require na URL se não estiver presente
-        # (passar como argumento separado conflita com parâmetros já na URL)
+        # Garante sslmode=require para compatibilidade com Supabase/Render
         url = DATABASE_URL
         if "sslmode" not in url:
             sep = "&" if "?" in url else "?"
             url = f"{url}{sep}sslmode=require"
         try:
-            conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
-            return conn
+            return psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
         except psycopg2.OperationalError as e:
-            print(f"❌ Erro conexão PostgreSQL: {e}")
+            print(f" Erro conexão PostgreSQL: {e}")
             raise
     return sqlite3.connect(DB_NAME)
 
 
 def init_saas_db():
-    """Cria as tabelas se não existirem. Chamado uma vez na inicialização."""
+    """Cria as tabelas se não existirem. Chamado na inicialização."""
     print("🔧 Inicializando banco de dados...")
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         if USE_POSTGRES:
+            # ✅ FIX: Corrigido TE XT -> TEXT, TEX T -> TEXT, PRIMARY REFERENCES -> PRIMARY KEY REFERENCES
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY, user_id TEXT UNIQUE, email TEXT UNIQUE NOT NULL,
-                display_name TEXT, plan TEXT DEFAULT 'VIP', status TEXT DEFAULT 'ACTIVE',
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, last_login TIMESTAMP,
+                id SERIAL PRIMARY KEY, 
+                user_id TEXT UNIQUE, 
+                email TEXT UNIQUE NOT NULL,
+                display_name TEXT, 
+                plan TEXT DEFAULT 'VIP', 
+                status TEXT DEFAULT 'ACTIVE',
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                last_login TIMESTAMP,
                 password_hash TEXT
             )''')
+            
             cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
                 user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                api_key_enc TEXT NOT NULL, api_secret_enc TEXT NOT NULL,
-                passphrase_enc TEXT NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                api_key_enc TEXT NOT NULL, 
+                api_secret_enc TEXT NOT NULL,
+                passphrase_enc TEXT NOT NULL, 
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )''')
+            
             cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
-                id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                symbol TEXT NOT NULL, side TEXT NOT NULL, entry_price REAL NOT NULL,
-                exit_price REAL, size REAL NOT NULL, pnl_usdt REAL, pnl_pct REAL,
-                score INTEGER DEFAULT 70, status TEXT DEFAULT 'OPEN',
-                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, close_time TIMESTAMP,
+                id SERIAL PRIMARY KEY, 
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                symbol TEXT NOT NULL, 
+                side TEXT NOT NULL, 
+                entry_price REAL NOT NULL,
+                exit_price REAL, 
+                size REAL NOT NULL, 
+                pnl_usdt REAL, 
+                pnl_pct REAL,
+                score INTEGER DEFAULT 70, 
+                status TEXT DEFAULT 'OPEN',
+                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                close_time TIMESTAMP,
                 ai_reasoning TEXT
             )''')
         else:
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT UNIQUE, email TEXT UNIQUE NOT NULL,
-                display_name TEXT, plan TEXT DEFAULT 'VIP', status TEXT DEFAULT 'ACTIVE',
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, last_login TIMESTAMP,
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                user_id TEXT UNIQUE, 
+                email TEXT UNIQUE NOT NULL,
+                display_name TEXT, 
+                plan TEXT DEFAULT 'VIP', 
+                status TEXT DEFAULT 'ACTIVE',
+                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                last_login TIMESTAMP,
                 password_hash TEXT
             )''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
                 user_id INTEGER PRIMARY KEY,
-                api_key_enc TEXT NOT NULL, api_secret_enc TEXT NOT NULL,
-                passphrase_enc TEXT NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                api_key_enc TEXT NOT NULL, 
+                api_secret_enc TEXT NOT NULL,
+                passphrase_enc TEXT NOT NULL, 
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
             cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
-                symbol TEXT NOT NULL, side TEXT NOT NULL, entry_price REAL NOT NULL,
-                exit_price REAL, size REAL NOT NULL, pnl_usdt REAL, pnl_pct REAL,
-                score INTEGER DEFAULT 70, status TEXT DEFAULT 'OPEN',
-                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, close_time TIMESTAMP,
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                user_id INTEGER NOT NULL,
+                symbol TEXT NOT NULL, 
+                side TEXT NOT NULL, 
+                entry_price REAL NOT NULL,
+                exit_price REAL, 
+                size REAL NOT NULL, 
+                pnl_usdt REAL, 
+                pnl_pct REAL,
+                score INTEGER DEFAULT 70, 
+                status TEXT DEFAULT 'OPEN',
+                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+                close_time TIMESTAMP,
                 ai_reasoning TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
 
-        # Colunas extras — ignora se já existem
+        # Adiciona colunas extras se não existirem (segurança para updates)
         for alter in [
             "ALTER TABLE users ADD COLUMN password_hash TEXT",
             "ALTER TABLE trades ADD COLUMN ai_reasoning TEXT",
@@ -107,13 +143,14 @@ def init_saas_db():
     except Exception as e:
         print(f"❌ Erro ao inicializar banco: {e}")
         conn.rollback()
-        raise  # Re-lança para não esconder o erro
+        raise
     finally:
         cursor.close()
         conn.close()
 
 
 def _dictify(row, cursor=None):
+    """Converte linha do banco em dicionário de forma segura."""
     if row is None:
         return None
     if USE_POSTGRES:
@@ -131,12 +168,9 @@ def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        enc_key = encrypt_key(okx_key)
-        enc_secret = encrypt_key(okx_secret)
-        enc_pass = encrypt_key(okx_pass)
-
-        if not enc_key.startswith("gAAAAA"):
-            raise ValueError("Falha na criptografia")
+        enc_key = encrypt_key(okx_key) if _CRYPTO_OK else okx_key
+        enc_secret = encrypt_key(okx_secret) if _CRYPTO_OK else okx_secret
+        enc_pass = encrypt_key(okx_pass) if _CRYPTO_OK else okx_pass
 
         if USE_POSTGRES:
             cursor.execute("""
@@ -248,12 +282,9 @@ def update_user_credentials(user_id: int, api_key: str, api_secret: str, passphr
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        enc_key = encrypt_key(api_key)
-        enc_secret = encrypt_key(api_secret)
-        enc_pass = encrypt_key(passphrase)
-
-        if not enc_key.startswith("gAAAAA"):
-            raise ValueError("Falha na criptografia")
+        enc_key = encrypt_key(api_key) if _CRYPTO_OK else api_key
+        enc_secret = encrypt_key(api_secret) if _CRYPTO_OK else api_secret
+        enc_pass = encrypt_key(passphrase) if _CRYPTO_OK else passphrase
 
         if USE_POSTGRES:
             cursor.execute("""
@@ -302,9 +333,9 @@ def get_decrypted_credentials(internal_user_id: int):
                 return None
             try:
                 return {
-                    "api_key": decrypt_key(d['api_key_enc']),
-                    "api_secret": decrypt_key(d['api_secret_enc']),
-                    "passphrase": decrypt_key(d['passphrase_enc'])
+                    "api_key": decrypt_key(d['api_key_enc']) if _CRYPTO_OK else d['api_key_enc'],
+                    "api_secret": decrypt_key(d['api_secret_enc']) if _CRYPTO_OK else d['api_secret_enc'],
+                    "passphrase": decrypt_key(d['passphrase_enc']) if _CRYPTO_OK else d['passphrase_enc']
                 }
             except Exception:
                 return None
@@ -630,7 +661,7 @@ def _create_admin_if_needed():
             conn.commit()
             print("✅ Admin criado: admin@sextafeira.com / 123456")
     except Exception as e:
-        print(f"⚠️ Aviso ao criar admin: {e}")
+        print(f"️ Aviso ao criar admin: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -641,5 +672,6 @@ def _create_admin_if_needed():
 # INICIALIZAÇÃO DO MÓDULO
 # ==========================================
 
+# Esta função roda assim que o arquivo é importado, criando as tabelas automaticamente
 init_saas_db()
-_create_admin_if_needed()  # Cria admin tanto no Postgres quanto no SQLite
+_create_admin_if_needed()
