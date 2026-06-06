@@ -1,4 +1,3 @@
-# saas_db.py - HÍBRIDO: PostgreSQL (Supabase) + SQLite (Local)
 import os
 import hashlib
 import sqlite3
@@ -6,9 +5,6 @@ from datetime import datetime, timezone
 from crypto_vault import encrypt_key, decrypt_key
 from cryptography.fernet import InvalidToken
 
-# ==========================================
-# DETECÇÃO AUTOMÁTICA DO BANCO
-# ==========================================
 DATABASE_URL = os.getenv("DATABASE_URL")
 USE_POSTGRES = bool(DATABASE_URL)
 
@@ -20,7 +16,7 @@ SALT = "sexta-feira-advanced-vip-salt-2026"
 DB_NAME = "jarvis_saas.db"
 
 
-def hash_password(password: str) -> str:
+def hash_password(password):
     return hashlib.sha256((password + SALT).encode()).hexdigest()
 
 
@@ -72,7 +68,6 @@ def init_saas_db():
                 close_time TIMESTAMP,
                 ai_reasoning TEXT
             )''')
-            # Adiciona colunas faltantes
             cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'FREE'")
             cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP")
             cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT")
@@ -136,25 +131,19 @@ def _dictify(row, cursor=None):
     return row
 
 
-# ==========================================
-# FUNÇÕES PRINCIPAIS
-# ==========================================
-
-def register_user(user_id: str, name: str, email: str, bingx_key: str, bingx_secret: str, bingx_passphrase: str) -> bool:
+def register_user(user_id, name, email, bingx_key, bingx_secret, bingx_passphrase):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         enc_key = encrypt_key(bingx_key)
         enc_secret = encrypt_key(bingx_secret)
         enc_pass = encrypt_key(bingx_passphrase)
-        if not enc_key.startswith("gAAAAA"):
-            raise ValueError("Falha na criptografia")
         if USE_POSTGRES:
             cursor.execute("""
                 INSERT INTO users (user_id, email, display_name, status, plan)
                 VALUES (%s, %s, %s, 'ACTIVE', 'FREE')
                 ON CONFLICT (user_id) DO UPDATE
-                SET email=EXCLUDED.email, display_name=EXCLUDED.display_name, status='ACTIVE'
+                SET email=EXCLUDED.email, display_name=EXCLUDED.display_name
                 RETURNING id
             """, (user_id, email, name))
             internal_id = cursor.fetchone()['id']
@@ -164,8 +153,7 @@ def register_user(user_id: str, name: str, email: str, bingx_key: str, bingx_sec
                 ON CONFLICT (user_id) DO UPDATE
                 SET api_key_enc=EXCLUDED.api_key_enc,
                     api_secret_enc=EXCLUDED.api_secret_enc,
-                    passphrase_enc=EXCLUDED.passphrase_enc,
-                    updated_at=CURRENT_TIMESTAMP
+                    passphrase_enc=EXCLUDED.passphrase_enc
             """, (internal_id, enc_key, enc_secret, enc_pass))
         else:
             cursor.execute(
@@ -189,7 +177,7 @@ def register_user(user_id: str, name: str, email: str, bingx_key: str, bingx_sec
         conn.close()
 
 
-def register_user_free(user_id: str, name: str, email: str, telegram_chat_id: str = None, stripe_session_id: str = None) -> bool:
+def register_user_free(user_id, name, email, telegram_chat_id=None, stripe_session_id=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -217,7 +205,7 @@ def register_user_free(user_id: str, name: str, email: str, telegram_chat_id: st
         conn.close()
 
 
-def upgrade_to_lifetime(user_id: str) -> bool:
+def upgrade_to_lifetime(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -236,7 +224,7 @@ def upgrade_to_lifetime(user_id: str) -> bool:
         conn.close()
 
 
-def upgrade_to_lifetime_by_email(email: str) -> bool:
+def upgrade_to_lifetime_by_email(email):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -255,7 +243,7 @@ def upgrade_to_lifetime_by_email(email: str) -> bool:
         conn.close()
 
 
-def get_user_by_email(email: str):
+def get_user_by_email(email):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -270,7 +258,7 @@ def get_user_by_email(email: str):
         conn.close()
 
 
-def set_user_password(email: str, password: str):
+def set_user_password(email, password):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -285,7 +273,7 @@ def set_user_password(email: str, password: str):
         conn.close()
 
 
-def update_user_status(user_id: str, status: str):
+def update_user_status(user_id, status):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
