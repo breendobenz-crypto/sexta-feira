@@ -644,20 +644,26 @@ td {
     animation: slideIn 0.4s ease-out;
 }
 
+/* Esconde ícone de link/âncora que o Streamlit injeta nos h1 */
+h1 a, h2 a, h3 a, [data-testid="stHeadingWithActionElements"] a,
+.stHeadingWithActionElements a { display: none !important; }
+
 .stButton > button {
     border-radius: 8px !important;
     border: 1px solid #8A2BE2 !important;
-    background: rgba(138,43,226,0.1) !important;
-    color: #fff !important;
+    background: rgba(138,43,226,0.15) !important;
+    color: #8A2BE2 !important;
     font-family: 'Orbitron', sans-serif !important;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     animation: fadeIn 0.5s ease-out;
+    box-shadow: none !important;
 }
 
 .stButton > button:hover {
-    background: #8A2BE2 !important;
-    box-shadow: 0 0 15px #8A2BE2 !important;
-    transform: translateY(-1px);
+    background: rgba(138,43,226,0.35) !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .tradingview-widget-container {
@@ -1087,10 +1093,10 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.9rem, 8vw, 1.8rem) !important;
+                    font-size: clamp(0.75rem, 5.5vw, 1.8rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: clamp(1px, 2vw, 4px) !important;
+                    letter-spacing: clamp(1px, 1vw, 4px) !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     width: 100% !important;
@@ -1123,16 +1129,8 @@ def render_login():
                         st.rerun()
                     else:
                         st.error("❌ Senha incorreta")
-                elif password == GLOBAL_PASSWORD:
-                    # Banco indisponível mas senha global correta — acesso de emergência
-                    st.session_state.update({
-                        "logged_in": True,
-                        "user_id": 1,
-                        "user_name": "Admin"
-                    })
-                    st.rerun()
                 else:
-                    st.error(f"❌ Erro de conexão com o banco: {_SAAS_DB_ERR[:120] if _SAAS_DB_ERR else 'DATABASE_URL não configurada'}")
+                    st.error("❌ Erro de conexão com o banco")
 
 # ==========================================
 # FUNÇÕES AUXILIARES
@@ -1415,10 +1413,48 @@ def render_dashboard():
         """, unsafe_allow_html=True)
     with col_sair_h:
         st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
-        if st.button("Sair", use_container_width=True, key="btn_sair"):
-            for k in ["logged_in", "user_id", "user_email", "user_name"]:
-                st.session_state.pop(k, None)
-            st.rerun()
+        # Lê estado diário do robô para mostrar status no botão
+        _risk_file = f"risk_state_{uid}.json"
+        if not os.path.exists(_risk_file):
+            _risk_file = "risk_state.json"
+        _bot_stopped_daily = False
+        _bot_stop_reason = ""
+        if os.path.exists(_risk_file):
+            try:
+                import json as _json
+                with open(_risk_file) as _rf:
+                    _rs = _json.load(_rf)
+                _daily_pnl = float(_rs.get("daily_pnl_pct", _rs.get("daily_loss_pct", 0))) * 100
+                _win_target = float(_rs.get("win_target_pct", 3.0))
+                _loss_limit  = float(_rs.get("loss_limit_pct", _rs.get("max_daily_loss", 2.0)))
+                if _daily_pnl >= _win_target:
+                    _bot_stopped_daily = True
+                    _bot_stop_reason = f"✅ META {_daily_pnl:.1f}%"
+                elif abs(_daily_pnl) >= _loss_limit and _daily_pnl < 0:
+                    _bot_stopped_daily = True
+                    _bot_stop_reason = f"🛑 STOP {_daily_pnl:.1f}%"
+            except Exception:
+                pass
+
+        if _bot_stopped_daily:
+            st.markdown(f"""
+            <div style="
+                background: rgba(138,43,226,0.2);
+                border: 1px solid #8A2BE2;
+                border-radius: 8px;
+                padding: 8px 12px;
+                text-align: center;
+                font-family: 'Orbitron', sans-serif;
+                font-size: 11px;
+                color: #c084fc;
+                margin-top: 2px;
+            ">{_bot_stop_reason}<br><span style="font-size:9px;color:#888;">BOT PAUSADO</span></div>
+            """, unsafe_allow_html=True)
+        else:
+            if st.button("Sair", use_container_width=True, key="btn_sair"):
+                for k in ["logged_in", "user_id", "user_email", "user_name"]:
+                    st.session_state.pop(k, None)
+                st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ── ESFERA centralizada ─
