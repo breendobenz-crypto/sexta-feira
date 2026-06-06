@@ -5,8 +5,6 @@ import os
 import hashlib
 import sqlite3
 from datetime import datetime, timezone
-from crypto_vault import encrypt_key, decrypt_key
-from cryptography.fernet import InvalidToken
 
 # ==========================================
 # DETECÇÃO AUTOMÁTICA DO BANCO
@@ -21,6 +19,14 @@ if USE_POSTGRES:
 SALT = "sexta-feira-advanced-vip-salt-2026"
 DB_NAME = "jarvis_saas.db"
 
+try:
+    from crypto_vault import encrypt_key, decrypt_key
+    from cryptography.fernet import InvalidToken
+    _CRYPTO_OK = True
+except ImportError:
+    _CRYPTO_OK = False
+    print("⚠️  crypto_vault não encontrado - criptografia desabilitada")
+
 
 def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
@@ -29,13 +35,15 @@ def hash_password(password: str) -> str:
 def get_db_connection():
     """Retorna conexão com o banco configurado (Postgres ou SQLite)."""
     if USE_POSTGRES:
-        # Garante sslmode=require para compatibilidade com Supabase
+        # Garante sslmode=require para compatibilidade com Supabase/Render
         url = DATABASE_URL
         if "sslmode" not in url:
             sep = "&" if "?" in url else "?"
             url = f"{url}{sep}sslmode=require"
         try:
-            return psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
+            conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
+            print("✅ Conexão PostgreSQL estabelecida com sucesso")
+            return conn
         except psycopg2.OperationalError as e:
             print(f"❌ Erro conexão PostgreSQL: {e}")
             raise
@@ -43,12 +51,13 @@ def get_db_connection():
 
 
 def init_saas_db():
-    """Cria as tabelas se não existirem. Chamado na inicialização."""
+    """Cria as tabelas se não existirem. Chamada na inicialização."""
     print("🔧 Inicializando banco de dados...")
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         if USE_POSTGRES:
+            print("📊 Criando tabelas PostgreSQL...")
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 user_id TEXT UNIQUE,
@@ -86,6 +95,7 @@ def init_saas_db():
                 ai_reasoning TEXT
             )''')
         else:
+            print("📊 Criando tabelas SQLite...")
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT UNIQUE,
@@ -131,12 +141,21 @@ def init_saas_db():
             try:
                 cursor.execute(alter)
             except Exception:
-                pass
+                pass  # Coluna já existe
 
         conn.commit()
         print("✅ Banco inicializado com sucesso.")
+        
+        # Verifica se as tabelas existem
+        cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'")
+        count = cursor.fetchone()['count'] if USE_POSTGRES else cursor.fetchone()[0]
+        if count > 0:
+            print("✅ Tabela 'users' verificada com sucesso!")
+        else:
+            print("❌ ERRO: Tabela 'users' não foi criada!")
+            
     except Exception as e:
-        print(f" Erro ao inicializar banco: {e}")
+        print(f"❌ Erro ao inicializar banco: {e}")
         conn.rollback()
         raise
     finally:
@@ -163,12 +182,14 @@ def register_user(user_id: str, name: str, email: str, okx_key: str, okx_secret:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        enc_key = encrypt_key(okx_key)
-        enc_secret = encrypt_key(okx_secret)
-        enc_pass = encrypt_key(okx_pass)
-
-        if not enc_key.startswith("gAAAAA"):
-            raise ValueError("Falha na criptografia")
+        if _CRYPTO_OK:
+            enc_key = encrypt_key(okx_key)
+            enc_secret = encrypt_key(okx_secret)
+            enc_pass = encrypt_key(okx_pass)
+            if not enc_key.startswith("gAAAAA"):
+                raise ValueError("Falha na criptografia")
+        else:
+            enc_key, enc_secret, enc_pass = okx_key, okx_secret, okx_pass
 
         if USE_POSTGRES:
             cursor.execute("""
@@ -280,12 +301,14 @@ def update_user_credentials(user_id: int, api_key: str, api_secret: str, passphr
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        enc_key = encrypt_key(api_key)
-        enc_secret = encrypt_key(api_secret)
-        enc_pass = encrypt_key(passphrase)
-
-        if not enc_key.startswith("gAAAAA"):
-            raise ValueError("Falha na criptografia")
+        if _CRYPTO_OK:
+            enc_key = encrypt_key(api_key)
+            enc_secret = encrypt_key(api_secret)
+            enc_pass = encrypt_key(passphrase)
+            if not enc_key.startswith("gAAAAA"):
+                raise ValueError("Falha na criptografia")
+        else:
+            enc_key, enc_secret, enc_pass = api_key, api_secret, passphrase
 
         if USE_POSTGRES:
             cursor.execute("""
@@ -333,11 +356,18 @@ def get_decrypted_credentials(internal_user_id: int):
             if not raw_key or raw_key in ('VAZIO', 'N/A', 'NONE'):
                 return None
             try:
-                return {
-                    "api_key": decrypt_key(d['api_key_enc']),
-                    "api_secret": decrypt_key(d['api_secret_enc']),
-                    "passphrase": decrypt_key(d['passphrase_enc'])
-                }
+                if _CRYPTO_OK:
+                    return {
+                        "api_key": decrypt_key(d['api_key_enc']),
+                        "api_secret": decrypt_key(d['api_secret_enc']),
+                        "passphrase": decrypt_key(d['passphrase_enc'])
+                    }
+                else:
+                    return {
+                        "api_key": d['api_key_enc'],
+                        "api_secret": d['api_secret_enc'],
+                        "passphrase": d['passphrase_enc']
+                    }
             except Exception:
                 return None
         return None
@@ -662,7 +692,7 @@ def _create_admin_if_needed():
             conn.commit()
             print("✅ Admin criado: admin@sextafeira.com / 123456")
     except Exception as e:
-        print(f"️ Aviso ao criar admin: {e}")
+        print(f"⚠️ Aviso ao criar admin: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -673,6 +703,11 @@ def _create_admin_if_needed():
 # INICIALIZAÇÃO DO MÓDULO
 # ==========================================
 
-init_saas_db()
-if not USE_POSTGRES:
-    _create_admin_if_needed()
+# Garante que o banco seja inicializado ao importar o módulo
+try:
+    init_saas_db()
+    if not USE_POSTGRES:
+        _create_admin_if_needed()
+except Exception as e:
+    print(f"❌ ERRO CRÍTICO na inicialização do banco: {e}")
+    raise
