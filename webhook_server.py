@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, send_from_directory
 from flask_cors import CORS
 import os
 import stripe
@@ -41,6 +41,11 @@ def send_telegram_message(chat_id, text):
     except Exception as e:
         print(f"Erro Telegram: {e}")
         return False
+
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
 
 
 @app.route('/webhook/test', methods=['GET'])
