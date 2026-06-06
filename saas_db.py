@@ -22,26 +22,17 @@ def hash_password(password: str) -> str:
 
 def get_db_connection():
     if USE_POSTGRES:
-        # Força IPv4 para evitar erro "Network is unreachable" no Render
-        import re
-        # Parse da URL para extrair host
-        match = re.match(r'postgresql://([^:]+):([^@]+)@([^:/]+)(?::(\d+))?/(.+)', DATABASE_URL)
-        if match:
-            user, password, host, port, dbname = match.groups()
-            port = port or '5432'
-            # Conecta forçando IPv4
-            return psycopg2.connect(
-                host=host,
-                port=int(port),
-                user=user,
-                password=password,
-                dbname=dbname,
-                cursor_factory=RealDictCursor,
-                connect_timeout=10
-            )
-        else:
-            # Fallback para URL direta
-            return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor, connect_timeout=10)
+        url = DATABASE_URL
+        # Supabase e Render exigem SSL — adiciona sslmode=require se não estiver na URL
+        if "sslmode" not in url:
+            sep = "&" if "?" in url else "?"
+            url = f"{url}{sep}sslmode=require"
+        try:
+            conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
+            return conn
+        except psycopg2.OperationalError as e:
+            print(f"❌ Erro conexão PostgreSQL/Supabase: {e}")
+            raise
     return sqlite3.connect(DB_NAME)
 
 
