@@ -1123,8 +1123,16 @@ def render_login():
                         st.rerun()
                     else:
                         st.error("❌ Senha incorreta")
+                elif password == GLOBAL_PASSWORD:
+                    # Banco indisponível mas senha global correta — acesso de emergência
+                    st.session_state.update({
+                        "logged_in": True,
+                        "user_id": 1,
+                        "user_name": "Admin"
+                    })
+                    st.rerun()
                 else:
-                    st.error("❌ Erro de conexão com o banco")
+                    st.error(f"❌ Erro de conexão com o banco: {_SAAS_DB_ERR[:120] if _SAAS_DB_ERR else 'DATABASE_URL não configurada'}")
 
 # ==========================================
 # FUNÇÕES AUXILIARES
