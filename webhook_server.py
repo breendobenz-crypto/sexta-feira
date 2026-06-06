@@ -70,14 +70,14 @@ def verificar_id():
     try:
         data = request.json
         bingx_uid = data.get('bingx_uid', '').strip()
-        print(f"RECEBIDO UID: {bingx_uid}")
+        print(f"RECEBIDO UID BINGX: {bingx_uid}")
 
         if not bingx_uid:
-            return jsonify({"status": "error", "text": "ID nao informado"}), 400
+            return jsonify({"status": "error", "text": "ID BingX nao informado"}), 400
         if not bingx_uid.isdigit():
-            return jsonify({"status": "error", "text": "ID invalido"}), 400
+            return jsonify({"status": "error", "text": "ID BingX invalido"}), 400
         if len(bingx_uid) < 6 or len(bingx_uid) > 12:
-            return jsonify({"status": "error", "text": "ID deve ter 6-12 digitos"}), 400
+            return jsonify({"status": "error", "text": "ID BingX deve ter 6-12 digitos"}), 400
 
         conn = saas_db.get_db_connection()
         cursor = conn.cursor()
@@ -90,9 +90,9 @@ def verificar_id():
         conn.close()
 
         if count > 0:
-            return jsonify({"status": "exists", "text": f"ID {bingx_uid} ja cadastrado", "bingx_uid": bingx_uid})
+            return jsonify({"status": "exists", "text": f"ID BingX {bingx_uid} ja cadastrado", "bingx_uid": bingx_uid})
 
-        return jsonify({"status": "success", "text": f"ID {bingx_uid} verificado!", "bingx_uid": bingx_uid, "is_new": True})
+        return jsonify({"status": "success", "text": f"ID BingX {bingx_uid} verificado!", "bingx_uid": bingx_uid, "is_new": True})
     except Exception as e:
         print(f"ERRO: {e}")
         return jsonify({"status": "error", "text": str(e)}), 500
@@ -106,7 +106,7 @@ def ativar_usuario_simples():
         email = data.get('email', '').strip()
 
         if not bingx_uid or not bingx_uid.isdigit():
-            return jsonify({"status": "error", "text": "ID invalido"}), 400
+            return jsonify({"status": "error", "text": "ID BingX invalido"}), 400
         if not email or '@' not in email:
             return jsonify({"status": "error", "text": "Email invalido"}), 400
 
@@ -119,7 +119,7 @@ def ativar_usuario_simples():
             user_id=bingx_uid,
             name=f"User_{bingx_uid[-4:]}",
             email=email,
-            okx_key='VAZIO', okx_secret='VAZIO', okx_pass='VAZIO'
+            bingx_key='VAZIO', bingx_secret='VAZIO', bingx_passphrase='VAZIO'
         )
 
         if not success:
@@ -212,11 +212,12 @@ def notify_team():
 
 if __name__ == '__main__':
     print("="*60)
-    print("WEBHOOK SERVER - SEXTA-FEIRA")
+    print("WEBHOOK SERVER - SEXTA-FEIRA (BINGX)")
     print("="*60)
     print(f"Banco: {'PostgreSQL' if saas_db.USE_POSTGRES else 'SQLite'}")
     print(f"Telegram: {'OK' if TELEGRAM_BOT_TOKEN else 'NAO'}")
     print(f"Stripe: {'OK' if STRIPE_SECRET_KEY else 'NAO'}")
+    print(f"Corretora: BINGX")
     print("="*60)
 
     saas_db.init_saas_db()
