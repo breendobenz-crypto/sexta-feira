@@ -154,7 +154,6 @@ def stripe_webhook():
 
         if customer_email and payment_status == 'paid':
             try:
-                # Atualiza por EMAIL (não precisa de bingx_uid)
                 saas_db.upgrade_to_lifetime_by_email(customer_email)
                 print(f"Usuario {customer_email} atualizado para LIFETIME!")
 
