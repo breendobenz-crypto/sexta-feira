@@ -6,6 +6,14 @@ import hashlib
 import sqlite3
 from datetime import datetime, timezone
 
+try:
+    from crypto_vault import encrypt_key, decrypt_key
+    from cryptography.fernet import InvalidToken
+    _CRYPTO_OK = True
+except ImportError:
+    _CRYPTO_OK = False
+    print("⚠️ crypto_vault não encontrado - criptografia desabilitada")
+
 # ==========================================
 # DETECÇÃO AUTOMÁTICA DO BANCO
 # ==========================================
@@ -19,14 +27,6 @@ if USE_POSTGRES:
 SALT = "sexta-feira-advanced-vip-salt-2026"
 DB_NAME = "jarvis_saas.db"
 
-try:
-    from crypto_vault import encrypt_key, decrypt_key
-    from cryptography.fernet import InvalidToken
-    _CRYPTO_OK = True
-except ImportError:
-    _CRYPTO_OK = False
-    print("⚠️  crypto_vault não encontrado - criptografia desabilitada")
-
 
 def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
@@ -35,7 +35,7 @@ def hash_password(password: str) -> str:
 def get_db_connection():
     """Retorna conexão com o banco configurado (Postgres ou SQLite)."""
     if USE_POSTGRES:
-        # Garante sslmode=require para compatibilidade com Supabase/Render
+        # Garante sslmode=require para compatibilidade com Supabase
         url = DATABASE_URL
         if "sslmode" not in url:
             sep = "&" if "?" in url else "?"
@@ -51,49 +51,93 @@ def get_db_connection():
 
 
 def init_saas_db():
-    """Cria as tabelas se não existirem. Chamada na inicialização."""
+    """Cria as tabelas se não existirem. Chamado uma vez na inicialização."""
     print("🔧 Inicializando banco de dados...")
     conn = get_db_connection()
     cursor = conn.cursor()
+    
     try:
         if USE_POSTGRES:
             print("📊 Criando tabelas PostgreSQL...")
-            cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                user_id TEXT UNIQUE,
-                email TEXT UNIQUE NOT NULL,
-                display_name TEXT,
-                plan TEXT DEFAULT 'VIP',
-                status TEXT DEFAULT 'ACTIVE',
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_login TIMESTAMP,
-                password_hash TEXT
-            )''')
             
-            cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
-                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                api_key_enc TEXT NOT NULL,
-                api_secret_enc TEXT NOT NULL,
-                passphrase_enc TEXT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )''')
+            # ✅ Verifica schema atual
+            cursor.execute("SELECT current_schema()")
+            current_schema = cursor.fetchone()['current_schema']
+            print(f"📍 Schema atual: {current_schema}")
             
-            cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                symbol TEXT NOT NULL,
-                side TEXT NOT NULL,
-                entry_price REAL NOT NULL,
-                exit_price REAL,
-                size REAL NOT NULL,
-                pnl_usdt REAL,
-                pnl_pct REAL,
-                score INTEGER DEFAULT 70,
-                status TEXT DEFAULT 'OPEN',
-                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                close_time TIMESTAMP,
-                ai_reasoning TEXT
-            )''')
+            # ✅ Cria tabela users
+            print("  → Criando tabela 'users'...")
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT UNIQUE,
+                    email TEXT UNIQUE NOT NULL,
+                    display_name TEXT,
+                    plan TEXT DEFAULT 'VIP',
+                    status TEXT DEFAULT 'ACTIVE',
+                    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP,
+                    password_hash TEXT
+                )
+            ''')
+            print("  ✅ Tabela 'users' criada/verificada")
+            
+            # ✅ Cria tabela api_credentials
+            print("  → Criando tabela 'api_credentials'...")
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS api_credentials (
+                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    api_key_enc TEXT NOT NULL,
+                    api_secret_enc TEXT NOT NULL,
+                    passphrase_enc TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            print("  ✅ Tabela 'api_credentials' criada/verificada")
+            
+            # ✅ Cria tabela trades
+            print("  → Criando tabela 'trades'...")
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS trades (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    entry_price REAL NOT NULL,
+                    exit_price REAL,
+                    size REAL NOT NULL,
+                    pnl_usdt REAL,
+                    pnl_pct REAL,
+                    score INTEGER DEFAULT 70,
+                    status TEXT DEFAULT 'OPEN',
+                    open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    close_time TIMESTAMP,
+                    ai_reasoning TEXT
+                )
+            ''')
+            print("  ✅ Tabela 'trades' criada/verificada")
+            
+            # ✅ COMMIT EXPLÍCITO
+            print("  → Executando COMMIT...")
+            conn.commit()
+            print("  ✅ COMMIT executado com sucesso")
+            
+            # ✅ Verifica se as tabelas foram criadas
+            print("  → Verificando tabelas criadas...")
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = %s 
+                AND table_name IN ('users', 'api_credentials', 'trades')
+            """, (current_schema,))
+            
+            tables_created = [row['table_name'] for row in cursor.fetchall()]
+            print(f"  📋 Tabelas encontradas: {tables_created}")
+            
+            if 'users' not in tables_created:
+                print("❌ ERRO CRÍTICO: Tabela 'users' não foi criada!")
+                raise Exception("Falha ao criar tabela 'users'")
+            
         else:
             print("📊 Criando tabelas SQLite...")
             cursor.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -132,28 +176,10 @@ def init_saas_db():
                 ai_reasoning TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
-
-        # Adiciona colunas extras se não existirem
-        for alter in [
-            "ALTER TABLE users ADD COLUMN password_hash TEXT",
-            "ALTER TABLE trades ADD COLUMN ai_reasoning TEXT",
-        ]:
-            try:
-                cursor.execute(alter)
-            except Exception:
-                pass  # Coluna já existe
-
-        conn.commit()
+            conn.commit()
+        
         print("✅ Banco inicializado com sucesso.")
         
-        # Verifica se as tabelas existem
-        cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users'")
-        count = cursor.fetchone()['count'] if USE_POSTGRES else cursor.fetchone()[0]
-        if count > 0:
-            print("✅ Tabela 'users' verificada com sucesso!")
-        else:
-            print("❌ ERRO: Tabela 'users' não foi criada!")
-            
     except Exception as e:
         print(f"❌ Erro ao inicializar banco: {e}")
         conn.rollback()
@@ -703,7 +729,6 @@ def _create_admin_if_needed():
 # INICIALIZAÇÃO DO MÓDULO
 # ==========================================
 
-# Garante que o banco seja inicializado ao importar o módulo
 try:
     init_saas_db()
     if not USE_POSTGRES:
