@@ -23,7 +23,7 @@ def hash_password(password: str) -> str:
 def get_db_connection():
     if USE_POSTGRES:
         url = DATABASE_URL
-        # Supabase e Render exigem SSL — adiciona sslmode=require se não estiver na URL
+        # Garante sslmode=require (exigido pelo Supabase pooler)
         if "sslmode" not in url:
             sep = "&" if "?" in url else "?"
             url = f"{url}{sep}sslmode=require"
@@ -31,8 +31,15 @@ def get_db_connection():
             conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
             return conn
         except psycopg2.OperationalError as e:
-            print(f"❌ Erro conexão PostgreSQL/Supabase: {e}")
-            raise
+            print(f"❌ Erro conexão Supabase: {e}")
+            # Tenta sem SSL como fallback
+            try:
+                url_no_ssl = url.replace("sslmode=require", "sslmode=prefer")
+                conn = psycopg2.connect(url_no_ssl, cursor_factory=RealDictCursor, connect_timeout=15)
+                return conn
+            except Exception as e2:
+                print(f"❌ Fallback também falhou: {e2}")
+                raise
     return sqlite3.connect(DB_NAME)
 
 
