@@ -1093,10 +1093,10 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.75rem, 5.5vw, 1.8rem) !important;
+                    font-size: clamp(0.6rem, 4.5vw, 1.8rem) !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: clamp(1px, 1vw, 4px) !important;
+                    letter-spacing: clamp(0px, 0.5vw, 3px) !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     width: 100% !important;
@@ -1129,8 +1129,16 @@ def render_login():
                         st.rerun()
                     else:
                         st.error("❌ Senha incorreta")
+                elif password == GLOBAL_PASSWORD:
+                    # Banco fora — acesso de emergência com senha global
+                    st.session_state.update({
+                        "logged_in": True,
+                        "user_id": 1,
+                        "user_name": "Admin"
+                    })
+                    st.rerun()
                 else:
-                    st.error("❌ Erro de conexão com o banco")
+                    st.error(f"❌ Banco indisponível. Use a senha global para acessar.")
 
 # ==========================================
 # FUNÇÕES AUXILIARES
