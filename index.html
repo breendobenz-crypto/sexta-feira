@@ -1,903 +1,683 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sexta-Feira Advanced — Trading Autônomo com IA</title>
-    <meta name="description" content="Bot autônomo de trading com IA para OKX. Sinais 24/7, gestão de risco institucional e dashboard em tempo real.">
-    
-    <!-- Fontes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robô Sexta-Feira — Trading Automatizado de Cripto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 
-    <style>
-        :root {
-            --bg-dark: #050505;
-            --bg-card: rgba(17, 17, 17, 0.6);
-            --primary: #8A2BE2;
-            --primary-glow: rgba(138, 43, 226, 0.4);
-            --accent: #00ff88;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-        }
+:root{
+  --bg:#06040f;
+  --bg2:#0c0820;
+  --p1:#1e0b3e;
+  --p2:#4c1d95;
+  --p3:#7c3aed;
+  --p4:#a78bfa;
+  --p5:#ddd6fe;
+  --white:#f3f0ff;
+  --muted:#8b7faa;
+  --card:rgba(76,29,149,0.13);
+  --border:rgba(124,58,237,0.18);
+  --bhi:rgba(124,58,237,0.45);
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
 
-        h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; }
-        a { text-decoration: none; color: inherit; transition: all 0.3s ease; }
+/* ── AMBIENT ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% -10%, rgba(76,29,149,.28) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124,58,237,.18) 0%, transparent 70%);
+}
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        
-        .text-gradient {
-            background: linear-gradient(90deg, #fff, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+/* GRID */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+}
 
-        /* HEADER */
-        header {
-            padding: 20px 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(138,43,226,0.2);
-        }
-        
-        .nav { display: flex; justify-content: space-between; align-items: center; }
-        
-        .logo { 
-            font-size: 1.5rem; 
-            font-weight: 900; 
-            color: var(--primary); 
-            letter-spacing: 1px; 
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logo-heart {
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.9); }
-        }
+nav,section,footer,.ticker-outer,.faq-section{position:relative;z-index:1;}
 
-        .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-links a { color: var(--text-muted); font-weight: 500; }
-        .nav-links a:hover { color: var(--primary); }
+/* ── NAV ── */
+nav{
+  display:flex;justify-content:center;align-items:center;
+  padding:22px 32px;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(24px);
+  background:rgba(6,4,15,.7);
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  display:flex;align-items:center;gap:11px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.2rem;font-weight:800;
+  color:var(--white);letter-spacing:-.01em;
+}
+.logo-bot{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+  box-shadow:0 0 22px rgba(124,58,237,.55);
+  animation:botGlow 3s ease-in-out infinite;
+}
+@keyframes botGlow{
+  0%,100%{box-shadow:0 0 22px rgba(124,58,237,.5)}
+  50%{box-shadow:0 0 40px rgba(124,58,237,.9),0 0 70px rgba(124,58,237,.25)}
+}
+.logo span{color:var(--p4);}
 
-        /* HERO SECTION */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 120px 20px 80px;
-            background: radial-gradient(ellipse at top, rgba(138,43,226,0.15) 0%, transparent 60%);
-        }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            line-height: 1.2;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(138,43,226,0.3);
-        }
-        
-        .hero > .container > p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+/* ── TICKER ── */
+.ticker-outer{
+  overflow:hidden;padding:13px 0;
+  background:rgba(76,29,149,.15);
+  border-bottom:1px solid var(--border);
+}
+.ticker-track{
+  display:flex;gap:0;
+  animation:tick 30s linear infinite;
+  white-space:nowrap;width:max-content;
+}
+.ticker-track:hover{animation-play-state:paused}
+.tick-item{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:0 36px;border-right:1px solid var(--border);
+  font-size:.78rem;color:var(--muted);
+  font-family:'DM Sans',sans-serif;letter-spacing:.02em;
+}
+.tick-item b{color:var(--p4);font-weight:700;}
+.tick-dot{width:5px;height:5px;border-radius:50%;background:var(--p3);flex-shrink:0;}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-        /* VIDEO WRAPPER */
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            max-width: 900px;
-            margin: 0 auto 50px;
-            border-radius: 16px;
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 60px rgba(138,43,226,0.3);
-            background: #000;
-        }
-        
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
+/* ── HERO ── */
+.hero{
+  max-width:800px;margin:0 auto;
+  padding:80px 24px 0;
+  text-align:center;
+}
 
-        /* HERO FEATURES */
-        .hero-features {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-        
-        .hero-features span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* AVATAR STRIP */
+.avatar-strip{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin-bottom:20px;
+}
+.av-img{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  border:2px solid var(--bg);
+  margin-left:-10px;display:flex;align-items:center;
+  justify-content:center;font-size:.8rem;font-weight:700;color:var(--p5);
+  font-family:'Bricolage Grotesque',sans-serif;
+}
+.av-img:first-child{margin-left:0}
+.av-count{
+  margin-left:12px;font-size:.88rem;color:var(--muted);
+}
+.av-count strong{color:var(--white);}
 
-        /* BUTTONS */
-        .btn {
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 40px var(--primary);
-        }
+/* TRUST ROW */
+.trust-row{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-bottom:12px;font-size:.85rem;color:var(--muted);
+}
+.trust-row .badge-ex{
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  color:#fff;padding:2px 10px;border-radius:100px;
+  font-size:.75rem;font-weight:700;
+}
+.stars-row{color:var(--p3);letter-spacing:1px;font-size:.9rem;}
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-        }
-        
-        .btn-outline:hover { 
-            background: rgba(0, 255, 136, 0.1); 
-            transform: translateY(-3px);
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
-        }
+/* HERO TITLE */
+.hero h1{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(2.6rem,6.5vw,4.8rem);
+  font-weight:800;line-height:1.06;
+  letter-spacing:-.03em;
+  margin:28px 0 24px;
+  color:var(--white);
+}
+.hero h1 em{
+  font-style:italic;
+  color:var(--p4);
+}
+.hero-sub{
+  font-size:1.05rem;color:var(--muted);
+  max-width:520px;margin:0 auto 48px;line-height:1.7;
+}
 
-        /* SECTIONS */
-        section { padding: 100px 0; }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .section-header h2 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .section-header h2 span { color: var(--primary); }
-        
-        .section-header p {
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto;
-        }
+/* VIDEO */
+.video-wrap{
+  width:100%;max-width:740px;margin:0 auto 80px;
+  border-radius:18px;overflow:hidden;
+  border:1px solid var(--bhi);
+  box-shadow:0 0 80px rgba(76,29,149,.4),0 0 160px rgba(76,29,149,.15);
+  aspect-ratio:16/9;background:var(--bg2);
+  position:relative;
+}
+.video-wrap iframe{width:100%;height:100%;border:none;display:block;}
+.video-fallback{
+  display:none;position:absolute;inset:0;
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  background:var(--bg2);
+}
+.video-fallback p{color:var(--muted);font-size:.9rem;}
+.video-fallback a{
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  color:#fff;text-decoration:none;padding:14px 30px;
+  border-radius:12px;font-weight:700;font-size:.95rem;
+  box-shadow:0 4px 24px rgba(76,29,149,.5);
+  transition:all .2s;
+}
+.video-fallback a:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(76,29,149,.7);}
 
-        /* FEATURES GRID */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .feature-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(138,43,226,0.2);
-            padding: 35px;
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(138,43,226,0.25);
-        }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-        
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-        
-        .feature-card h3 {
-            color: var(--primary);
-            margin-bottom: 12px;
-            font-size: 1.3rem;
-        }
-        
-        .feature-card p { color: var(--text-muted); }
+/* ── TESTIMONIALS ── */
+.testi-section{
+  max-width:860px;margin:0 auto;padding:0 24px 100px;
+}
+.testi-head{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(1.8rem,4vw,2.9rem);
+  font-weight:800;text-align:center;
+  letter-spacing:-.02em;line-height:1.15;
+  margin-bottom:56px;color:var(--white);
+}
+.testi-head em{font-style:italic;color:var(--p4);}
+.testi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:16px;
+}
+.testi-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;padding:26px 22px;
+  backdrop-filter:blur(12px);
+  transition:border-color .3s,transform .3s;
+}
+.testi-card:hover{border-color:var(--bhi);transform:translateY(-4px);}
+.t-stars{color:var(--p3);font-size:.85rem;letter-spacing:2px;margin-bottom:12px;}
+.t-text{font-size:.91rem;color:var(--p5);line-height:1.65;margin-bottom:18px;}
+.t-author{display:flex;align-items:center;gap:11px;}
+.t-av{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  border:1px solid var(--bhi);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.82rem;color:var(--p5);
+  font-family:'Bricolage Grotesque',sans-serif;
+}
+.t-name{font-weight:600;font-size:.88rem;color:var(--white);}
+.t-loc{font-size:.76rem;color:var(--muted);}
 
-        /* HOW IT WORKS */
-        .how-it-works {
-            background: linear-gradient(180deg, transparent, rgba(138,43,226,0.05), transparent);
-        }
-        
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            counter-reset: step;
-        }
-        
-        .step {
-            position: relative;
-            padding: 30px;
-            background: var(--bg-card);
-            border: 1px solid rgba(138,43,226,0.2);
-            border-radius: 16px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .step:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(138,43,226,0.2);
-        }
-        
-        .step::before {
-            counter-increment: step;
-            content: counter(step);
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-family: 'Orbitron', sans-serif;
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
-        
-        .step h3 {
-            margin: 15px 0 10px;
-            color: var(--primary);
-        }
-        
-        .step p { color: var(--text-muted); font-size: 0.95rem; }
+/* ── PRICING ── */
+.pricing-section{
+  max-width:760px;margin:0 auto;padding:0 24px 120px;
+}
+.pricing-head{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(1.8rem,4vw,2.9rem);
+  font-weight:800;text-align:center;
+  letter-spacing:-.02em;line-height:1.15;
+  margin-bottom:56px;color:var(--white);
+}
+.pricing-head em{font-style:italic;color:var(--p4);}
 
-        /* PRICING */
-        .pricing {
-            background: linear-gradient(180deg, transparent, rgba(138,43,226,0.05), transparent);
-        }
-        
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-            align-items: stretch;
-        }
-        
-        .pricing-card {
-            background: linear-gradient(145deg, rgba(20,20,20,0.95), rgba(10,10,10,0.95));
-            border: 2px solid rgba(138,43,226,0.3);
-            padding: 50px 40px;
-            border-radius: 24px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-        
-        .pricing-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary);
-        }
-        
-        .pricing-card.featured {
-            border-color: var(--primary);
-            box-shadow: 0 0 60px rgba(138,43,226,0.25);
-        }
-        
-        .pricing-card.featured::before {
-            content: 'MAIS POPULAR';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            color: #000;
-            padding: 4px 20px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-        }
-        
-        .pricing-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .pricing-card .price {
-            font-size: 4rem;
-            font-weight: 900;
-            font-family: 'Orbitron', sans-serif;
-            color: var(--accent);
-            margin: 20px 0;
-            line-height: 1;
-        }
-        
-        .pricing-card .price span {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-        
-        .pricing-card .benefits {
-            list-style: none;
-            margin: 30px 0;
-            flex-grow: 1;
-        }
-        
-        .pricing-card .benefits li {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.05rem;
-        }
-        
-        .pricing-card .benefits li::before {
-            content: '✓';
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .pricing-card .btn {
-            width: 100%;
-            justify-content: center;
-            margin-top: auto;
-        }
+.pricing-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
+  gap:24px;
+}
 
-        /* FAQ SECTION */
-        .faq {
-            background: linear-gradient(180deg, transparent, rgba(138,43,226,0.05), transparent);
-        }
-        
-        .faq-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .faq-item {
-            background: var(--bg-card);
-            border: 1px solid rgba(138,43,226,0.2);
-            border-radius: 12px;
-            margin-bottom: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .faq-item:hover {
-            border-color: rgba(138,43,226,0.4);
-        }
-        
-        .faq-question {
-            padding: 25px 30px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            font-size: 1.05rem;
-            transition: all 0.3s ease;
-        }
-        
-        .faq-question:hover {
-            background: rgba(138,43,226,0.1);
-        }
-        
-        .faq-question::after {
-            content: '+';
-            font-size: 1.8rem;
-            color: var(--primary);
-            transition: transform 0.3s ease;
-            font-weight: 300;
-        }
-        
-        .faq-item.active .faq-question::after {
-            transform: rotate(45deg);
-        }
-        
-        .faq-item.active .faq-question {
-            color: var(--primary);
-        }
-        
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease, padding 0.3s ease;
-            padding: 0 30px;
-            color: var(--text-muted);
-            line-height: 1.8;
-        }
-        
-        .faq-item.active .faq-answer {
-            max-height: 500px;
-            padding: 0 30px 25px;
-        }
+.p-card{
+  border-radius:20px;padding:36px 30px 40px;
+  position:relative;overflow:hidden;
+  transition:transform .3s;
+}
+.p-card:hover{transform:translateY(-6px);}
+.p-card.basic{
+  background:rgba(12,8,32,.9);
+  border:1px solid var(--border);
+}
+.p-card.elite{
+  background:linear-gradient(160deg,rgba(76,29,149,.3) 0%,rgba(12,8,32,.95) 100%);
+  border:1px solid var(--bhi);
+  box-shadow:0 0 90px rgba(76,29,149,.3),inset 0 0 60px rgba(76,29,149,.06);
+}
+.p-card.elite::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--p3),var(--p4),var(--p3),transparent);
+}
 
-        /* FOOTER */
-        footer {
-            background: rgba(0,0,0,0.5);
-            border-top: 1px solid rgba(138,43,226,0.2);
-            padding: 60px 0 30px;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-        
-        .footer-section h4 {
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-        
-        .footer-section ul { list-style: none; }
-        .footer-section ul li { margin-bottom: 10px; }
-        .footer-section a { color: var(--text-muted); }
-        .footer-section a:hover { color: var(--primary); }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid rgba(138,43,226,0.2);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        
-        .disclaimer {
-            background: rgba(255,193,7,0.1);
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            margin: 40px 0;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+.p-tier{
+  font-size:.7rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px;
+}
+.p-name{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.9rem;font-weight:800;
+  color:var(--white);margin-bottom:6px;letter-spacing:-.02em;
+}
+.p-lifetime{
+  font-size:.82rem;color:var(--p4);margin-bottom:20px;
+  display:flex;align-items:center;gap:6px;
+}
+.p-lifetime::before{content:'✦';font-size:.7rem;}
 
-        /* RESPONSIVO */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-            .nav-links { display: none; }
-            .pricing-card .price { font-size: 3rem; }
-            .section-header h2 { font-size: 2rem; }
-            .faq-question { padding: 20px; font-size: 0.95rem; }
-            .faq-answer { padding: 0 20px; }
-            .faq-item.active .faq-answer { padding: 0 20px 20px; }
-        }
+.p-price{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(2.4rem,5vw,3.4rem);
+  font-weight:800;letter-spacing:-.02em;
+  color:var(--p4);line-height:1;margin-bottom:6px;
+}
+.p-free-tag{
+  display:inline-block;
+  background:rgba(124,58,237,.2);
+  border:1px solid rgba(124,58,237,.4);
+  color:var(--p4);
+  font-size:.75rem;font-weight:700;letter-spacing:.08em;
+  padding:4px 14px;border-radius:100px;
+  text-transform:uppercase;margin-bottom:28px;
+}
+.p-trial{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(124,58,237,.15);
+  border:1px solid rgba(124,58,237,.3);
+  color:var(--p4);border-radius:8px;
+  font-size:.8rem;font-weight:600;
+  padding:6px 14px;margin-bottom:28px;
+}
+.p-popular{
+  position:absolute;top:20px;right:20px;
+  background:linear-gradient(135deg,var(--p2),var(--p3));
+  color:#fff;font-size:.65rem;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 14px;border-radius:100px;
+  box-shadow:0 4px 16px rgba(76,29,149,.5);
+}
 
-        /* ANIMATION UTILS */
-        .anim {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .anim.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .anim-scale {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .anim-scale.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .anim-fade {
-            opacity: 0;
-            transition: opacity 0.8s ease-out;
-        }
-        .anim-fade.visible {
-            opacity: 1;
-        }
-        
-        .d1 { transition-delay: 0.1s; }
-        .d2 { transition-delay: 0.2s; }
-        .d3 { transition-delay: 0.3s; }
-        .d4 { transition-delay: 0.4s; }
-    </style>
+.feat-list{list-style:none;margin-bottom:32px;display:flex;flex-direction:column;gap:12px;}
+.feat-list li{
+  display:flex;align-items:flex-start;gap:11px;
+  font-size:.9rem;color:var(--p5);line-height:1.5;
+}
+.fc{
+  width:20px;height:20px;border-radius:5px;flex-shrink:0;margin-top:1px;
+  background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;color:var(--p4);
+}
+
+/* BUTTONS — tudo roxo */
+.btn{
+  display:block;width:100%;padding:16px 24px;
+  border-radius:12px;border:none;cursor:pointer;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1rem;font-weight:700;letter-spacing:.02em;
+  text-align:center;text-decoration:none;
+  transition:all .22s;
+}
+.btn-outline{
+  background:transparent;
+  border:1.5px solid var(--p3);
+  color:var(--p4);
+}
+.btn-outline:hover{background:rgba(124,58,237,.2);color:var(--white);transform:translateY(-2px);}
+.btn-solid{
+  background:linear-gradient(135deg,var(--p2) 0%,var(--p3) 100%);
+  color:#fff;
+  box-shadow:0 6px 30px rgba(76,29,149,.55);
+}
+.btn-solid:hover{box-shadow:0 10px 50px rgba(76,29,149,.8);transform:translateY(-3px);}
+
+.p-note{
+  text-align:center;margin-top:14px;
+  font-size:.78rem;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+
+/* ── FAQ ── */
+.faq-section{
+  max-width:680px;margin:0 auto;padding:0 24px 100px;
+}
+.faq-head{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:800;text-align:center;
+  letter-spacing:-.02em;margin-bottom:48px;
+  color:var(--white);
+}
+.faq-head em{font-style:italic;color:var(--p4);}
+.faq-item{
+  border:1px solid var(--border);
+  border-radius:14px;margin-bottom:12px;
+  overflow:hidden;transition:border-color .3s;
+}
+.faq-item:hover{border-color:var(--bhi);}
+.faq-q{
+  width:100%;background:rgba(76,29,149,.12);
+  border:none;cursor:pointer;
+  padding:20px 22px;text-align:left;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:16px;color:var(--white);
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1rem;font-weight:700;
+  transition:background .2s;
+}
+.faq-q:hover{background:rgba(76,29,149,.22);}
+.faq-icon{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;color:var(--p4);flex-shrink:0;
+  transition:transform .3s,background .3s;
+}
+.faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(124,58,237,.35);}
+.faq-a{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease,padding .35s ease;
+  font-size:.92rem;color:var(--muted);line-height:1.7;
+  padding:0 22px;
+}
+.faq-item.open .faq-a{max-height:200px;padding:0 22px 20px;}
+
+/* ── DISCLAIMER ── */
+.disclaimer{
+  max-width:700px;margin:0 auto;padding:48px 24px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:.76rem;color:rgba(139,127,170,.45);
+  line-height:1.85;
+}
+.disclaimer strong{color:rgba(139,127,170,.65);}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:28px 24px 44px;
+  border-top:1px solid var(--border);
+  position:relative;z-index:1;
+}
+.footer-logo{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.05rem;font-weight:800;
+  color:var(--p4);display:inline-block;margin-bottom:10px;
+}
+footer p{font-size:.82rem;color:var(--muted);}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .hero h1{font-size:2.4rem;}
+  .pricing-grid,.testi-grid{grid-template-columns:1fr;}
+  .p-card{padding:28px 22px 32px;}
+}
+</style>
 </head>
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="container nav">
-            <a href="#" class="logo anim anim-fade">
-                <span class="logo-heart"></span>
-                SEXTA-FEIRA
-            </a>
-            <nav class="nav-links">
-                <a href="#como-funciona" class="anim anim-fade d1">Como Funciona</a>
-                <a href="#beneficios" class="anim anim-fade d2">Benefícios</a>
-                <a href="#precos" class="anim anim-fade d3">Preços</a>
-                <a href="#faq" class="anim anim-fade d3">FAQ</a>
-                <a href="https://sexta-feira-wm1s.onrender.com" class="btn btn-primary anim anim-fade d4" style="padding: 8px 20px;">Dashboard</a>
-            </nav>
-        </div>
-    </header>
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-bot">🤖</div>
+    Robô <span>Sexta-Feira</span>
+  </div>
+</nav>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="container">
-            <h1 class="anim anim-fade d1">
-                Trading Autônomo com<br>
-                <span class="text-gradient">Inteligência Artificial</span>
-            </h1>
-            
-            <p class="anim anim-fade d2">
-                Sistema inteligente que opera 24/7 na OKX. Gestão de risco institucional, 
-                sinais automatizados e dashboard em tempo real.
-            </p>
-            
-            <div class="video-wrapper anim-scale d3">
-                <iframe 
-                    src="https://www.youtube.com/embed/AWqjrFoIT8A?si=vCfeKHJz0TSGXypI&controls=1&rel=0&modestbranding=1" 
-                    title="Sexta-Feira Advanced — Demonstração"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen
-                    loading="lazy">
-                </iframe>
-            </div>
-            
-            <div class="hero-features anim anim-fade d4">
-                <span>✅ Acesso imediato</span>
-                <span>🔒 Pagamento seguro</span>
-                <span>🔄 Cancele quando quiser</span>
-            </div>
-        </div>
-    </section>
+<!-- TICKER -->
+<div class="ticker-outer">
+  <div class="ticker-track">
+    <div class="tick-item"><span class="tick-dot"></span><b>BINGX</b> — corretora integrada ao robô</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SEXTA-FEIRA</b> — sinal emitido há 2min</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ADVANCED</b> — filtro de alta precisão ativo</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BTC/USDT</b> — oportunidade identificada</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BINGX</b> — novo membro VIP ativado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ETH/USDT</b> — alerta de entrada detectado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SEXTA-FEIRA</b> — análise em tempo real</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SOL/USDT</b> — movimento identificado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ADVANCED</b> — entrada confirmada pelo robô</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BNB/USDT</b> — par monitorado agora</div>
+    <!-- loop -->
+    <div class="tick-item"><span class="tick-dot"></span><b>BINGX</b> — corretora integrada ao robô</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SEXTA-FEIRA</b> — sinal emitido há 2min</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ADVANCED</b> — filtro de alta precisão ativo</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BTC/USDT</b> — oportunidade identificada</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BINGX</b> — novo membro VIP ativado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ETH/USDT</b> — alerta de entrada detectado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SEXTA-FEIRA</b> — análise em tempo real</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>SOL/USDT</b> — movimento identificado</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>ADVANCED</b> — entrada confirmada pelo robô</div>
+    <div class="tick-item"><span class="tick-dot"></span><b>BNB/USDT</b> — par monitorado agora</div>
+  </div>
+</div>
 
-    <!-- COMO FUNCIONA -->
-    <section class="how-it-works" id="como-funciona">
-        <div class="container">
-            <div class="section-header anim anim-fade">
-                <h2>Como <span>Funciona</span></h2>
-                <p>Sistema 100% automatizado em 4 etapas simples</p>
-            </div>
-            
-            <div class="steps">
-                <div class="step anim d1">
-                    <h3>Cadastre-se</h3>
-                    <p>Crie sua conta no Whop e receba acesso imediato ao dashboard e grupo VIP</p>
-                </div>
-                <div class="step anim d2">
-                    <h3>Conecte OKX</h3>
-                    <p>Vincule suas chaves da OKX de forma segura e criptografada</p>
-                </div>
-                <div class="step anim d3">
-                    <h3>IA em Ação</h3>
-                    <p>Nossa IA analisa o mercado continuamente e executa operações automaticamente</p>
-                </div>
-                <div class="step anim d4">
-                    <h3>Acompanhe</h3>
-                    <p>Monitore resultados em tempo real pelo dashboard e Telegram</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- HERO -->
+<section class="hero">
+  <!-- AVATAR STRIP -->
+  <div class="avatar-strip">
+    <div class="av-img">CM</div>
+    <div class="av-img">AL</div>
+    <div class="av-img">RS</div>
+    <div class="av-img">MT</div>
+    <div class="av-img">JP</div>
+    <div class="av-count">Confiado por <strong>+2.000 membros</strong> ao redor do mundo</div>
+  </div>
 
-    <!-- BENEFÍCIOS -->
-    <section id="beneficios">
-        <div class="container">
-            <div class="section-header anim anim-fade">
-                <h2>Por que escolher a <span>Sexta-Feira</span>?</h2>
-                <p>Tecnologia institucional ao seu alcance</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card anim d1">
-                    <div class="feature-icon">🤖</div>
-                    <h3>IA Autônoma</h3>
-                    <p>Algoritmo avançado que analisa centenas de setups por minuto com precisão institucional.</p>
-                </div>
-                <div class="feature-card anim d2">
-                    <div class="feature-icon">📊</div>
-                    <h3>Dashboard Real</h3>
-                    <p>Acompanhe equity, PnL e trades em uma interface moderna e responsiva.</p>
-                </div>
-                <div class="feature-card anim d3">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Risk Manager</h3>
-                    <p>Stop Loss automático, controle de alavancagem e gestão de exposição.</p>
-                </div>
-                <div class="feature-card anim d1">
-                    <div class="feature-icon">📡</div>
-                    <h3>Sinais Telegram</h3>
-                    <p>Alertas instantâneos de entrada e saída com formato otimizado.</p>
-                </div>
-                <div class="feature-card anim d2">
-                    <div class="feature-icon">🧠</div>
-                    <h3>Raciocínio da IA</h3>
-                    <p>Cada trade vem com análise técnica completa para você aprender.</p>
-                </div>
-                <div class="feature-card anim d3">
-                    <div class="feature-icon">🔐</div>
-                    <h3>Segurança Total</h3>
-                    <p>Chaves criptografadas com Fernet. Você mantém controle total.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+  <div class="trust-row">
+    <span class="badge-ex">Excelente</span>
+    <span class="stars-row">★★★★★</span>
+    <span>4.8/5</span>
+  </div>
 
-    <!-- PREÇOS -->
-    <section class="pricing" id="precos">
-        <div class="container">
-            <div class="section-header anim anim-fade">
-                <h2>Escolha Seu <span>Plano</span></h2>
-                <p>Comece grátis ou tenha acesso completo ao VIP</p>
-            </div>
-            
-            <div class="pricing-grid">
-                <div class="pricing-card anim-scale d1">
-                    <h3>GRUPO FREE</h3>
-                    <div class="price">R$0 <span>/mês</span></div>
-                    <ul class="benefits">
-                        <li>Acesso ao grupo gratuito</li>
-                        <li>Sinais básicos de mercado</li>
-                        <li>Notícias crypto em tempo real</li>
-                        <li>Comunidade ativa</li>
-                        <li>Suporte padrão</li>
-                    </ul>
-                    <a href="https://whop.com/sexta-feira-advanced/sexta-feira-advanced-copy/" target="_blank" class="btn btn-outline">
-                        Entrar Grátis →
-                    </a>
-                </div>
+  <h1>
+    Sinais de trading em tempo real,<br>
+    simples para <em>iniciantes</em> e<br>
+    <em>traders avançados.</em>
+  </h1>
 
-                <div class="pricing-card featured anim-scale d2">
-                    <h3>PLANO VIP</h3>
-                    <div class="price">R$197 <span>/mês</span></div>
-                    <ul class="benefits">
-                        <li>Acesso total ao Dashboard Premium</li>
-                        <li>Bot operando 24/7 na OKX</li>
-                        <li>Grupo VIP exclusivo no Telegram</li>
-                        <li>Sinais e alertas em tempo real</li>
-                        <li>Raciocínio da IA por trade</li>
-                        <li>Suporte prioritário</li>
-                        <li>Relatórios semanais de performance</li>
-                        <li>Atualizações automáticas</li>
-                    </ul>
-                    <a href="https://whop.com/sexta-feira-advanced/sexta-feira-advanced-19/" target="_blank" class="btn btn-primary">
-                        Assinar VIP Agora →
-                    </a>
-                    <p style="font-size: 0.8rem; margin-top: 15px; color: var(--text-muted); text-align: center;">
-                        🔒 Pagamento seguro via Whop
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
+  <p class="hero-sub">
+    Orientação passo a passo, alertas automatizados e filtragem inteligente
+    — desenvolvidos para qualquer nível de experiência em cripto.
+  </p>
 
-    <!-- FAQ -->
-    <section class="faq" id="faq">
-        <div class="container">
-            <div class="section-header anim anim-fade">
-                <h2>Perguntas <span>Comuns</span></h2>
-                <p>Tire suas dúvidas sobre a plataforma</p>
-            </div>
-            
-            <div class="faq-container">
-                <div class="faq-item anim d1">
-                    <div class="faq-question">Preciso de experiência prévia em trading?</div>
-                    <div class="faq-answer">
-                        Não! Nossa plataforma foi desenvolvida para traders de todos os níveis. A IA opera automaticamente e você recebe sinais claros de entrada e saída. Oferecemos tutoriais completos e suporte para você começar do zero.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d2">
-                    <div class="faq-question">Quanto tempo tenho de acesso?</div>
-                    <div class="faq-answer">
-                        O acesso é mensal e renovável automaticamente. Você pode cancelar a qualquer momento diretamente pelo Whop, sem multas ou taxas adicionais. Seu acesso permanece ativo até o final do período pago.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d3">
-                    <div class="faq-question">Como funciona o sistema de filtragem da IA?</div>
-                    <div class="faq-answer">
-                        Nossa IA analisa múltiplos indicadores técnicos, volume, momentum, padrões de mercado e notícias em tempo real. Ela identifica setups com alta probabilidade de sucesso e executa operações apenas quando atinge o score mínimo de confiança (70+).
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d1">
-                    <div class="faq-question">É seguro conectar minha conta OKX?</div>
-                    <div class="faq-answer">
-                        Totalmente! Usamos criptografia Fernet de nível militar (AES-128). Suas chaves API são criptografadas antes de serem salvas no banco de dados e nunca saem do nosso sistema. Além disso, você pode revogar o acesso a qualquer momento pela OKX.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d2">
-                    <div class="faq-question">Posso cancelar a qualquer momento?</div>
-                    <div class="faq-answer">
-                        Sim! O cancelamento é simples e pode ser feito diretamente pelo Whop em poucos cliques. Não cobramos multa de cancelamento e você mantém o acesso até o final do período já pago.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d3">
-                    <div class="faq-question">Qual o capital mínimo necessário?</div>
-                    <div class="faq-answer">
-                        Recomendamos começar com pelo menos $100 USD na OKX para operar com segurança e permitir uma gestão de risco adequada. No entanto, o sistema funciona com qualquer valor. O importante é operar apenas com capital que você pode perder.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d1">
-                    <div class="faq-question">Como recebo os sinais de trading?</div>
-                    <div class="faq-answer">
-                        Você recebe os sinais em tempo real através do grupo VIP no Telegram e pode acompanhar todas as operações em tempo real pelo dashboard. Cada sinal inclui: ativo, direção (buy/sell), preço de entrada, take profit e stop loss.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d2">
-                    <div class="faq-question">O bot opera 24 horas por dia?</div>
-                    <div class="faq-answer">
-                        Sim! Nosso sistema opera 24/7, 365 dias por ano. A IA analisa o mercado continuamente e executa operações automaticamente quando identifica oportunidades, mesmo enquanto você dorme.
-                    </div>
-                </div>
-                
-                <div class="faq-item anim d3">
-                    <div class="faq-question">Existe garantia de lucros?</div>
-                    <div class="faq-answer">
-                        Não podemos garantir lucros, pois trading envolve riscos inerentes. Nossa IA é uma ferramenta avançada que aumenta suas chances de sucesso, mas resultados passados não garantem lucros futuros. Operamos com gestão de risco rigorosa para proteger seu capital.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  <!-- VIDEO -->
+  <div class="video-wrap">
+    <iframe
+      src="https://www.youtube-nocookie.com/embed/A5b6WRzLMfU?rel=0&controls=1&modestbranding=1"
+      title="Robô Sexta-Feira"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen id="ytf">
+    </iframe>
+    <div class="video-fallback" id="vfb">
+      <p>▶ Assista à apresentação completa</p>
+      <a href="https://youtu.be/A5b6WRzLMfU" target="_blank" rel="noopener">Abrir no YouTube →</a>
+    </div>
+  </div>
+</section>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section anim d1">
-                    <h4>Sexta-Feira Advanced</h4>
-                    <p style="color: var(--text-muted);">Bot autônomo de trading com IA para OKX. Sinais 24/7 e gestão de risco institucional.</p>
-                </div>
-                <div class="footer-section anim d2">
-                    <h4>Links Rápidos</h4>
-                    <ul>
-                        <li><a href="#como-funciona">Como Funciona</a></li>
-                        <li><a href="#beneficios">Benefícios</a></li>
-                        <li><a href="#precos">Preços</a></li>
-                        <li><a href="#faq">FAQ</a></li>
-                        <li><a href="https://sexta-feira-wm1s.onrender.com">Dashboard</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section anim d3">
-                    <h4>Suporte</h4>
-                    <ul>
-                        <li><a href="mailto:suporte@sextafeira.com">suporte@sextafeira.com</a></li>
-                        <li><a href="#">Central de Ajuda</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Privacidade</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="disclaimer anim-fade">
-                <strong>⚠️ Aviso de Risco:</strong> Trading de criptomoedas envolve alto risco de perda. Resultados passados não garantem lucros futuros. Opere apenas com capital que você pode perder.
-            </div>
-            
-            <div class="footer-bottom anim-fade">
-                <p>🟣 <strong>SEXTA-FEIRA ADVANCED</strong> © 2026</p>
-                <p style="margin-top: 10px; font-size: 0.75rem;">
-                    Todos os direitos reservados. Trading envolve riscos.
-                </p>
-            </div>
-        </div>
-    </footer>
+<!-- TESTIMONIALS -->
+<section class="testi-section">
+  <h2 class="testi-head">Nossos membros não param de<br><em>falar dos seus resultados.</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Os sinais chegam antes de todo mundo. Desde que entrei no VIP consigo me posicionar antes da maioria do mercado perceber o movimento."</p>
+      <div class="t-author"><div class="t-av">CM</div><div><div class="t-name">Carlos M.</div><div class="t-loc">São Paulo, SP</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Comecei no gratuito sem saber nada de trading. O guia me ajudou demais e agora faço parte do VIP. Mudou minha forma de operar no cripto."</p>
+      <div class="t-author"><div class="t-av">AL</div><div><div class="t-name">Ana L.</div><div class="t-loc">Belo Horizonte, MG</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"O filtro avançado me poupou de várias entradas ruins. Não opero mais sem o Robô Sexta-Feira. Melhor investimento que já fiz."</p>
+      <div class="t-author"><div class="t-av">RS</div><div><div class="t-name">Rodrigo S.</div><div class="t-loc">Curitiba, PR</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Recebi meu primeiro sinal de entrada e já vi o resultado no mesmo dia. O robô é preciso, rápido e nunca perde uma oportunidade boa."</p>
+      <div class="t-author"><div class="t-av">MT</div><div><div class="t-name">Mariana T.</div><div class="t-loc">Rio de Janeiro, RJ</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"Nunca pensei que ia conseguir entender trading. O guia do Sexta-Feira é didático e o suporte sempre responde rápido. Recomendo pra todos."</p>
+      <div class="t-author"><div class="t-av">JP</div><div><div class="t-name">João P.</div><div class="t-loc">Fortaleza, CE</div></div></div>
+    </div>
+    <div class="testi-card">
+      <div class="t-stars">★★★★★</div>
+      <p class="t-text">"A comunidade é incrível, troca de informação o tempo todo. Junto com os sinais automáticos, é a combinação perfeita para quem opera cripto."</p>
+      <div class="t-author"><div class="t-av">FS</div><div><div class="t-name">Fernanda S.</div><div class="t-loc">Porto Alegre, RS</div></div></div>
+    </div>
+  </div>
+</section>
 
-    <!-- SCRIPT DE ANIMAÇÃO E FAQ -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Observer para animações ao scroll
-            const observerOptions = { 
-                threshold: 0.1, 
-                rootMargin: '0px 0px -50px 0px' 
-            };
+<!-- PRICING -->
+<section class="pricing-section">
+  <h2 class="pricing-head">Acesso vitalício.<br><em>Sem mensalidade.</em></h2>
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
+  <div class="pricing-grid">
 
-            // Observar todos os elementos com classes de animação
-            document.querySelectorAll('.anim, .anim-scale, .anim-fade').forEach(el => {
-                observer.observe(el);
-            });
+    <!-- BÁSICO -->
+    <div class="p-card basic">
+      <div class="p-tier">Plano</div>
+      <div class="p-name">Básico</div>
+      <div class="p-lifetime">Acesso vitalício. Sem mensalidade.</div>
+      <div class="p-price">R$ 0</div>
+      <div class="p-free-tag">✦ Gratuito para sempre</div>
+      <ul class="feat-list">
+        <li><span class="fc">✓</span> Guia de configuração para iniciantes</li>
+        <li><span class="fc">✓</span> Sinais básicos automatizados de trading</li>
+        <li><span class="fc">✓</span> Acesso à comunidade privada</li>
+        <li><span class="fc">✓</span> Alertas automáticos — sem busca manual</li>
+        <li><span class="fc">✓</span> Suporte 24/7</li>
+      </ul>
+      <a href="https://buy.stripe.com/aFa7sE5wx6BVaXz1kK08g01" class="btn btn-outline" target="_blank" rel="noopener">
+        Entrar Grátis Agora →
+      </a>
+      <p class="p-note">🔒 Sem cartão de crédito necessário</p>
+    </div>
 
-            // FAQ Accordion
-            document.querySelectorAll('.faq-question').forEach(question => {
-                question.addEventListener('click', () => {
-                    const item = question.parentElement;
-                    const isActive = item.classList.contains('active');
-                    
-                    // Fecha todos os outros
-                    document.querySelectorAll('.faq-item').forEach(faq => {
-                        faq.classList.remove('active');
-                    });
-                    
-                    // Abre o clicado se não estava ativo
-                    if (!isActive) {
-                        item.classList.add('active');
-                    }
-                });
-            });
+    <!-- ELITE -->
+    <div class="p-card elite">
+      <div class="p-popular">MAIS POPULAR</div>
+      <div class="p-tier">Plano</div>
+      <div class="p-name">VIP Elite</div>
+      <div class="p-lifetime">Acesso vitalício. Sem mensalidade.</div>
+      <div class="p-price">R$ 97,99</div>
+      <div class="p-trial">🎁 7 dias de teste grátis</div>
+      <ul class="feat-list">
+        <li><span class="fc">✓</span> <strong style="color:var(--white)">Tudo do plano Básico</strong></li>
+        <li><span class="fc">✓</span> Filtro avançado — 100× mais forte</li>
+        <li><span class="fc">✓</span> Alertas VIP em tempo real (antecipados)</li>
+        <li><span class="fc">✓</span> Sinais rápidos e exclusivos de entrada</li>
+        <li><span class="fc">✓</span> Suporte 24/7 prioritário e dedicado</li>
+      </ul>
+      <a href="https://buy.stripe.com/3cI3co2kl0dx1mZ6F408g00" class="btn btn-solid" target="_blank" rel="noopener">
+        Começar Teste Grátis de 7 Dias →
+      </a>
+      <p class="p-note">🔒 Pagamento único vitalício · Cancele em 7 dias sem custo</p>
+    </div>
 
-            // Smooth scroll para links internos
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-            });
-        });
-    </script>
+  </div>
+</section>
 
+<!-- FAQ -->
+<section class="faq-section">
+  <h2 class="faq-head">Perguntas <em>frequentes</em></h2>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Quanto de capital preciso para começar?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">Não existe um valor mínimo obrigatório. Muitos membros começam com valores pequenos, entre R$ 100 e R$ 500, para entender o funcionamento antes de aumentar o capital. O mais importante é nunca investir mais do que você pode perder, já que o mercado de cripto envolve risco.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      O robô garante lucro nas operações?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">Nenhum sistema de trading pode garantir lucro. O Robô Sexta-Feira fornece sinais de alta qualidade com base em análise de mercado, mas o resultado de cada operação depende das condições do mercado, do capital investido e do gerenciamento de risco de cada membro. Resultados passados não garantem resultados futuros.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Preciso ficar na frente do computador o dia todo?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">Não! O robô foi feito exatamente para isso. Ele monitora o mercado 24h por dia e envia os sinais diretamente no seu grupo privado. Você recebe a notificação e decide se quer entrar ou não. Sem precisar ficar analisando gráfico o tempo todo.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Qual é o risco de perder dinheiro no trading de cripto?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">O mercado de criptomoedas é altamente volátil e envolve risco real de perda. Por isso, ensinamos nossos membros a usar gerenciamento de risco desde o início — como definir stop loss, tamanho de posição adequado e nunca arriscar mais do que uma pequena porcentagem do capital por operação.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Posso começar mesmo sem saber nada de cripto?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">Sim! O acesso inclui um guia completo passo a passo para iniciantes absolutos — desde como criar conta na corretora até como interpretar e executar os sinais do robô. Você não precisa de nenhum conhecimento prévio para começar.</div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Quanto tempo leva para ver os primeiros resultados?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-a">Após configurar sua conta e conectar o robô, você já começa a receber os sinais imediatamente. Os primeiros alertas de oportunidade costumam chegar nas primeiras horas. Resultados financeiros variam de membro para membro e dependem do capital alocado e das condições do mercado.</div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  <p><strong>⚠️ Apenas para fins educacionais · Não é conselho financeiro</strong></p><br>
+  <p>Todo o conteúdo fornecido por este site e nossas comunidades privadas é exclusivamente para <strong>fins educacionais</strong>. Nada deve ser considerado conselho financeiro, conselho de investimento ou recomendação de compra/venda de qualquer ativo. O mercado de criptomoedas é altamente volátil. Você pode perder parte ou todo o seu capital. Resultados passados não garantem resultados futuros. Sempre faça sua própria pesquisa e use gerenciamento de risco adequado.</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🤖 Robô Sexta-Feira</div>
+  <p>© 2026 Robô Sexta-Feira · Todos os direitos reservados</p>
+  <p style="margin-top:6px;font-size:.75rem;opacity:.4;">Conteúdo educacional apenas · Não é conselho financeiro</p>
+</footer>
+
+<script>
+// FAQ toggle
+function toggleFaq(btn){
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
+// Video fallback
+setTimeout(()=>{
+  const f=document.getElementById('ytf');
+  const fb=document.getElementById('vfb');
+  try{
+    const d=f.contentDocument||f.contentWindow.document;
+    if(d&&d.title===''){ fb.style.display='flex'; f.style.display='none'; }
+  }catch(e){}
+},5000);
+</script>
 </body>
 </html>
