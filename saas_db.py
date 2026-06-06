@@ -28,37 +28,24 @@ def hash_password(password: str) -> str:
 
 def get_db_connection():
     if USE_POSTGRES:
-        # Normaliza a URL adicionando sslmode se não estiver presente
+        # Insere sslmode=require na URL se não estiver presente
+        # (passar como argumento separado conflita com parâmetros já na URL)
         url = DATABASE_URL
         if "sslmode" not in url:
             sep = "&" if "?" in url else "?"
-            url = url + sep + "sslmode=require"
-
+            url = f"{url}{sep}sslmode=require"
         try:
-            return psycopg2.connect(
-                url,
-                cursor_factory=RealDictCursor,
-                connect_timeout=15
-            )
+            conn = psycopg2.connect(url, cursor_factory=RealDictCursor, connect_timeout=15)
+            return conn
         except psycopg2.OperationalError as e:
-            err = str(e)
-            # Se SSL falhou, tenta prefer (aceita com ou sem)
-            if "SSL" in err or "ssl" in err.lower():
-                url_prefer = url.replace("sslmode=require", "sslmode=prefer")
-                try:
-                    return psycopg2.connect(
-                        url_prefer,
-                        cursor_factory=RealDictCursor,
-                        connect_timeout=15
-                    )
-                except Exception as e2:
-                    print(f"❌ Erro conexão SSL prefer: {e2}")
-                    raise
+            print(f"❌ Erro conexão PostgreSQL: {e}")
             raise
     return sqlite3.connect(DB_NAME)
 
 
 def init_saas_db():
+    """Cria as tabelas se não existirem. Chamado uma vez na inicialização."""
+    print("🔧 Inicializando banco de dados...")
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -105,16 +92,22 @@ def init_saas_db():
                 FOREIGN KEY(user_id) REFERENCES users(id)
             )''')
 
-        try:
-            cursor.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
-        except Exception:
-            pass
-        try:
-            cursor.execute("ALTER TABLE trades ADD COLUMN ai_reasoning TEXT")
-        except Exception:
-            pass
+        # Colunas extras — ignora se já existem
+        for alter in [
+            "ALTER TABLE users ADD COLUMN password_hash TEXT",
+            "ALTER TABLE trades ADD COLUMN ai_reasoning TEXT",
+        ]:
+            try:
+                cursor.execute(alter)
+            except Exception:
+                pass  # Coluna já existe
 
         conn.commit()
+        print("✅ Banco inicializado com sucesso.")
+    except Exception as e:
+        print(f"❌ Erro ao inicializar banco: {e}")
+        conn.rollback()
+        raise  # Re-lança para não esconder o erro
     finally:
         cursor.close()
         conn.close()
@@ -649,5 +642,4 @@ def _create_admin_if_needed():
 # ==========================================
 
 init_saas_db()
-if not USE_POSTGRES:
-    _create_admin_if_needed()
+_create_admin_if_needed()  # Cria admin tanto no Postgres quanto no SQLite
