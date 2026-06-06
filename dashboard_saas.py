@@ -476,13 +476,13 @@ div[data-testid="stFormSubmitButton"] button {
 
 div[data-testid="stFormSubmitButton"] button:hover {
     background-color: #9d4edd !important;
-    transform: scale(1.02);
-    box-shadow: 0 0 20px #8A2BE2;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 @keyframes pulsePurple {
-    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
+    0% { box-shadow: none; }
+    100% { box-shadow: none; }
 }
 
 input[type="text"], input[type="password"] {
@@ -833,12 +833,12 @@ div[data-testid="stForm"] .stButton > button {
     font-family: 'Orbitron', sans-serif !important;
     font-weight: 700 !important;
     letter-spacing: 2px !important;
-    box-shadow: 0 0 20px rgba(138,43,226,0.4) !important;
+    box-shadow: none !important;
 }
 div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover,
 div[data-testid="stForm"] .stButton > button:hover {
     background: linear-gradient(135deg, #6d28d9, #9d4edd) !important;
-    box-shadow: 0 0 30px rgba(138,43,226,0.7) !important;
+    box-shadow: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1093,10 +1093,10 @@ def render_login():
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
                     color: #8A2BE2 !important;
-                    font-size: clamp(0.6rem, 4.5vw, 1.8rem) !important;
+                    font-size: 22px !important;
                     margin: 0 !important;
                     font-weight: bold !important;
-                    letter-spacing: clamp(0px, 0.5vw, 3px) !important;
+                    letter-spacing: 2px !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
                     width: 100% !important;
