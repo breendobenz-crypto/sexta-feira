@@ -16,109 +16,131 @@ SALT = "sexta-feira-advanced-vip-salt-2026"
 DB_NAME = "jarvis_saas.db"
 
 
-def hash_password(password):
+def hash_password(password: str) -> str:
     return hashlib.sha256((password + SALT).encode()).hexdigest()
 
 
 def get_db_connection():
     if USE_POSTGRES:
-        return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        # Força IPv4 para evitar erro "Network is unreachable" no Render
+        import re
+        # Parse da URL para extrair host
+        match = re.match(r'postgresql://([^:]+):([^@]+)@([^:/]+)(?::(\d+))?/(.+)', DATABASE_URL)
+        if match:
+            user, password, host, port, dbname = match.groups()
+            port = port or '5432'
+            # Conecta forçando IPv4
+            return psycopg2.connect(
+                host=host,
+                port=int(port),
+                user=user,
+                password=password,
+                dbname=dbname,
+                cursor_factory=RealDictCursor,
+                connect_timeout=10
+            )
+        else:
+            # Fallback para URL direta
+            return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor, connect_timeout=10)
     return sqlite3.connect(DB_NAME)
 
 
 def init_saas_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
     try:
-        if USE_POSTGRES:
-            cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                user_id TEXT UNIQUE,
-                email TEXT UNIQUE NOT NULL,
-                display_name TEXT,
-                plan TEXT DEFAULT 'FREE',
-                status TEXT DEFAULT 'ACTIVE',
-                trial_end_date TIMESTAMP,
-                telegram_chat_id TEXT,
-                stripe_session_id TEXT,
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_login TIMESTAMP,
-                password_hash TEXT
-            )''')
-            cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
-                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-                api_key_enc TEXT NOT NULL,
-                api_secret_enc TEXT NOT NULL,
-                passphrase_enc TEXT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )''')
-            cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                symbol TEXT NOT NULL,
-                side TEXT NOT NULL,
-                entry_price REAL NOT NULL,
-                exit_price REAL,
-                size REAL NOT NULL,
-                pnl_usdt REAL,
-                pnl_pct REAL,
-                score INTEGER DEFAULT 70,
-                status TEXT DEFAULT 'OPEN',
-                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                close_time TIMESTAMP,
-                ai_reasoning TEXT
-            )''')
-            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'FREE'")
-            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP")
-            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT")
-            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_session_id TEXT")
-            cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT")
-        else:
-            cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT UNIQUE,
-                email TEXT UNIQUE NOT NULL,
-                display_name TEXT,
-                plan TEXT DEFAULT 'FREE',
-                status TEXT DEFAULT 'ACTIVE',
-                trial_end_date TIMESTAMP,
-                telegram_chat_id TEXT,
-                stripe_session_id TEXT,
-                joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                last_login TIMESTAMP,
-                password_hash TEXT
-            )''')
-            cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
-                user_id INTEGER PRIMARY KEY,
-                api_key_enc TEXT NOT NULL,
-                api_secret_enc TEXT NOT NULL,
-                passphrase_enc TEXT NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )''')
-            cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                symbol TEXT NOT NULL,
-                side TEXT NOT NULL,
-                entry_price REAL NOT NULL,
-                exit_price REAL,
-                size REAL NOT NULL,
-                pnl_usdt REAL,
-                pnl_pct REAL,
-                score INTEGER DEFAULT 70,
-                status TEXT DEFAULT 'OPEN',
-                open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                close_time TIMESTAMP,
-                ai_reasoning TEXT,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )''')
-        conn.commit()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            if USE_POSTGRES:
+                cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT UNIQUE,
+                    email TEXT UNIQUE NOT NULL,
+                    display_name TEXT,
+                    plan TEXT DEFAULT 'FREE',
+                    status TEXT DEFAULT 'ACTIVE',
+                    trial_end_date TIMESTAMP,
+                    telegram_chat_id TEXT,
+                    stripe_session_id TEXT,
+                    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP,
+                    password_hash TEXT
+                )''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
+                    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                    api_key_enc TEXT NOT NULL,
+                    api_secret_enc TEXT NOT NULL,
+                    passphrase_enc TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    entry_price REAL NOT NULL,
+                    exit_price REAL,
+                    size REAL NOT NULL,
+                    pnl_usdt REAL,
+                    pnl_pct REAL,
+                    score INTEGER DEFAULT 70,
+                    status TEXT DEFAULT 'OPEN',
+                    open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    close_time TIMESTAMP,
+                    ai_reasoning TEXT
+                )''')
+                cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'FREE'")
+                cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_end_date TIMESTAMP")
+                cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT")
+                cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_session_id TEXT")
+                cursor.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT")
+            else:
+                cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT UNIQUE,
+                    email TEXT UNIQUE NOT NULL,
+                    display_name TEXT,
+                    plan TEXT DEFAULT 'FREE',
+                    status TEXT DEFAULT 'ACTIVE',
+                    trial_end_date TIMESTAMP,
+                    telegram_chat_id TEXT,
+                    stripe_session_id TEXT,
+                    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP,
+                    password_hash TEXT
+                )''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS api_credentials (
+                    user_id INTEGER PRIMARY KEY,
+                    api_key_enc TEXT NOT NULL,
+                    api_secret_enc TEXT NOT NULL,
+                    passphrase_enc TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                )''')
+                cursor.execute('''CREATE TABLE IF NOT EXISTS trades (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    symbol TEXT NOT NULL,
+                    side TEXT NOT NULL,
+                    entry_price REAL NOT NULL,
+                    exit_price REAL,
+                    size REAL NOT NULL,
+                    pnl_usdt REAL,
+                    pnl_pct REAL,
+                    score INTEGER DEFAULT 70,
+                    status TEXT DEFAULT 'OPEN',
+                    open_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    close_time TIMESTAMP,
+                    ai_reasoning TEXT,
+                    FOREIGN KEY(user_id) REFERENCES users(id)
+                )''')
+            conn.commit()
+            print("✅ Tabelas inicializadas com sucesso!")
+        finally:
+            cursor.close()
+            conn.close()
     except Exception as e:
-        print(f"Erro init_db: {e}")
-    finally:
-        cursor.close()
-        conn.close()
+        print(f"⚠️ Erro ao inicializar banco: {e}")
+        print("⚠️ O servidor continuará rodando, mas algumas funções podem não funcionar.")
 
 
 def _dictify(row, cursor=None):
@@ -131,19 +153,21 @@ def _dictify(row, cursor=None):
     return row
 
 
-def register_user(user_id, name, email, bingx_key, bingx_secret, bingx_passphrase):
+def register_user(user_id: str, name: str, email: str, bingx_key: str, bingx_secret: str, bingx_passphrase: str) -> bool:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         enc_key = encrypt_key(bingx_key)
         enc_secret = encrypt_key(bingx_secret)
         enc_pass = encrypt_key(bingx_passphrase)
+        if not enc_key.startswith("gAAAAA"):
+            raise ValueError("Falha na criptografia")
         if USE_POSTGRES:
             cursor.execute("""
                 INSERT INTO users (user_id, email, display_name, status, plan)
                 VALUES (%s, %s, %s, 'ACTIVE', 'FREE')
                 ON CONFLICT (user_id) DO UPDATE
-                SET email=EXCLUDED.email, display_name=EXCLUDED.display_name
+                SET email=EXCLUDED.email, display_name=EXCLUDED.display_name, status='ACTIVE'
                 RETURNING id
             """, (user_id, email, name))
             internal_id = cursor.fetchone()['id']
@@ -153,7 +177,8 @@ def register_user(user_id, name, email, bingx_key, bingx_secret, bingx_passphras
                 ON CONFLICT (user_id) DO UPDATE
                 SET api_key_enc=EXCLUDED.api_key_enc,
                     api_secret_enc=EXCLUDED.api_secret_enc,
-                    passphrase_enc=EXCLUDED.passphrase_enc
+                    passphrase_enc=EXCLUDED.passphrase_enc,
+                    updated_at=CURRENT_TIMESTAMP
             """, (internal_id, enc_key, enc_secret, enc_pass))
         else:
             cursor.execute(
@@ -177,7 +202,7 @@ def register_user(user_id, name, email, bingx_key, bingx_secret, bingx_passphras
         conn.close()
 
 
-def register_user_free(user_id, name, email, telegram_chat_id=None, stripe_session_id=None):
+def register_user_free(user_id: str, name: str, email: str, telegram_chat_id: str = None, stripe_session_id: str = None) -> bool:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -205,7 +230,7 @@ def register_user_free(user_id, name, email, telegram_chat_id=None, stripe_sessi
         conn.close()
 
 
-def upgrade_to_lifetime(user_id):
+def upgrade_to_lifetime(user_id: str) -> bool:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -224,7 +249,7 @@ def upgrade_to_lifetime(user_id):
         conn.close()
 
 
-def upgrade_to_lifetime_by_email(email):
+def upgrade_to_lifetime_by_email(email: str) -> bool:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -243,7 +268,7 @@ def upgrade_to_lifetime_by_email(email):
         conn.close()
 
 
-def get_user_by_email(email):
+def get_user_by_email(email: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -258,7 +283,7 @@ def get_user_by_email(email):
         conn.close()
 
 
-def set_user_password(email, password):
+def set_user_password(email: str, password: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -273,7 +298,7 @@ def set_user_password(email, password):
         conn.close()
 
 
-def update_user_status(user_id, status):
+def update_user_status(user_id: str, status: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -287,4 +312,9 @@ def update_user_status(user_id, status):
         conn.close()
 
 
-init_saas_db()
+# Inicialização mais tolerante a erros
+try:
+    init_saas_db()
+except Exception as e:
+    print(f"⚠️ Erro na inicialização: {e}")
+    print("⚠️ O servidor continuará rodando.")
