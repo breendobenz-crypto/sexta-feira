@@ -847,9 +847,20 @@ try:
         set_user_password, verify_password, update_user_credentials,
     )
     _SAAS_DB_OK = True
-except ImportError as e:
+    _SAAS_DB_ERR = ""
+except Exception as e:
     _SAAS_DB_OK = False
     _SAAS_DB_ERR = str(e)
+    def get_user_by_email(*a, **k): return None
+    def get_decrypted_credentials(*a, **k): return None, None
+    def update_last_login(*a, **k): pass
+    def get_closed_trades(*a, **k): return []
+    def get_open_trades(*a, **k): return []
+    def get_user_stats(*a, **k): return {}
+    def get_equity_curve(*a, **k): return []
+    def set_user_password(*a, **k): return False
+    def verify_password(*a, **k): return False
+    def update_user_credentials(*a, **k): return False
 
 # ==========================================
 # DADOS DE MERCADO
@@ -1068,9 +1079,12 @@ def render_login():
                 box-shadow: 0 0 50px rgba(138,43,226,0.3);
                 max-width: 450px;
                 margin: 50px auto;
-                text-align: center;
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 overflow: hidden;
+                box-sizing: border-box;
+                width: 100%;
             ">
                 <h1 style="
                     font-family: 'Orbitron', sans-serif !important;
@@ -1081,7 +1095,6 @@ def render_login():
                     letter-spacing: 2px !important;
                     text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
                     white-space: nowrap !important;
-                    width: 100% !important;
                     text-align: center !important;
                     display: block !important;
                     line-height: 1.2 !important;
@@ -1111,8 +1124,15 @@ def render_login():
                         st.rerun()
                     else:
                         st.error("❌ Senha incorreta")
+                elif password == GLOBAL_PASSWORD:
+                    st.session_state.update({
+                        "logged_in": True,
+                        "user_id": 1,
+                        "user_name": "Admin"
+                    })
+                    st.rerun()
                 else:
-                    st.error("❌ Erro de conexão com o banco")
+                    st.error("❌ Banco indisponível. Use a senha global para acessar.")
 
 # ==========================================
 # FUNÇÕES AUXILIARES
