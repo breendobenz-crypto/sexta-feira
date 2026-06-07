@@ -1472,20 +1472,26 @@ def render_dashboard():
         else:
             _is_on = st.session_state.get("bot_active", False)
             _status_text = "ONLINE" if _is_on else "OFFLINE"
-            _bg   = "rgba(138,43,226,0.15)" if _is_on else "rgba(40,40,40,0.3)"
-            _bord = "rgba(138,43,226,0.6)"  if _is_on else "rgba(100,100,100,0.4)"
-            _col  = "#c4b5fd"               if _is_on else "#888"
+            _bg   = "rgba(138,43,226,0.18)" if _is_on else "rgba(138,43,226,0.06)"
+            _bord = "#8A2BE2"               if _is_on else "rgba(138,43,226,0.50)"
+            _col  = "#e2d4ff"               if _is_on else "#a78bda"
+            _glow = "0 0 18px rgba(138,43,226,0.70), 0 0 36px rgba(138,43,226,0.28)" if _is_on else "0 0 10px rgba(138,43,226,0.40), 0 0 20px rgba(138,43,226,0.15)"
             st.markdown(f"""<style>
             div[data-testid="stButton"] button {{
                 background:{_bg}!important;
-                border:1px solid {_bord}!important;
+                border:2px solid {_bord}!important;
                 color:{_col}!important;
                 font-family:'Orbitron',sans-serif!important;
-                font-size:16px!important;
-                padding:14px!important;
-                letter-spacing:3px!important;
-                box-shadow:none!important;
+                font-size:22px!important;
+                padding:16px 14px!important;
+                letter-spacing:4px!important;
+                box-shadow:{_glow}!important;
+                border-radius:10px!important;
                 transition:all 0.3s ease!important;
+            }}
+            div[data-testid="stButton"] button:hover {{
+                box-shadow:0 0 24px rgba(138,43,226,0.85), 0 0 48px rgba(138,43,226,0.35)!important;
+                filter:brightness(1.15)!important;
             }}
             </style>""", unsafe_allow_html=True)
             if st.button(f"🤖  {_status_text}", use_container_width=True, key="bot_toggle_btn"):
