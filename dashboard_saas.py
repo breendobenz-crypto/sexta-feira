@@ -476,13 +476,13 @@ div[data-testid="stFormSubmitButton"] button {
 
 div[data-testid="stFormSubmitButton"] button:hover {
     background-color: #9d4edd !important;
-    transform: none !important;
-    box-shadow: none !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px #8A2BE2;
 }
 
 @keyframes pulsePurple {
-    0% { box-shadow: none; }
-    100% { box-shadow: none; }
+    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+    100% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.9); }
 }
 
 input[type="text"], input[type="password"] {
@@ -644,26 +644,20 @@ td {
     animation: slideIn 0.4s ease-out;
 }
 
-/* Esconde ícone de link/âncora que o Streamlit injeta nos h1 */
-h1 a, h2 a, h3 a, [data-testid="stHeadingWithActionElements"] a,
-.stHeadingWithActionElements a { display: none !important; }
-
 .stButton > button {
     border-radius: 8px !important;
     border: 1px solid #8A2BE2 !important;
-    background: rgba(138,43,226,0.15) !important;
-    color: #8A2BE2 !important;
+    background: rgba(138,43,226,0.1) !important;
+    color: #fff !important;
     font-family: 'Orbitron', sans-serif !important;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     animation: fadeIn 0.5s ease-out;
-    box-shadow: none !important;
 }
 
 .stButton > button:hover {
-    background: rgba(138,43,226,0.35) !important;
-    color: #fff !important;
-    box-shadow: none !important;
-    transform: none !important;
+    background: #8A2BE2 !important;
+    box-shadow: 0 0 15px #8A2BE2 !important;
+    transform: translateY(-1px);
 }
 
 .tradingview-widget-container {
@@ -772,7 +766,7 @@ hr {
     background: rgba(26, 11, 46, 0.7);
     border: 1px solid rgba(138,43,226,0.4);
     border-radius: 10px;
-    padding: 10px 18px;
+    padding: 16px 26px;
     display: inline-block;
     animation: fadeIn 0.5s ease-out;
 }
@@ -833,12 +827,12 @@ div[data-testid="stForm"] .stButton > button {
     font-family: 'Orbitron', sans-serif !important;
     font-weight: 700 !important;
     letter-spacing: 2px !important;
-    box-shadow: none !important;
+    box-shadow: 0 0 20px rgba(138,43,226,0.4) !important;
 }
 div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover,
 div[data-testid="stForm"] .stButton > button:hover {
     background: linear-gradient(135deg, #6d28d9, #9d4edd) !important;
-    box-shadow: none !important;
+    box-shadow: 0 0 30px rgba(138,43,226,0.7) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -853,27 +847,15 @@ try:
         set_user_password, verify_password, update_user_credentials,
     )
     _SAAS_DB_OK = True
-    _SAAS_DB_ERR = ""
-except Exception as e:
+except ImportError as e:
     _SAAS_DB_OK = False
     _SAAS_DB_ERR = str(e)
-    # Cria funções stub para o app não quebrar sem banco
-    def get_user_by_email(*a, **k): return None
-    def get_decrypted_credentials(*a, **k): return None, None
-    def update_last_login(*a, **k): pass
-    def get_closed_trades(*a, **k): return []
-    def get_open_trades(*a, **k): return []
-    def get_user_stats(*a, **k): return {}
-    def get_equity_curve(*a, **k): return []
-    def set_user_password(*a, **k): return False
-    def verify_password(*a, **k): return False
-    def update_user_credentials(*a, **k): return False
 
 # ==========================================
 # DADOS DE MERCADO
 # ==========================================
 def fetch_market_overview():
-    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "PAXG-USDT"]
+    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "XAU-USDT"]
     base = "https://www.okx.com"
     rows = []
     for inst in assets:
@@ -969,9 +951,9 @@ def fetch_live_account(user_id: int) -> dict:
     positions = []
     SYMBOL_MAP_REV = {
         "BTC-USDT-SWAP": "BTCUSDT", "ETH-USDT-SWAP": "ETHUSDT", 
-        "SOL-USDT-SWAP": "SOLUSDT", "PAXG-USDT": "PAXGUSDT"
+        "SOL-USDT-SWAP": "SOLUSDT", "XAU-USDT": "XAUUSDT"
     }
-    CT_VAL = {"BTCUSDT": 0.01, "ETHUSDT": 0.1, "SOLUSDT": 1.0, "PAXGUSDT": 0.01}
+    CT_VAL = {"BTCUSDT": 0.01, "ETHUSDT": 0.1, "SOLUSDT": 1.0, "XAUUSDT": 0.01}
 
     if resp_pos.get("code") == "0":
         for p in resp_pos.get("data", []):
@@ -1027,7 +1009,7 @@ def chart_pnl_bars(trades: list):
 _THOUGHTS = [
     "Analisando liquidez BTC...", "Calculando EMA9/21/50...", "Verificando filtro HTF 1h...",
     "ATR dentro do range...", "Aguardando sweep SOL...", "RSI neutro...", "Spread ok...",
-    "Brain score carregado...", "Cooldown PAXG...", "Risk Manager normal..."
+    "Brain score carregado...", "Cooldown XAUUSDT...", "Risk Manager normal..."
 ]
 def pensamento_ia():
     return f"> [{datetime.now().strftime('%H:%M:%S')}] {random.choice(_THOUGHTS)}"
@@ -1103,7 +1085,7 @@ def render_login():
                     text-align: center !important;
                     display: block !important;
                     line-height: 1.2 !important;
-                ">SEXTA-FEIRA</h1>
+                ">FRIDAY</h1>
             </div>
             """, unsafe_allow_html=True)
             st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
@@ -1129,16 +1111,8 @@ def render_login():
                         st.rerun()
                     else:
                         st.error("❌ Senha incorreta")
-                elif password == GLOBAL_PASSWORD:
-                    # Banco fora — acesso de emergência com senha global
-                    st.session_state.update({
-                        "logged_in": True,
-                        "user_id": 1,
-                        "user_name": "Admin"
-                    })
-                    st.rerun()
                 else:
-                    st.error(f"❌ Banco indisponível. Use a senha global para acessar.")
+                    st.error("❌ Erro de conexão com o banco")
 
 # ==========================================
 # FUNÇÕES AUXILIARES
@@ -1357,7 +1331,7 @@ def render_dashboard():
 
   camera.position.z = 150;
 
-  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando OKX...', 'Aguardando sweep...'];
+  const tasks = ['Analisando liquidez BTC...', 'Verificando HTF 1H...', 'Calculando ATR...', 'Score mínimo: {min_score}', 'Win rate: {win_rate:.1f}%', 'Modo: {risk_mode}', 'Sincronizando BINGX...', 'Aguardando sweep...'];
   let taskIdx = 0;
   const taskEl = document.getElementById('task-text');
   if(taskEl) {{ taskEl.textContent = tasks[0]; taskEl.style.opacity = '1'; }}
@@ -1421,48 +1395,10 @@ def render_dashboard():
         """, unsafe_allow_html=True)
     with col_sair_h:
         st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
-        # Lê estado diário do robô para mostrar status no botão
-        _risk_file = f"risk_state_{uid}.json"
-        if not os.path.exists(_risk_file):
-            _risk_file = "risk_state.json"
-        _bot_stopped_daily = False
-        _bot_stop_reason = ""
-        if os.path.exists(_risk_file):
-            try:
-                import json as _json
-                with open(_risk_file) as _rf:
-                    _rs = _json.load(_rf)
-                _daily_pnl = float(_rs.get("daily_pnl_pct", _rs.get("daily_loss_pct", 0))) * 100
-                _win_target = float(_rs.get("win_target_pct", 3.0))
-                _loss_limit  = float(_rs.get("loss_limit_pct", _rs.get("max_daily_loss", 2.0)))
-                if _daily_pnl >= _win_target:
-                    _bot_stopped_daily = True
-                    _bot_stop_reason = f"✅ META {_daily_pnl:.1f}%"
-                elif abs(_daily_pnl) >= _loss_limit and _daily_pnl < 0:
-                    _bot_stopped_daily = True
-                    _bot_stop_reason = f"🛑 STOP {_daily_pnl:.1f}%"
-            except Exception:
-                pass
-
-        if _bot_stopped_daily:
-            st.markdown(f"""
-            <div style="
-                background: rgba(138,43,226,0.2);
-                border: 1px solid #8A2BE2;
-                border-radius: 8px;
-                padding: 8px 12px;
-                text-align: center;
-                font-family: 'Orbitron', sans-serif;
-                font-size: 11px;
-                color: #c084fc;
-                margin-top: 2px;
-            ">{_bot_stop_reason}<br><span style="font-size:9px;color:#888;">BOT PAUSADO</span></div>
-            """, unsafe_allow_html=True)
-        else:
-            if st.button("Sair", use_container_width=True, key="btn_sair"):
-                for k in ["logged_in", "user_id", "user_email", "user_name"]:
-                    st.session_state.pop(k, None)
-                st.rerun()
+        if st.button("Sair", use_container_width=True, key="btn_sair"):
+            for k in ["logged_in", "user_id", "user_email", "user_name"]:
+                st.session_state.pop(k, None)
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ── ESFERA centralizada ─
@@ -1481,7 +1417,7 @@ def render_dashboard():
 
     s1, s2, s3, s4, s5 = st.columns(5)
     for i, (lbl, val) in enumerate([("Strategy", "ONLINE"), ("Risk Guard", "ACTIVE"), 
-                                    ("OKX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
+                                    ("BINGX API", "CONNECTED"), ("Scanner", "RUNNING"), ("Conta", "VIP")]):
         locals()[f"s{i+1}"].markdown(f"<div class='status-box'><span class='status-label'>{lbl}</span><span class='status-value'>{val}</span></div>", unsafe_allow_html=True)
 
     st.divider()
@@ -1495,7 +1431,7 @@ def render_dashboard():
         market_df = fetch_market_overview()
 
     if live.get("error"):
-        st.warning(f"⚠️ OKX: {live['error']}")
+        st.warning(f"⚠️ BINGX: {live['error']}")
 
     equity, available, positions = live.get("equity", 0), live.get("available", 0), live.get("positions", [])
     win_rate, total_pnl, total_tr = stats.get("win_rate", 0) * 100, stats.get("total_pnl", 0), stats.get("total_trades", 0)
@@ -1642,10 +1578,10 @@ def render_dashboard():
             st.dataframe(styled_df, use_container_width=True, hide_index=True)
         else:
             st.info("Carregando dados de mercado...")
-        st.caption("Dados públicos da OKX. Atualiza ao recarregar a aba.")
+        st.caption("Dados públicos da BINGX. Atualiza ao recarregar a aba.")
         st.divider()
         st.subheader("📊 Gráfico Interativo — TradingView")
-        chart_asset = st.selectbox("Selecione o Ativo para o Gráfico", ["BTCUSDT", "ETHUSDT", "SOLUSDT", "PAXGUSDT"], key="tv_selector", label_visibility="collapsed")
+        chart_asset = st.selectbox("Selecione o Ativo para o Gráfico", ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XAUUSDT"], key="tv_selector", label_visibility="collapsed")
         st.markdown(get_tradingview_widget(chart_asset, height=500), unsafe_allow_html=True)
 
     with tab2:
@@ -2002,12 +1938,12 @@ def render_dashboard():
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA OKX</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title-box">🔑 &nbsp; CHAVES API DA BINGX</div>', unsafe_allow_html=True)
         st.info("ℹ️ Suas chaves são criptografadas e armazenadas com segurança. Nunca compartilhe sua Passphrase.")
         with st.form("okx_keys_form"):
-            api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da OKX")
-            api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da OKX")
-            passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da OKX")
+            api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da BINGX")
+            api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da BINGX")
+            passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da BINGX")
             col_test, col_save = st.columns(2)
             with col_test: test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
             with col_save: save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
