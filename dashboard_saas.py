@@ -766,7 +766,7 @@ hr {
     background: rgba(26, 11, 46, 0.7);
     border: 1px solid rgba(138,43,226,0.4);
     border-radius: 10px;
-    padding: 16px 26px;
+    padding: 18px 28px;
     display: inline-block;
     animation: fadeIn 0.5s ease-out;
 }
@@ -866,7 +866,7 @@ except Exception as e:
 # DADOS DE MERCADO
 # ==========================================
 def fetch_market_overview():
-    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "XAU-USDT"]
+    assets = ["BTC-USDT-SWAP", "ETH-USDT-SWAP", "SOL-USDT-SWAP", "XAU-USDT", "XAU-USDT-SWAP"]
     base = "https://www.okx.com"
     rows = []
     for inst in assets:
@@ -1072,13 +1072,12 @@ def render_login():
         with st.form("login_form", clear_on_submit=True):
             st.markdown("""
             <div style="
-                background: rgba(13, 13, 13, 0.95);
+                background: rgba(13,13,13,0.95);
                 border: 2px solid #8A2BE2;
                 border-radius: 16px;
-                padding: 30px 20px;
+                padding: 28px 20px;
                 box-shadow: 0 0 50px rgba(138,43,226,0.3);
-                max-width: 450px;
-                margin: 50px auto;
+                margin: 30px auto 0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1086,19 +1085,17 @@ def render_login():
                 box-sizing: border-box;
                 width: 100%;
             ">
-                <h1 style="
-                    font-family: 'Orbitron', sans-serif !important;
-                    color: #8A2BE2 !important;
-                    font-size: 22px !important;
-                    margin: 0 !important;
-                    font-weight: bold !important;
-                    letter-spacing: 2px !important;
-                    text-shadow: 0 0 15px rgba(138,43,226,0.8) !important;
-                    white-space: nowrap !important;
-                    text-align: center !important;
-                    display: block !important;
-                    line-height: 1.2 !important;
-                ">FRIDAY</h1>
+                <span style="
+                    font-family: 'Orbitron', sans-serif;
+                    color: #8A2BE2;
+                    font-size: 22px;
+                    font-weight: 900;
+                    letter-spacing: 4px;
+                    text-shadow: 0 0 15px rgba(138,43,226,0.8);
+                    white-space: nowrap;
+                    text-align: center;
+                    display: block;
+                ">FRIDAY</span>
             </div>
             """, unsafe_allow_html=True)
             st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
@@ -1415,10 +1412,72 @@ def render_dashboard():
         """, unsafe_allow_html=True)
     with col_sair_h:
         st.markdown("<div style='padding-top:10px;'>", unsafe_allow_html=True)
-        if st.button("Sair", use_container_width=True, key="btn_sair"):
-            for k in ["logged_in", "user_id", "user_email", "user_name"]:
-                st.session_state.pop(k, None)
-            st.rerun()
+
+        # Lê estado diário do robô
+        _rfile = f"risk_state_{uid}.json"
+        if not os.path.exists(_rfile): _rfile = "risk_state.json"
+        _daily_wins  = 0
+        _daily_stops = 0
+        _bot_paused  = False
+        _pause_reason = ""
+        if os.path.exists(_rfile):
+            try:
+                with open(_rfile) as _rf: _rs_data = json.load(_rf)
+                _daily_wins  = int(_rs_data.get("daily_wins",  _rs_data.get("wins_today",  0)))
+                _daily_stops = int(_rs_data.get("daily_stops", _rs_data.get("losses_today", 0)))
+            except Exception: pass
+
+        WIN_LIMIT  = 2  # desliga após X wins diários
+        STOP_LIMIT = 2  # desliga após X stops diários
+
+        if _daily_wins >= WIN_LIMIT:
+            _bot_paused   = True
+            _pause_reason = f"✅ META ATINGIDA — {_daily_wins} wins hoje"
+        elif _daily_stops >= STOP_LIMIT:
+            _bot_paused   = True
+            _pause_reason = f"🛑 STOP DIÁRIO — {_daily_stops} perdas hoje"
+
+        # Estado do toggle (persiste na sessão)
+        if "bot_active" not in st.session_state:
+            st.session_state["bot_active"] = _bot_online and not _bot_paused
+
+        # Se atingiu limite, força desligado
+        if _bot_paused:
+            st.session_state["bot_active"] = False
+
+        if _bot_paused:
+            st.markdown(f"""
+            <div style="background:rgba(138,43,226,0.12);border:1px solid #8A2BE2;
+                border-radius:8px;padding:8px 10px;text-align:center;
+                font-family:'Orbitron',sans-serif;font-size:10px;color:#c084fc;line-height:1.5;">
+                {_pause_reason}<br>
+                <span style="font-size:8px;color:#666;">BOT PAUSADO HOJE</span>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            _is_on = st.session_state.get("bot_active", False)
+            _btn_label = "🟢 ONLINE" if _is_on else "⚫ OFFLINE"
+            _btn_color = "rgba(0,200,80,0.2)" if _is_on else "rgba(80,80,80,0.2)"
+            _btn_border = "#00c850" if _is_on else "#555"
+            st.markdown(f"""
+            <style>
+            div[data-testid="stButton"] button[kind="secondary"]#bot_toggle_btn {{
+                background:{_btn_color}!important;
+                border:1px solid {_btn_border}!important;
+                color:{'#00ff88' if _is_on else '#888'}!important;
+                font-family:'Orbitron',sans-serif!important;
+                font-size:11px!important;
+            }}
+            </style>""", unsafe_allow_html=True)
+            if st.button(_btn_label, use_container_width=True, key="bot_toggle_btn"):
+                st.session_state["bot_active"] = not _is_on
+                # Escreve sinal no arquivo para o bot ler
+                try:
+                    _ctrl = {"active": not _is_on, "ts": datetime.now().isoformat()}
+                    with open("bot_control.json", "w") as _cf: json.dump(_ctrl, _cf)
+                except Exception: pass
+                st.rerun()
+
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ── ESFERA centralizada ─
@@ -1963,24 +2022,24 @@ def render_dashboard():
         with st.form("okx_keys_form"):
             api_key = st.text_input("API Key", type="password", placeholder="Cole sua API Key da BINGX")
             api_secret = st.text_input("API Secret", type="password", placeholder="Cole sua API Secret da BINGX")
-            passphrase = st.text_input("Passphrase", type="password", placeholder="Cole sua Passphrase da BINGX")
+            passphrase = ""  # BINGX não usa passphrase
             col_test, col_save = st.columns(2)
             with col_test: test_conn = st.form_submit_button("🔍 Testar Conexão", use_container_width=True)
             with col_save: save_keys = st.form_submit_button("💾 Salvar Chaves", use_container_width=True)
             if test_conn:
-                if not all([api_key, api_secret, passphrase]): st.error("❌ Preencha todos os campos para testar.")
+                if not all([api_key, api_secret]): st.error("❌ Preencha API Key e Secret.")
                 else:
-                    with st.spinner("Testando conexão com a OKX..."):
+                    with st.spinner("Testando conexão com a BINGX..."):
                         try:
                             test_client = _build_okx_client(api_key, api_secret, passphrase)
                             resp = test_client("/api/v5/account/balance", {"ccy": "USDT"})
                             if resp.get("code") == "0":
-                                st.success("✅ Conexão OKX validada com sucesso!")
+                                st.success("✅ Conexão BINGX validada com sucesso!")
                                 st.json({"equity": resp["data"][0].get("totalEq")})
                             else: st.error(f"❌ Erro na conexão: {resp.get('msg', 'Desconhecido')}")
                         except Exception as e: st.error(f"❌ Falha ao conectar: {e}")
             if save_keys:
-                if not all([api_key, api_secret, passphrase]): st.error("❌ Preencha todos os campos.")
+                if not all([api_key, api_secret]): st.error("❌ Preencha API Key e Secret.")
                 elif _SAAS_DB_OK:
                     try:
                         update_user_credentials(st.session_state["user_id"], api_key, api_secret, passphrase)
