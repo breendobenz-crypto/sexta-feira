@@ -1472,20 +1472,20 @@ def render_dashboard():
         else:
             _is_on = st.session_state.get("bot_active", False)
             _status_text = "ONLINE" if _is_on else "OFFLINE"
-            _bg   = "rgba(0,200,80,0.2)"  if _is_on else "rgba(80,80,80,0.2)"
-            _bord = "#00c850"             if _is_on else "#555"
-            _col  = "#00ff88"            if _is_on else "#888"
+            _bg   = "rgba(138,43,226,0.15)" if _is_on else "rgba(40,40,40,0.3)"
+            _bord = "rgba(138,43,226,0.6)"  if _is_on else "rgba(100,100,100,0.4)"
+            _col  = "#c4b5fd"               if _is_on else "#888"
             st.markdown(f"""<style>
             div[data-testid="stButton"] button {{
                 background:{_bg}!important;
                 border:1px solid {_bord}!important;
                 color:{_col}!important;
                 font-family:'Orbitron',sans-serif!important;
-                font-size:18px!important;
+                font-size:16px!important;
                 padding:14px!important;
                 letter-spacing:3px!important;
-                box-shadow: none!important;
-                transition: all 0.3s ease!important;
+                box-shadow:none!important;
+                transition:all 0.3s ease!important;
             }}
             </style>""", unsafe_allow_html=True)
             if st.button(f"🤖  {_status_text}", use_container_width=True, key="bot_toggle_btn"):
