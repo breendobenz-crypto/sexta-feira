@@ -1471,26 +1471,22 @@ def render_dashboard():
             """, unsafe_allow_html=True)
         else:
             _is_on = st.session_state.get("bot_active", False)
-            _btn_label = "🤖 ONLINE" if _is_on else "🤖 OFFLINE"
+            _status_text = "ONLINE" if _is_on else "OFFLINE"
+            _btn_label = f"🤖  {_status_text}"
             _btn_color = "rgba(0,200,80,0.2)" if _is_on else "rgba(80,80,80,0.2)"
             _btn_border = "#00c850" if _is_on else "#555"
+            _btn_text_color = "#00ff88" if _is_on else "#888"
             st.markdown(f"""
             <style>
-            div[data-testid="stButton"] button[kind="secondary"]#bot_toggle_btn {{
+            [data-testid="stButton"]:has(button#bot_toggle_btn) button {{
                 background:{_btn_color}!important;
                 border:1px solid {_btn_border}!important;
-                color:{'#00ff88' if _is_on else '#888'}!important;
+                color:{_btn_text_color}!important;
                 font-family:'Orbitron',sans-serif!important;
-                font-size:13px!important;
-                padding:14px 10px!important;
+                font-size:32px!important;
+                padding:18px!important;
                 line-height:1!important;
-            }}
-            div[data-testid="stButton"] button[kind="secondary"]#bot_toggle_btn p {{
-                font-size:28px!important;
-                line-height:1.2!important;
-                display:flex!important;
-                align-items:center!important;
-                gap:8px!important;
+                letter-spacing:3px!important;
             }}
             </style>""", unsafe_allow_html=True)
             if st.button(_btn_label, use_container_width=True, key="bot_toggle_btn"):
