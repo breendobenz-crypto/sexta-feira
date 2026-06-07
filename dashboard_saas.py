@@ -1472,34 +1472,23 @@ def render_dashboard():
         else:
             _is_on = st.session_state.get("bot_active", False)
             _status_text = "ONLINE" if _is_on else "OFFLINE"
-            _bg   = "rgba(0,200,80,0.15)"   if _is_on else "rgba(60,60,60,0.15)"
-            _bord = "#00c850"                if _is_on else "#555"
-            _col  = "#00ff88"               if _is_on else "#888"
-            st.markdown(f"""
-            <style>
-            .stButton > button {{ all: unset !important; }}
-            </style>
-            <div style="
-                background:{_bg};
-                border:1px solid {_bord};
-                border-radius:8px;
-                padding:14px 10px;
-                text-align:center;
-                cursor:pointer;
-                color:{_col};
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                gap:10px;
-                width:100%;
-                box-sizing:border-box;
-            ">
-                <span style="font-size:36px;line-height:1;">🤖</span>
-                <span style="font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:3px;font-weight:700;">{_status_text}</span>
-            </div>
-            """, unsafe_allow_html=True)
-            # Botão invisível real que o Streamlit usa para capturar o clique
-            if st.button("​", use_container_width=True, key="bot_toggle_btn"):
+            _bg   = "rgba(0,200,80,0.2)"  if _is_on else "rgba(80,80,80,0.2)"
+            _bord = "#00c850"             if _is_on else "#555"
+            _col  = "#00ff88"            if _is_on else "#888"
+            st.markdown(f"""<style>
+            div[data-testid="stButton"] button {{
+                background:{_bg}!important;
+                border:1px solid {_bord}!important;
+                color:{_col}!important;
+                font-family:'Orbitron',sans-serif!important;
+                font-size:18px!important;
+                padding:14px!important;
+                letter-spacing:3px!important;
+                box-shadow: none!important;
+                transition: all 0.3s ease!important;
+            }}
+            </style>""", unsafe_allow_html=True)
+            if st.button(f"🤖  {_status_text}", use_container_width=True, key="bot_toggle_btn"):
                 st.session_state["bot_active"] = not _is_on
                 try:
                     _ctrl = {"active": not _is_on, "ts": datetime.now().isoformat()}
