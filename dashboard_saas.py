@@ -770,6 +770,11 @@ hr {
     display: inline-block;
     animation: fadeIn 0.5s ease-out;
 }
+@media (max-width: 768px) {
+    .admin-card { padding: 20px 32px !important; }
+    .admin-name { font-size: 16px !important; }
+    .admin-label { font-size: 10px !important; }
+}
 .admin-label {
     font-size: 10px;
     color: #888;
@@ -1095,10 +1100,20 @@ def render_login():
                     white-space: nowrap;
                     text-align: center;
                     display: block;
-                ">FRIDAY</span>
+                ">SEXTA-FEIRA</span>
             </div>
+            <p style="
+                color:#fff;
+                font-family:'Orbitron',sans-serif;
+                font-size:1rem;
+                margin: 20px 0 10px;
+                letter-spacing:1px;
+                text-align:center;
+                width:100%;
+                display:block;
+            ">Autenticação</p>
             """, unsafe_allow_html=True)
-            st.markdown('<p style="color:#fff;font-family:\'Orbitron\',sans-serif;font-size:1rem;margin-bottom:30px;letter-spacing:1px;text-align:center;width:100%;">Autenticação</p>', unsafe_allow_html=True)
+            st.markdown('<div style="margin-top:4px;"></div>', unsafe_allow_html=True)
             email = st.text_input("Email", placeholder="seu@email.com", label_visibility="collapsed")
             password = st.text_input("Senha", type="password", placeholder="Sua senha", label_visibility="collapsed")
             submitted = st.form_submit_button("🚀 ACESSAR", use_container_width=True)
@@ -1456,7 +1471,7 @@ def render_dashboard():
             """, unsafe_allow_html=True)
         else:
             _is_on = st.session_state.get("bot_active", False)
-            _btn_label = "🟢 ONLINE" if _is_on else "⚫ OFFLINE"
+            _btn_label = "🤖 ONLINE" if _is_on else "🤖 OFFLINE"
             _btn_color = "rgba(0,200,80,0.2)" if _is_on else "rgba(80,80,80,0.2)"
             _btn_border = "#00c850" if _is_on else "#555"
             st.markdown(f"""
