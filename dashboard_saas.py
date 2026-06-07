@@ -1481,7 +1481,16 @@ def render_dashboard():
                 border:1px solid {_btn_border}!important;
                 color:{'#00ff88' if _is_on else '#888'}!important;
                 font-family:'Orbitron',sans-serif!important;
-                font-size:16px!important;
+                font-size:13px!important;
+                padding:14px 10px!important;
+                line-height:1!important;
+            }}
+            div[data-testid="stButton"] button[kind="secondary"]#bot_toggle_btn p {{
+                font-size:28px!important;
+                line-height:1.2!important;
+                display:flex!important;
+                align-items:center!important;
+                gap:8px!important;
             }}
             </style>""", unsafe_allow_html=True)
             if st.button(_btn_label, use_container_width=True, key="bot_toggle_btn"):
