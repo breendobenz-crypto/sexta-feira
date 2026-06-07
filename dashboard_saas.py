@@ -1481,7 +1481,7 @@ def render_dashboard():
                 border:1px solid {_btn_border}!important;
                 color:{'#00ff88' if _is_on else '#888'}!important;
                 font-family:'Orbitron',sans-serif!important;
-                font-size:11px!important;
+                font-size:16px!important;
             }}
             </style>""", unsafe_allow_html=True)
             if st.button(_btn_label, use_container_width=True, key="bot_toggle_btn"):
